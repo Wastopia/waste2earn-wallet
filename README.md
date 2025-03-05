@@ -18,7 +18,7 @@ Waste2Earn utilizes ICRC Wallet, an application designed for Internet Computer N
 - [Usage](#usage)
 - [License](#license)
 
-
+<!-- Hello -->
 # Frontend canister via browser
     https://hm7ne-saaaa-aaaao-qezaq-cai.icp0.io/
 # Backend canister via Candid interface:
