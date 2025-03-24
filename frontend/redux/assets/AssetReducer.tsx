@@ -2,7 +2,7 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { TokenMarketInfo } from "@redux/models/TokenModels";
 import { Asset, ICPSubAccount, SubAccount } from "@redux/models/AccountModels";
 import { ICRC1systemAssets } from "@/common/defaultTokens";
-import { getUSDFromToken } from "@common/utils/amount";
+import { getUSDFromToken } from "@/common/utils/amount";
 
 interface AssetStateHelper {
   initLoad: boolean;

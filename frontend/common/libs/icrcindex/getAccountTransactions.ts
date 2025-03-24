@@ -1,5 +1,5 @@
 import ICRCIndexActor, { ICRCIndexActorArgs } from "@/common/libs/icrcindex/actor";
-import { GetAccountTransactionsArgs } from "@candid/IcrcIndex/icrc_index";
+import { GetAccountTransactionsArgs } from "@/candid/IcrcIndex/icrc_index";
 
 type Args = GetAccountTransactionsArgs & ICRCIndexActorArgs;
 

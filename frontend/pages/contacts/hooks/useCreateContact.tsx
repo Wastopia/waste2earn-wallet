@@ -1,9 +1,9 @@
 import { Contact, ContactAccount } from "@redux/models/ContactsModels";
 import { useState } from "react";
 import { SubAccountError, useContactError } from "@/pages/contacts/contexts/ContactErrorProvider";
-import addAllowanceToSubaccounts from "@pages/contacts/helpers/addAllowanceToSubaccounts";
+import addAllowanceToSubaccounts from "@/pages/contacts/helpers/addAllowanceToSubaccounts";
 import { useAppSelector } from "@redux/Store";
-import { useContact } from "@pages/contacts/contexts/ContactProvider";
+import { useContact } from "@/pages/contacts/contexts/ContactProvider";
 import {
   isContactAccountNameValid,
   isContactAccountValid,
@@ -11,12 +11,12 @@ import {
   isContactPrincipalValid,
   isContactSubaccountIdValid,
   isDuplicatedPrincipal,
-} from "@pages/contacts/helpers/validators";
-import logger from "@common/utils/logger";
-import { validatePrincipal } from "@common/utils/definityIdentity";
+} from "@/pages/contacts/helpers/validators";
+import logger from "@/common/utils/logger";
+import { validatePrincipal } from "@/common/utils/definityIdentity";
 import { useTranslation } from "react-i18next";
 import { db } from "@/database/db";
-import { getAccountIdentifier } from "@common/utils/icrc";
+import { getAccountIdentifier } from "@/common/utils/icrc";
 import contactAccountToAllowanceArgs from "../helpers/mappers";
 import { Principal } from "@dfinity/principal";
 

@@ -1,8 +1,8 @@
-import { useUpdateAllowance } from "@pages/allowances/hooks/useUpdateAllowance";
+import { useUpdateAllowance } from "@/pages/allowances/hooks/useUpdateAllowance";
 import { useTranslation } from "react-i18next";
 import FixedFieldsFormItem from "./FixedFieldsFormItem";
 import ExpirationFormItem from "./ExpirationFormItem";
-import { BasicButton } from "@components/button";
+import { BasicButton } from "@/components/button";
 import AmountFormItem from "./AmountFormItem";
 import { useAppSelector } from "@redux/Store";
 import { AllowanceValidationErrorsEnum } from "@/@types/allowance";

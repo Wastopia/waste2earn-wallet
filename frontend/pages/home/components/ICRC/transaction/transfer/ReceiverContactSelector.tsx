@@ -6,7 +6,7 @@ import { SelectOption } from "@/@types/components";
 import { useAppSelector } from "@redux/Store";
 import { middleTruncation } from "@/common/utils/strings";
 import { Asset } from "@redux/models/AccountModels";
-import { TransferFromTypeEnum, TransferToTypeEnum, useTransfer } from "@pages/home/contexts/TransferProvider";
+import { TransferFromTypeEnum, TransferToTypeEnum, useTransfer } from "@/pages/home/contexts/TransferProvider";
 import logger from "@/common/utils/logger";
 
 export default function ReceiverContactSelector() {

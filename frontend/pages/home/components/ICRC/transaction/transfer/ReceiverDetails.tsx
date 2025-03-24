@@ -2,20 +2,20 @@ import { ReactComponent as CloseIcon } from "@assets/svg/files/close.svg";
 import { ReactComponent as CheckIcon } from "@assets/svg/files/check.svg";
 //
 import { middleTruncation } from "@/common/utils/strings";
-import { TransferToTypeEnum, useTransfer } from "@pages/home/contexts/TransferProvider";
+import { TransferToTypeEnum, useTransfer } from "@/pages/home/contexts/TransferProvider";
 import { useAppSelector } from "@redux/Store";
 import { useTranslation } from "react-i18next";
 import logger from "@/common/utils/logger";
 import { AvatarEmpty } from "@components/avatar";
-import { getIconSrc } from "@common/utils/icons";
+import { getIconSrc } from "@/common/utils/icons";
 import { Asset, SubAccount } from "@redux/models/AccountModels";
-import { defaultSubAccount } from "@common/defaultTokens";
-import { TransferView, useTransferView } from "@pages/home/contexts/TransferViewProvider";
-import { toFullDecimal } from "@common/utils/amount";
+import { defaultSubAccount } from "@/common/defaultTokens";
+import { TransferView, useTransferView } from "@/pages/home/contexts/TransferViewProvider";
+import { toFullDecimal } from "@/common/utils/amount";
 import { useMemo } from "react";
 import { Principal } from "@dfinity/principal";
 import { Buffer } from "buffer";
-import { hexStringToPrincipal } from "@common/utils/unitArray";
+import { hexStringToPrincipal } from "@/common/utils/unitArray";
 
 export default function ReceiverDetails() {
   const { t } = useTranslation();

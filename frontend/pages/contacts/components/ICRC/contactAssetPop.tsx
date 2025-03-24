@@ -1,7 +1,7 @@
 // svgsetassetsToAdd
 import { IconTypeEnum } from "@/common/const";
 import { ReactComponent as PlusIcon } from "@assets/svg/files/plus.svg";
-import { getAssetIcon } from "@common/utils/icons";
+import { getAssetIcon } from "@/common/utils/icons";
 //
 import { CustomButton } from "@components/button";
 import { CustomCheck } from "@components/checkbox";

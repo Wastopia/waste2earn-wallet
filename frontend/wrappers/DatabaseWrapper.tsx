@@ -1,5 +1,5 @@
 import { db, DB_Type } from "@/database/db";
-import { DbLocationHook } from "@pages/hooks/dbLocationHook";
+import { DbLocationHook } from "@/pages/hooks/dbLocationHook";
 import { useEffect, useRef } from "react";
 
 export default function DatabaseWrapper({ children }: { children: JSX.Element }) {

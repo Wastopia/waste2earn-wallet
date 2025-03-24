@@ -2,8 +2,8 @@ import { CustomButton, IconButton } from "@components/button";
 import { TabOption } from ".";
 import { useAppSelector } from "@redux/Store";
 import { PlusIcon } from "@radix-ui/react-icons";
-import useAllowanceDrawer from "@pages/allowances/hooks/useAllowanceDrawer";
-import AddAllowanceDrawer from "@pages/allowances/components/AddAllowanceDrawer";
+import useAllowanceDrawer from "@/pages/allowances/hooks/useAllowanceDrawer";
+import AddAllowanceDrawer from "@/pages/allowances/components/AddAllowanceDrawer";
 import { useTranslation } from "react-i18next";
 
 interface TablesTabProps {

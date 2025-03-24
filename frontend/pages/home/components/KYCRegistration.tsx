@@ -1,4 +1,5 @@
-import React, { useState, useRef } from "react";
+// import React from 'react';
+import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { BasicModal } from "@components/modal";
 import { CustomButton } from "@components/button";
@@ -7,6 +8,7 @@ import { ReactComponent as CloseIcon } from "@assets/svg/files/close.svg";
 import { clsx } from "clsx";
 import { useAppSelector } from "@redux/Store";
 import { LocalRxdbDatabase } from "@database/local-rxdb";
+
 
 interface KYCRegistrationProps {
   onClose: () => void;
@@ -37,7 +39,12 @@ interface RegistrationForm {
   };
 }
 
-const KYCRegistration: React.FC<KYCRegistrationProps> = ({ onClose }) => {
+interface UserTypeOption {
+  value: UserType;
+  label: string;
+}
+
+const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
   const { t } = useTranslation();
   const { userPrincipal } = useAppSelector((state) => state.auth);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -68,8 +75,50 @@ const KYCRegistration: React.FC<KYCRegistrationProps> = ({ onClose }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Format the data according to the KYC schema
+      const kycData = {
+        userId: form.principalId,
+        status: 'pending',
+        personalInfo: {
+          firstName: form.firstName,
+          lastName: form.lastName,
+          dateOfBirth: form.birthday,
+          nationality: form.nationality,
+          phoneNumber: form.phone,
+          email: form.email,
+          gender: form.gender,
+          occupation: form.occupation
+        },
+        address: {
+          street: form.address,
+          city: '', // You might want to add these fields to the form
+          state: '',
+          country: 'Philippines',
+          postalCode: ''
+        },
+        documents: [], // You might want to add document upload functionality
+        bankDetails: form.userType === 'validator' ? {
+          gcash: form.bankDetails?.gcash || '',
+          paymaya: form.bankDetails?.paymaya || '',
+          bpi: {
+            accountName: form.bankDetails?.bpi?.accountName || '',
+            accountNumber: form.bankDetails?.bpi?.accountNumber || ''
+          }
+        } : undefined,
+        verificationDetails: {
+          submittedAt: Date.now(),
+          verifiedAt: 0,
+          verifiedBy: '',
+          remarks: ''
+        },
+        riskLevel: 'medium',
+        updatedAt: Date.now(),
+        deleted: false
+      };
+
       // Save KYC details to the database
-      await LocalRxdbDatabase.instance.addKYCDetails(form);
+      await LocalRxdbDatabase.instance.addKYCDetails(kycData);
+      
       // Show confirmation modal
       alert(t('Thank you for registering! Your details have been saved.'));
       onClose();
@@ -109,11 +158,47 @@ const KYCRegistration: React.FC<KYCRegistrationProps> = ({ onClose }) => {
     }
   };
 
+  const UserTypeSelector = ({ form, handleInputChange }: { form: any; handleInputChange: (field: string, value: string) => void }) => {
+    const { t } = useTranslation();
+  
+    const userTypeOptions: UserTypeOption[] = [
+      { value: 'validator', label: t('Validator') },
+      { value: 'collector', label: t('Collector') },
+      { value: 'regular', label: t('Regular') },
+    ];
+
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+        {userTypeOptions.map((option) => (
+          <label
+            key={option.value}
+            className={clsx(
+              "px-4 py-2 rounded-lg border transition-all cursor-pointer",
+              form.userType === option.value
+                ? "border-slate-color-success bg-slate-color-success/5"
+                : "border-BorderColorTwoLight dark:border-BorderColorTwo"
+            )}
+          >
+            <input
+              type="radio"
+              name="userType"
+              value={option.value}
+              checked={form.userType === option.value}
+              onChange={() => handleInputChange('userType', option.value)}
+              className="hidden"
+            />
+            {option.label}
+          </label>
+        ))}
+      </div>
+    );
+  };
+
   return (
     <BasicModal
       open={true}
       width="w-[33rem] sm:w-[75%]"
-      padding="p-4 sm:p-6"
+      padding="p-5 sm:p-7"
       border="border border-BorderColorTwoLight dark:border-BorderColorTwo"
     >
       <div className="relative flex flex-col w-full h-[80vh] sm:h-auto overflow-y-auto gap-4 sm:gap-6">
@@ -140,23 +225,7 @@ const KYCRegistration: React.FC<KYCRegistrationProps> = ({ onClose }) => {
             {/* User Type Selection */}
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium">{t("Register as")}</label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                {(['validator', 'collector', 'regular'] as UserType[]).map((type) => (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => handleInputChange('userType', type)}
-                    className={clsx(
-                      "px-4 py-2 rounded-lg border transition-all",
-                      form.userType === type
-                        ? "border-slate-color-success bg-slate-color-success/5"
-                        : "border-BorderColorTwoLight dark:border-BorderColorTwo"
-                    )}
-                  >
-                    {t(type.charAt(0).toUpperCase() + type.slice(1))}
-                  </button>
-                ))}
-              </div>
+              <UserTypeSelector form={form} handleInputChange={handleInputChange} />
             </div>
 
             {/* Personal Information */}
@@ -184,13 +253,13 @@ const KYCRegistration: React.FC<KYCRegistrationProps> = ({ onClose }) => {
             {/* New Fields: Nationality, Gender, Occupation */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">{t("Nationality")}</label>
+                <label className="text-sm font-medium text-SecondaryTextColorLight dark:text-PrimaryTextColor">{t("Nationality")}</label>
                 <select
                   value={form.nationality}
                   onChange={(e) => handleInputChange('nationality', e.target.value)}
                   className="border border-BorderColorTwoLight dark:border-BorderColorTwo rounded px-2 py-1"
                 >
-                  <option value="">{t("Select Nationality")}</option>
+                  <option className="text-SecondaryTextColorLight dark:text-PrimaryTextColor">{t("Select Nationality")}</option>
                   <option value="Filipino">Filipino</option>
                   <option value="American">American</option>
                   <option value="Other">Other</option>
@@ -342,12 +411,12 @@ const KYCRegistration: React.FC<KYCRegistrationProps> = ({ onClose }) => {
                     />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <label className="text-sm font-medium">{t("Credit Card")}</label>
+                    <label className="text-sm font-medium">{t("BPI Account Number")}</label>
                     <CustomInput
                       type="text"
                       value={form.bankDetails?.bpi?.accountNumber}
                       onChange={(e) => handleInputChange('bankDetails.bpi.accountNumber', e.target.value)}
-                      placeholder="****-****-****-****"
+                      placeholder="**********"
                     />
                   </div>
                 </div>
@@ -370,4 +439,4 @@ const KYCRegistration: React.FC<KYCRegistrationProps> = ({ onClose }) => {
   );
 };
 
-export default KYCRegistration; 
+export default KYCRegistration;

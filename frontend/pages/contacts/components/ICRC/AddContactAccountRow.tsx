@@ -10,25 +10,25 @@ import { CustomInput } from "@components/input";
 import SubAccountInput from "./SubAccountInput";
 import { encodeIcrcAccount } from "@dfinity/ledger-icrc";
 import { Principal } from "@dfinity/principal";
-import { hexToUint8Array } from "@common/utils/hexadecimal";
-import { shortAddress } from "@common/utils/icrc";
+import { hexToUint8Array } from "@/common/utils/hexadecimal";
+import { shortAddress } from "@/common/utils/icrc";
 import { CustomCopy } from "@components/tooltip";
 import { LoadingLoader } from "@components/loader";
-import logger from "@common/utils/logger";
+import logger from "@/common/utils/logger";
 import {
   isContactAccountNameValid,
   isContactSubaccountIdValid,
   isDuplicatedSubAccount,
-} from "@pages/contacts/helpers/validators";
-import contactAccountToAllowanceArgs from "@pages/contacts/helpers/mappers";
+} from "@/pages/contacts/helpers/validators";
+import contactAccountToAllowanceArgs from "@/pages/contacts/helpers/mappers";
 import { useAppSelector } from "@redux/Store";
-import addAllowanceToSubaccounts from "@pages/contacts/helpers/addAllowanceToSubaccounts";
-import { validatePrincipal } from "@common/utils/definityIdentity";
-import getAccountFromPrincipal from "@pages/contacts/helpers/getAccountFromPrincipal";
+import addAllowanceToSubaccounts from "@/pages/contacts/helpers/addAllowanceToSubaccounts";
+import { validatePrincipal } from "@/common/utils/definityIdentity";
+import getAccountFromPrincipal from "@/pages/contacts/helpers/getAccountFromPrincipal";
 import { db } from "@/database/db";
-import AllowanceTooltip from "./AllowanceTooltip";
+import AllowanceTooltip from "./AllowanceTooltip";  
 import { useTranslation } from "react-i18next";
-import { removeExtraSpaces } from "@common/utils/strings";
+import { removeExtraSpaces } from "@/common/utils/strings";
 import { ReactComponent as NoAllowanceIcon } from "@assets/svg/files/no-allowance.svg";
 
 interface AddContactAccountRowProps {

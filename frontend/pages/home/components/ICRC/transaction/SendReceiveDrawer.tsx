@@ -11,9 +11,9 @@ import DrawerReceive from "@/pages/home/components/ICRC/transaction/DrawerReceiv
 import clsx from "clsx";
 import { useMemo } from "react";
 import Transfer from "@/pages/home/components/ICRC/transaction/transfer";
-import { TransferFromTypeEnum, TransferToTypeEnum, useTransfer } from "@pages/home/contexts/TransferProvider";
+import { TransferFromTypeEnum, TransferToTypeEnum, useTransfer } from "@/pages/home/contexts/TransferProvider";
 
-const selectedButton = "border-AccpetButtonColor";
+const selectedButton = "border-AcceptButtonColor";
 const unselectedButton = "text-PrimaryTextColorLight dark:text-PrimaryTextColor";
 
 export default function SendReceiveDrawer() {

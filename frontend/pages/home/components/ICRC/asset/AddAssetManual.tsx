@@ -10,8 +10,8 @@ import { IconTypeEnum } from "@/common/const";
 import { Asset } from "@redux/models/AccountModels";
 import { ChangeEvent, useEffect, useState } from "react";
 import { Principal } from "@dfinity/principal";
-import { LoadingLoader } from "@components/loader";
-import { AccountHook } from "@pages/hooks/accountHook";
+import { LoadingLoader } from "@/components/loader";
+import { AccountHook } from "@/pages/hooks/accountHook";
 import { db } from "@/database/db";
 import { getAssetIcon } from "@/common/utils/icons";
 import {
@@ -24,9 +24,9 @@ import {
   setSelectedAsset,
 } from "@redux/assets/AssetReducer";
 import { useAppDispatch, useAppSelector } from "@redux/Store";
-import useAssetMutate, { assetMutateInitialState } from "@pages/home/hooks/useAssetMutate";
-import { toFullDecimal } from "@common/utils/amount";
-import getAssetDetails from "@pages/home/helpers/getAssetDetails";
+import useAssetMutate, { assetMutateInitialState } from "@/pages/home/hooks/useAssetMutate";
+import { toFullDecimal } from "@/common/utils/amount";
+import getAssetDetails from "@/pages/home/helpers/getAssetDetails";
 import logger from "@/common/utils/logger";
 import { Contact } from "@redux/models/ContactsModels";
 

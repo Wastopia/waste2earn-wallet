@@ -5,14 +5,14 @@ import { Fragment } from "react";
 import { useTranslation } from "react-i18next";
 import { AssetSymbolEnum, SpecialTxTypeEnum } from "@/common/const";
 import { Principal } from "@dfinity/principal";
-import { AccountHook } from "@pages/hooks/accountHook";
+import { AccountHook } from "@/pages/hooks/accountHook";
 import { CustomCopy } from "@components/tooltip";
 import { useAppSelector } from "@redux/Store";
-import { hexToUint8Array } from "@common/utils/hexadecimal";
-import { getAssetSymbol, getICRC1Acc, shortAddress } from "@common/utils/icrc";
-import { toFullDecimal } from "@common/utils/amount";
+import { hexToUint8Array } from "@/common/utils/hexadecimal";
+import { getAssetSymbol, getICRC1Acc, shortAddress } from "@/common/utils/icrc";
+import { toFullDecimal } from "@/common/utils/amount";
 import logger from "@/common/utils/logger";
-import { middleTruncation } from "@common/utils/strings";
+import { middleTruncation } from "@/common/utils/strings";
 import moment from "moment";
 
 const DrawerTransaction = () => {

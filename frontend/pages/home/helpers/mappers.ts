@@ -6,12 +6,12 @@ import {
   TransactionTypeEnum,
 } from "@/common/const";
 import { Transaction, Operation, RosettaTransaction } from "@/redux/models/AccountModels";
-import { subUint8ArrayToHex } from "@common/utils/unitArray";
+import { subUint8ArrayToHex } from "@/common/utils/unitArray";
 import { Transaction as IcrcTransaction } from "@dfinity/ledger-icrc/dist/candid/icrc_index";
 import { AccountIdentifier, SubAccount as SubAccountNNS } from "@dfinity/ledger-icp";
 import { Principal } from "@dfinity/principal";
 import logger from "@/common/utils/logger";
-import { Approve, Burn, Mint, Transfer } from "@candid/icrcLedger/icrcLedgerService";
+import { Approve, Burn, Mint, Transfer } from "@/candid/icrcLedger/icrcLedgerService";
 
 export const MILI_PER_SECOND = 1000000;
 

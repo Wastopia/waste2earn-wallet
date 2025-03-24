@@ -10,7 +10,7 @@ import { useAppDispatch, useAppSelector } from "@redux/Store";
 import { AssetMutationAction, setAssetMutation, setAssetMutationAction } from "@redux/assets/AssetReducer";
 import { Contact } from "@redux/models/ContactsModels";
 import { removeAssetFromServices } from "@redux/services/ServiceReducer";
-import { toFullDecimal } from "@common/utils/amount";
+import { toFullDecimal } from "@/common/utils/amount";
 
 const DeleteAssetModal = () => {
   const { t } = useTranslation();

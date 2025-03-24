@@ -6,9 +6,9 @@ import { CustomButton } from "@components/button";
 import { BasicModal } from "@components/modal";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import { LoadingLoader } from "@components/loader";
+import { LoadingLoader } from "@/components/loader";
 import { Service, ServiceAsset } from "@redux/models/ServiceModels";
-import { toFullDecimal } from "@common/utils/amount";
+import { toFullDecimal } from "@/common/utils/amount";
 
 interface DeleteAssetServiceModalProps {
   open: boolean;

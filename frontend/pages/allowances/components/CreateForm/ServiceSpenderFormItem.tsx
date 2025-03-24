@@ -8,13 +8,13 @@ import { useAppSelector } from "@redux/Store";
 import { removeAllowanceErrorAction } from "@redux/allowance/AllowanceActions";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AvatarEmpty } from "@components/avatar";
+import { AvatarEmpty } from "@/components/avatar";
 import { Service } from "@redux/models/ServiceModels";
 import { Contact } from "@redux/models/ContactsModels";
-import ReceiverContactBeneficiarySelector from "@pages/home/components/ICRC/transaction/transfer/ReceiverContactBeneficiarySelector";
-import BeneficiaryContactBook from "@pages/home/components/ICRC/transaction/transfer/BeneficiaryContactBook";
+import ReceiverContactBeneficiarySelector from "@/pages/home/components/ICRC/transaction/transfer/ReceiverContactBeneficiarySelector";
+import BeneficiaryContactBook from "@/pages/home/components/ICRC/transaction/transfer/BeneficiaryContactBook";
 import { Principal } from "@dfinity/principal";
-import logger from "@common/utils/logger";
+import logger from "@/common/utils/logger";
 
 interface IServiceSpenderFormItemProps {
   setAllowanceState: (allowanceData: Partial<TAllowance>) => void;

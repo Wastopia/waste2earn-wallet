@@ -14,11 +14,11 @@ import ethUrl from "@assets/svg/files/ethereum-icon.svg";
 import { Fragment, useState } from "react";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n";
-import { ThemeHook } from "@hooks/themeHook";
-import { LanguageHook } from "@hooks/languageHook";
+import { ThemeHook } from "@/pages/hooks/themeHook";
+import { LanguageHook } from "@/pages/hooks/languageHook";
 import { clsx } from "clsx";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { AccountHook } from "@hooks/accountHook";
+import { AccountHook } from "@/pages/hooks/accountHook";
 import { logout } from "@redux/CheckAuth";
 import { BasicModal } from "@components/modal";
 import ThemeModal from "./themeModal";
@@ -30,8 +30,8 @@ import DbLocationModal from "./dbLocationModal";
 import { useSiweIdentity } from "ic-use-siwe-identity";
 import { useAccount } from "wagmi";
 import Pill from "./Pill";
-import getTotalAmountInCurrency from "@pages/helpers/getTotalAmountInCurrency";
-import reloadBallance from "@pages/helpers/reloadBalance";
+import getTotalAmountInCurrency from "@/pages/helpers/getTotalAmountInCurrency";
+import reloadBallance from "@/pages/helpers/reloadBalance";
 import WatchOnlyPill from "./WatchOnlyPill";
 import { setCurrency, Currency } from "@redux/common/CommonReducer";
 
@@ -87,7 +87,7 @@ const TopBarComponent = ({ isLoginPage }: { isLoginPage: boolean }) => {
               {watchOnlyMode && <p className="opacity-50">{t("watchOnlyMode.title")}</p>}
             </div>
           )}
-            <div className="flex flex-row items-center justify-end pl-2 space-x-5">
+            <div className="flex flex-row items-center justify-start pr-2 space-x-5">
               {!isLoginPage && (
                 <div className="flex flex-row items-center justify-start py-3 px-0 gap-2 text-md">
                   <p className="opacity-70">{t("total.balance")}:</p>

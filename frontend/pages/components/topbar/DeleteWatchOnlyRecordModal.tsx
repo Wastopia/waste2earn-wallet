@@ -1,14 +1,14 @@
 import { BasicModal } from "@components/modal";
 import { ReactComponent as WarningIcon } from "@assets/svg/files/warning.svg";
-import { WatchOnlyItem } from "@pages/login/components/WatchOnlyInput";
+import { WatchOnlyItem } from "@/pages/login/components/WatchOnlyInput";
 import { useTranslation } from "react-i18next";
 import { Cross1Icon } from "@radix-ui/react-icons";
-import { deleteWatchOnlySessionFromLocal, getWatchOnlySessionsFromLocal } from "@pages/helpers/watchOnlyStorage";
+import { deleteWatchOnlySessionFromLocal, getWatchOnlySessionsFromLocal } from "@/pages/helpers/watchOnlyStorage";
 import { Dispatch, SetStateAction } from "react";
 import { EditWatchOnlyItem } from "./WatchOnlyRecords";
 import { setReduxWatchOnlyHistory } from "@redux/auth/AuthReducer";
 import { useAppDispatch } from "@redux/Store";
-import { shortAddress } from "@common/utils/icrc";
+import { shortAddress } from "@/common/utils/icrc";
 
 interface DeleteWatchOnlyRecordModalProps {
   record: WatchOnlyItem;

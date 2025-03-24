@@ -29,7 +29,7 @@ import {
 import { Contact } from "@redux/models/ContactsModels";
 import { ServiceData } from "@redux/models/ServiceModels";
 import logger from "@/common/utils/logger";
-import { resetAssetAmount } from "@pages/home/helpers/assets";
+import { resetAssetAmount } from "@/pages/home/helpers/assets";
 import { setServices as setServicesRedux, setServicesData } from "@redux/services/ServiceReducer";
 
 export class LocalStorageDatabase extends IWalletDatabase {

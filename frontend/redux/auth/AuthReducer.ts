@@ -4,7 +4,7 @@ import { Asset } from "@redux/models/AccountModels";
 import { RoutingPath, RoutingPathEnum, ThemesEnum } from "@/common/const";
 import { Principal } from "@dfinity/principal";
 import { DB_Type } from "@/database/db";
-import { WatchOnlyItem } from "@pages/login/components/WatchOnlyInput";
+import { WatchOnlyItem } from "@/pages/login/components/WatchOnlyInput";
 
 const defaultValue: any = {};
 interface AuthState {

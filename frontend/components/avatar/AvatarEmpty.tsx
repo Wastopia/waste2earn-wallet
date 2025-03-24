@@ -1,6 +1,6 @@
 import { HTMLAttributes } from "react";
 import { cva, VariantProps } from "cva";
-import { getInitialFromName } from "@common/utils/strings";
+import { getInitialFromName } from "@/common/utils/strings";
 import { ReactComponent as UserIcon } from "@assets/svg/files/user-icon.svg";
 
 interface AvatarEmptyProps extends HTMLAttributes<HTMLDivElement>, VariantProps<typeof avatarEmptyCVA> {

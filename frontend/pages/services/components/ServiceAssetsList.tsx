@@ -6,12 +6,12 @@ import { ReactComponent as MoreIcon } from "@assets/svg/files/more-alt.svg";
 import { ReactComponent as MoneyHandIcon } from "@assets/svg/files/money-hand.svg";
 import { TrashIcon } from "@radix-ui/react-icons";
 //
-import { IconTypeEnum } from "@common/const";
-import { getAssetIcon } from "@common/utils/icons";
+import { IconTypeEnum } from "@/common/const";
+import { getAssetIcon } from "@/common/utils/icons";
 import { Service, ServiceAsset } from "@redux/models/ServiceModels";
 import { useTranslation } from "react-i18next";
 import CustomHoverCard from "@components/HoverCard";
-import { toFullDecimal } from "@common/utils/amount";
+import { toFullDecimal } from "@/common/utils/amount";
 import { AddServiceAsset } from "@/pages/services/components/AddServiceAsset";
 import useServiceAsset from "@/pages/services/hooks/useServiceAsset";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
@@ -19,12 +19,12 @@ import { Fragment, useState } from "react";
 import { DeleteAssetServiceModal } from "@/pages/services/components/Modals/deleteAssetService";
 import { NotifyAssetModal } from "@/pages/services/components/Modals/notifyAsset";
 import { LoadingLoader } from "@components/loader";
-import { assetServiceToServiceSubAccount } from "@common/utils/service";
+import { assetServiceToServiceSubAccount } from "@/common/utils/service";
 import { useAppSelector } from "@redux/Store";
 import { Asset } from "@redux/models/AccountModels";
 import { CustomButton } from "@components/button";
-import AddAllowanceDrawer from "@pages/allowances/components/AddAllowanceDrawer";
-import useAllowanceDrawer from "@pages/allowances/hooks/useAllowanceDrawer";
+import AddAllowanceDrawer from "@/pages/allowances/components/AddAllowanceDrawer";
+import useAllowanceDrawer from "@/pages/allowances/hooks/useAllowanceDrawer";
 
 interface ServiceAssetsListProps {
   service: Service;

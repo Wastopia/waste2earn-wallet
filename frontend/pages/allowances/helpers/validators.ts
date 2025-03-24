@@ -4,9 +4,9 @@ import store from "@redux/Store";
 import { Asset, SubAccount } from "@redux/models/AccountModels";
 import dayjs from "dayjs";
 import { db } from "@/database/db";
-import { isHexadecimalValid } from "@pages/home/helpers/checkers";
-import { toFullDecimal, toHoleBigInt, validateAmount } from "@common/utils/amount";
-import ICRC1Fee from "@common/libs/icrcledger/ICRC1Fee";
+import { isHexadecimalValid } from "@/pages/home/helpers/checkers";
+import { toFullDecimal, toHoleBigInt, validateAmount } from "@/common/utils/amount";
+import ICRC1Fee from "@/common/libs/icrcledger/ICRC1Fee";
 
 export async function getDuplicatedAllowance(allowance: TAllowance): Promise<TAllowance | undefined> {
   return (await db().getAllowance(db().generateAllowancePrimaryKey(allowance))) || undefined;

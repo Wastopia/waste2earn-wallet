@@ -7,17 +7,17 @@ import { useTranslation } from "react-i18next";
 import { LoadingLoader } from "@components/loader";
 import { BasicButton } from "@components/button";
 import { useState } from "react";
-import { isPrincipalValid, isSubAccountIdValid } from "@pages/home/helpers/validators";
-import { TransferFromTypeEnum, TransferToTypeEnum, useTransfer } from "@pages/home/contexts/TransferProvider";
+import { isPrincipalValid, isSubAccountIdValid } from "@/pages/home/helpers/validators";
+import { TransferFromTypeEnum, TransferToTypeEnum, useTransfer } from "@/pages/home/contexts/TransferProvider";
 import { useAppSelector } from "@redux/Store";
 import logger from "@/common/utils/logger";
 import { setTransactionDrawerAction } from "@redux/transaction/TransactionActions";
 import { TransactionDrawer } from "@/@types/transactions";
-import { TransferView, useTransferView } from "@pages/home/contexts/TransferViewProvider";
-import ICRC2Allowance from "@common/libs/icrcledger/ICRC2Allowance";
-import { hexToUint8Array } from "@common/utils/hexadecimal";
+import { TransferView, useTransferView } from "@/pages/home/contexts/TransferViewProvider";
+import ICRC2Allowance from "@/common/libs/icrcledger/ICRC2Allowance";
+import { hexToUint8Array } from "@/common/utils/hexadecimal";
 import { Principal } from "@dfinity/principal";
-import ICRC1BalanceOf from "@common/libs/icrcledger/ICRC1BalanceOf";
+import ICRC1BalanceOf from "@/common/libs/icrcledger/ICRC1BalanceOf";
 
 export default function TransferForm() {
   const { t } = useTranslation();
@@ -37,7 +37,7 @@ export default function TransferForm() {
       <DownAmountIcon className="w-full mt-4" />
       <Receiver />
 
-      <div className="flex items-center justify-end mt-6">
+      <div className="flex items-center justify-start mt-6">
         <p className="mr-4 text-sm text-slate-color-error">{errorMessage}</p>
         {isLoading && <LoadingLoader className="mr-4" />}
         <BasicButton className="min-w-[5rem] mr-2 font-bold bg-secondary-color-2 text-md" onClick={onCancel}>

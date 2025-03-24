@@ -11,16 +11,16 @@ import { LoadingLoader } from "@components/loader";
 import { BasicModal } from "@components/modal";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { Principal } from "@dfinity/principal";
-import { asciiHex } from "@pages/contacts/constants/asciiHex";
+import { asciiHex } from "@/pages/contacts/constants/asciiHex";
 import { setAccordionAssetIdx, setSelectedAccount } from "@redux/assets/AssetReducer";
 import { Asset, SubAccount } from "@redux/models/AccountModels";
 import { useAppDispatch, useAppSelector } from "@redux/Store";
 import bigInt from "big-integer";
 import { ChangeEvent, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { checkHexString, hexToNumber, hexToUint8Array } from "@common/utils/hexadecimal";
-import { removeLeadingZeros } from "@common/utils/strings";
-import { getUSDFromToken } from "@common/utils/amount";
+import { checkHexString, hexToNumber, hexToUint8Array } from "@/common/utils/hexadecimal";
+import { removeLeadingZeros } from "@/common/utils/strings";
+import { getUSDFromToken } from "@/common/utils/amount";
 import logger from "@/common/utils/logger";
 
 interface AddSubAccountModalProps {

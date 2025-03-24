@@ -1,6 +1,6 @@
 import { ReactComponent as DropIcon } from "@assets/svg/files/chevron-right-icon.svg";
-import { IconTypeEnum } from "@common/const";
-import { getAssetIcon } from "@common/utils/icons";
+import { IconTypeEnum } from "@/common/const";
+import { getAssetIcon } from "@/common/utils/icons";
 import { CustomCheck } from "@components/checkbox";
 //
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";

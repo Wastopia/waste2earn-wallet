@@ -1,0 +1,15 @@
+{
+  "user": {
+    "title": "User Management",
+    "viewAll": "View All Users",
+    "id": "User ID",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phoneNumber": "Phone Number",
+    "status": "Status",
+    "riskLevel": "Risk Level",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At"
+  }
+} 

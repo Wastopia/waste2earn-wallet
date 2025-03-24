@@ -1,6 +1,6 @@
 import { Principal } from "@dfinity/principal";
 import ICRCLedgerActor from "./actor";
-import { Account } from "@candid/icrcLedger/icrcLedgerService";
+import { Account } from "@/candid/icrcLedger/icrcLedgerService";
 import { HttpAgent } from "@dfinity/agent";
 
 interface ICRC1BalanceOfArgs extends Account {

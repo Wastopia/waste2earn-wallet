@@ -10,10 +10,10 @@ import { Service } from "@redux/models/ServiceModels";
 import { useTranslation } from "react-i18next";
 import { CustomInput } from "@components/input";
 import { Principal } from "@dfinity/principal";
-import { useTransfer } from "@pages/home/contexts/TransferProvider";
+import { useTransfer } from "@/pages/home/contexts/TransferProvider";
 import logger from "@/common/utils/logger";
 import { AvatarEmpty } from "@components/avatar";
-import { toFullDecimal } from "@common/utils/amount";
+import { toFullDecimal } from "@/common/utils/amount";
 
 export default function SenderServiceSelector() {
   const { t } = useTranslation();

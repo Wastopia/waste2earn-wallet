@@ -1,7 +1,7 @@
 import { SelectOption } from "@/@types/components";
-import formatAsset from "@common/utils/formatAsset";
+import formatAsset from "@/common/utils/formatAsset";
 import { BasicSelect } from "@components/select";
-import { useTransfer } from "@pages/home/contexts/TransferProvider";
+import { useTransfer } from "@/pages/home/contexts/TransferProvider";
 import { useAppSelector } from "@redux/Store";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";

@@ -1,8 +1,8 @@
-import { WatchOnlyItem } from "@pages/login/components/WatchOnlyInput";
+import { WatchOnlyItem } from "@/pages/login/components/WatchOnlyInput";
 import WatchOnlyRecord from "./WatchOnlyRecord";
-import { CustomInput } from "@components/input";
+import { CustomInput } from "@/components/input";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
-import useWatchOnly from "@pages/hooks/useWatchOnly";
+import useWatchOnly from "@/pages/hooks/useWatchOnly";
 import { useTranslation } from "react-i18next";
 
 export interface EditWatchOnlyItem extends Pick<WatchOnlyItem, "principal" | "alias"> {

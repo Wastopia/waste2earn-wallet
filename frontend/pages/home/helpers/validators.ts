@@ -1,4 +1,4 @@
-import { checkHexString } from "@common/utils/hexadecimal";
+import { checkHexString } from "@/common/utils/hexadecimal";
 import { Principal } from "@dfinity/principal";
 import { Asset } from "@redux/models/AccountModels";
 import logger from "@/common/utils/logger";

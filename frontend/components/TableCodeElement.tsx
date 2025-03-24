@@ -1,7 +1,7 @@
 import { AssetSymbolEnum, SpecialTxTypeEnum } from "@/common/const";
-import { getAddress, shortAddress } from "@common/utils/icrc";
-import { middleTruncation } from "@common/utils/strings";
-import { AccountHook } from "@pages/hooks/accountHook";
+import { getAddress, shortAddress } from "@/common/utils/icrc";
+import { middleTruncation } from "@/common/utils/strings";
+import { AccountHook } from "@/pages/hooks/accountHook";
 import { useAppSelector } from "@redux/Store";
 import { Transaction } from "@redux/models/AccountModels";
 import { clsx } from "clsx";

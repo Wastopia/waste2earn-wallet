@@ -1,8 +1,8 @@
 import { ReactComponent as CloseIcon } from "@assets/svg/files/close.svg";
 //
-import { IconTypeEnum } from "@common/const";
-import { getAssetIcon } from "@common/utils/icons";
-import { shortAddress } from "@common/utils/icrc";
+import { IconTypeEnum } from "@/common/const";
+import { getAssetIcon } from "@/common/utils/icons";
+import { shortAddress } from "@/common/utils/icrc";
 import { AvatarEmpty } from "@components/avatar";
 import { CustomCopy } from "@components/tooltip";
 import ContactAccountAction from "./ContactAccountAction";
@@ -10,15 +10,15 @@ import { Contact, ContactAccount } from "@redux/models/ContactsModels";
 import { Asset } from "@redux/models/AccountModels";
 import { encodeIcrcAccount } from "@dfinity/ledger-icrc";
 import { Principal } from "@dfinity/principal";
-import { hexToUint8Array } from "@common/utils/hexadecimal";
+import { hexToUint8Array } from "@/common/utils/hexadecimal";
 import { Dispatch, SetStateAction } from "react";
 import { CustomInput } from "@components/input";
 import { isContactAccountNameValid } from "../../helpers/validators";
 import { CheckIcon } from "@radix-ui/react-icons";
-import logger from "@common/utils/logger";
+import logger from "@/common/utils/logger";
 import { db } from "@/database/db";
 import AllowanceTooltip from "./AllowanceTooltip";
-import { removeExtraSpaces } from "@common/utils/strings";
+import { removeExtraSpaces } from "@/common/utils/strings";
 
 interface DisplayContactAccountRowProps {
   index: number;

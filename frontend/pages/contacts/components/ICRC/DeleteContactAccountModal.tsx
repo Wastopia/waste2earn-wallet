@@ -5,7 +5,7 @@ import { ReactComponent as CloseIcon } from "@assets/svg/files/close.svg";
 //
 import { CustomButton } from "@components/button";
 import { useTranslation } from "react-i18next";
-import logger from "@common/utils/logger";
+import logger from "@/common/utils/logger";
 import { LoadingLoader } from "@components/loader";
 import { Contact, ContactAccount } from "@redux/models/ContactsModels";
 import { db } from "@/database/db";

@@ -3,8 +3,8 @@ import { SelectOption } from "@/@types/components";
 import { SupportedStandardEnum } from "@/@types/icrc";
 import { IconTypeEnum } from "@/common/const";
 import { getAssetIcon } from "@/common/utils/icons";
-import { BasicSelect } from "@components/select";
-import { getAllowanceAsset } from "@pages/allowances/helpers/mappers";
+import { BasicSelect } from "@/components/select";
+import { getAllowanceAsset } from "@/pages/allowances/helpers/mappers";
 import { useAppSelector } from "@redux/Store";
 import { initialAllowanceState } from "@redux/allowance/AllowanceReducer";
 import { Asset } from "@redux/models/AccountModels";
@@ -46,7 +46,7 @@ export default function AssetFormItem(props: AssetFormItemProps) {
 
   return (
     <div className="mx-auto mt-4 w-[22rem]">
-      <label htmlFor="asset" className="text-md text-PrimaryTextColorLight dark:text-PrimaryTextColor">
+      <label htmlFor="asset" className="text-md text-SecondaryTextColorLight dark:text-PrimaryTextColor">
         {t("asset")}
       </label>
       <BasicSelect

@@ -3,7 +3,7 @@ import WatchOnlyRecords from "./WatchOnlyRecords";
 import { ChevronDownIcon, ChevronLeftIcon } from "@radix-ui/react-icons";
 import { MAX_ALIAS_ADDRESS_LENGTH } from "./useWatchOnlyMutation";
 import { useState } from "react";
-import { shortAddress } from "@common/utils/icrc";
+import { shortAddress } from "@/common/utils/icrc";
 
 interface WatchOnlyPillProps {
   text: string;

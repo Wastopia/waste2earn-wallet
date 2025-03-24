@@ -19,8 +19,8 @@ import { ChevronDownIcon, ChevronLeftIcon } from "@radix-ui/react-icons";
 import { useState } from "react";
 import AddSubAccountModal from "./AddSubAccountModal";
 import AccountAccordionItem from "./AccountAccordionItem";
-import { getFirstNChars } from "@common/utils/strings";
-import { getUSDFromToken, toFullDecimal } from "@common/utils/amount";
+import { getFirstNChars } from "@/common/utils/strings";
+import { getUSDFromToken, toFullDecimal } from "@/common/utils/amount";
 
 interface AssetAccordionItemProps {
   currentAsset: Asset;

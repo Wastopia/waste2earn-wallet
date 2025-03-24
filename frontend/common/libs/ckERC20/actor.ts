@@ -1,6 +1,6 @@
 import { Actor, HttpAgent } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
-import { idlFactory as ckERC20Factory } from "@candid/ckERC20/candid.did";
+import { idlFactory as ckERC20Factory } from "@/candid/ckERC20/candid.did";
 import { _SERVICE as ckERC20Service } from "@/candid/ckERC20/service.did";
 
 export interface CKERC20ActorArgs {

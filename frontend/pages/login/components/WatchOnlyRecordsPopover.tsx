@@ -1,8 +1,8 @@
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import clsx from "clsx";
-import { CustomInput } from "@components/input";
+import { CustomInput } from "@/components/input";
 import HistoricalItem from "@/pages/login/components/HistoricalItem";
-import useWatchOnly from "@pages/hooks/useWatchOnly";
+import useWatchOnly from "@/pages/hooks/useWatchOnly";
 import { useTranslation } from "react-i18next";
 
 interface WatchOnlyRecordsPopoverProps {

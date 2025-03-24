@@ -1,10 +1,10 @@
 import { Asset } from "@redux/models/AccountModels";
-import getOrchestratorInfo from "@common/libs/ckERC20/getOrchestratorInfo";
+import getOrchestratorInfo from "@/common/libs/ckERC20/getOrchestratorInfo";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
-import { getMetadataInfo } from "@common/utils/icrc";
+import { getMetadataInfo } from "@/common/utils/icrc";
 import store from "@redux/Store";
 import { Principal } from "@dfinity/principal";
-import logger from "@common/utils/logger";
+import logger from "@/common/utils/logger";
 
 export async function getckERC20Tokens(): Promise<Asset[]> {
   try {

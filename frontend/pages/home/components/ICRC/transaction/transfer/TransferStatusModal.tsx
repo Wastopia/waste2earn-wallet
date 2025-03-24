@@ -5,13 +5,13 @@ import UpAmountIcon from "@assets/svg/files/up-amount-icon.svg";
 import { BasicModal } from "@components/modal";
 import { CustomCopy } from "@components/tooltip";
 import { middleTruncation } from "@/common/utils/strings";
-import { shortAddress } from "@common/utils/icrc";
+import { shortAddress } from "@/common/utils/icrc";
 
-import { TransferStatus, useTransferStatus } from "@pages/home/contexts/TransferStatusProvider";
+import { TransferStatus, useTransferStatus } from "@/pages/home/contexts/TransferStatusProvider";
 import { useTranslation } from "react-i18next";
 import { setTransactionDrawerAction } from "@redux/transaction/TransactionActions";
 import { TransactionDrawer } from "@/@types/transactions";
-import { TransferFromTypeEnum, TransferToTypeEnum, useTransfer } from "@pages/home/contexts/TransferProvider";
+import { TransferFromTypeEnum, TransferToTypeEnum, useTransfer } from "@/pages/home/contexts/TransferProvider";
 import { useAppSelector } from "@redux/Store";
 
 export default function TransferStatusModal() {

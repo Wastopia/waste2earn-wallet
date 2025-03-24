@@ -16,12 +16,12 @@ import dayjs from "dayjs";
 import { refreshAllowance } from "../helpers/refresh";
 // eslint-disable-next-line import/named
 import { throttle } from "lodash";
-import { removeZeroesFromAmount, toFullDecimal, toHoleBigInt } from "@common/utils/amount";
-import { createApproveAllowanceParams, submitAllowanceApproval } from "@common/libs/icrcledger/icrcAllowance";
-import ICRC1BalanceOf from "@common/libs/icrcledger/ICRC1BalanceOf";
-import { hexToUint8Array } from "@common/utils/hexadecimal";
+import { removeZeroesFromAmount, toFullDecimal, toHoleBigInt } from "@/common/utils/amount";
+import { createApproveAllowanceParams, submitAllowanceApproval } from "@/common/libs/icrcledger/icrcAllowance";
+import ICRC1BalanceOf from "@/common/libs/icrcledger/ICRC1BalanceOf";
+import { hexToUint8Array } from "@/common/utils/hexadecimal";
 
-export function useUpdateAllowance() {
+export function useUpdateAllowance() {  
   const dispatch = useAppDispatch();
   const { onCloseUpdateAllowanceDrawer } = useAllowanceDrawer();
   const { allowances } = useAppSelector((state) => state.allowance.list);

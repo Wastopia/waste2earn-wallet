@@ -1,8 +1,8 @@
 import { AllowancesTableColumns, TAllowance } from "@/@types/allowance";
-import UpdateAllowanceDrawer from "@pages/allowances/components/UpdateAllowanceDrawer";
-import DeleteAllowanceModal from "@pages/allowances/components/DeleteAllowanceModal";
+import UpdateAllowanceDrawer from "@/pages/allowances/components/UpdateAllowanceDrawer";
+import DeleteAllowanceModal from "@/pages/allowances/components/DeleteAllowanceModal";
 import { useAppSelector } from "@redux/Store";
-import { CustomCopy } from "@components/tooltip";
+import { CustomCopy } from "@/components/tooltip";
 import { middleTruncation } from "@/common/utils/strings";
 import { formatDateTime } from "@/common/utils/datetimeFormaters";
 import { useTranslation } from "react-i18next";

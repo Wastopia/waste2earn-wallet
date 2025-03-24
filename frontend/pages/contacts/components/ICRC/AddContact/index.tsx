@@ -8,8 +8,8 @@ import { clsx } from "clsx";
 import { LoadingLoader } from "@components/loader";
 import { CustomButton } from "@components/button";
 import ContactAssetDetails from "@/pages/contacts/components/ICRC/AddContact/ContactAssetDetails";
-import { useCreateContact } from "@pages/contacts/hooks/useCreateContact";
-import { useContactError } from "@pages/contacts/contexts/ContactErrorProvider";
+import { useCreateContact } from "@/pages/contacts/hooks/useCreateContact";
+import { useContactError } from "@/pages/contacts/contexts/ContactErrorProvider";
 import { useState } from "react";
 import { useAppSelector } from "@redux/Store";
 

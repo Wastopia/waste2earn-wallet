@@ -5,11 +5,11 @@ import { ReactComponent as CloseIcon } from "@assets/svg/files/close.svg";
 import { BasicModal } from "@components/modal";
 import { ServiceAsset } from "@redux/models/ServiceModels";
 import { useTranslation } from "react-i18next";
-import { CustomButton } from "@components/button";
-import { LoadingLoader } from "@components/loader";
+import { CustomButton } from "@/components/button";
+import { LoadingLoader } from "@/components/loader";
 import { useState } from "react";
-import { getAssetIcon } from "@common/utils/icons";
-import { IconTypeEnum } from "@common/const";
+import { getAssetIcon } from "@/common/utils/icons";
+import { IconTypeEnum } from "@/common/const";
 
 interface AddAssetWarningProps {
   open: boolean;

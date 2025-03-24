@@ -14,9 +14,9 @@ import { UpdateAllBalances } from "@/@types/assets";
 import ICRC1SupportedStandards from "@/common/libs/icrcledger/ICRC1SupportedStandards";
 import { HttpAgent } from "@dfinity/agent";
 import { getETHRate, getTokensFromMarket, getckUSDCRate } from "@/common/utils/market";
-import { refreshAssetBalances } from "@pages/home/helpers/assets";
-import { hexToUint8Array } from "@common/utils/hexadecimal";
-import { getMetadataInfo } from "@common/utils/icrc";
+import { refreshAssetBalances } from "@/pages/home/helpers/assets";
+import { hexToUint8Array } from "@/common/utils/hexadecimal";
+import { getMetadataInfo } from "@/common/utils/icrc";
 import logger from "@/common/utils/logger";
 
 /**

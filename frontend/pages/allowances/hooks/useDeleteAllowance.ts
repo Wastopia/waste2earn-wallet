@@ -11,9 +11,9 @@ import { AllowanceValidationErrorsEnum } from "@/@types/allowance";
 import { Asset, SubAccount } from "@redux/models/AccountModels";
 import { refreshAllowance } from "../helpers/refresh";
 import { initialAllowanceState } from "@redux/allowance/AllowanceReducer";
-import { createApproveAllowanceParams, submitAllowanceApproval } from "@common/libs/icrcledger/icrcAllowance";
-import ICRC1BalanceOf from "@common/libs/icrcledger/ICRC1BalanceOf";
-import { hexToUint8Array } from "@common/utils/hexadecimal";
+import { createApproveAllowanceParams, submitAllowanceApproval } from "@/common/libs/icrcledger/icrcAllowance";
+import ICRC1BalanceOf from "@/common/libs/icrcledger/ICRC1BalanceOf";
+import { hexToUint8Array } from "@/common/utils/hexadecimal";
 import logger from "@/common/utils/logger";
 
 export default function useDeleteAllowance() {

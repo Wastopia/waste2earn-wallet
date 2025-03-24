@@ -1,7 +1,7 @@
 import { ReactComponent as CloseIcon } from "@assets/svg/files/close.svg";
 import { ReactComponent as AlertIcon } from "@assets/svg/files/alert-icon.svg";
 //
-import useCreateAllowance, { CreateResult } from "@pages/allowances/hooks/useCreateAllowance";
+import useCreateAllowance, { CreateResult } from "@/pages/allowances/hooks/useCreateAllowance";
 import { useAppSelector } from "@redux/Store";
 import AssetFormItem from "./AssetFormItem";
 import SubAccountFormItem from "./SubAccountFormItem";
@@ -18,15 +18,15 @@ import {
   setFullAllowanceErrorsAction,
 } from "@redux/allowance/AllowanceActions";
 import { db } from "@/database/db";
-import { LoadingLoader } from "@components/loader";
-import { refreshAllowance } from "@pages/allowances/helpers/refresh";
-import { getDuplicatedAllowance } from "@pages/allowances/helpers/validators";
+import { LoadingLoader } from "@/components/loader";
+import { refreshAllowance } from "@/pages/allowances/helpers/refresh";
+import { getDuplicatedAllowance } from "@/pages/allowances/helpers/validators";
 import { getAllowanceDetails } from "@/common/libs/icrcledger/icrcAllowance";
-import { isHexadecimalValid } from "@pages/home/helpers/checkers";
+import { isHexadecimalValid } from "@/pages/home/helpers/checkers";
 import logger from "@/common/utils/logger";
-import { BasicModal } from "@components/modal";
+import { BasicModal } from "@/components/modal";
 import { CheckCircledIcon } from "@radix-ui/react-icons";
-import useAllowanceDrawer from "@pages/allowances/hooks/useAllowanceDrawer";
+import useAllowanceDrawer from "@/pages/allowances/hooks/useAllowanceDrawer";
 import ServiceSpenderFormItem from "./ServiceSpenderFormItem";
 import { useEffect } from "react";
 

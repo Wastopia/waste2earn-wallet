@@ -1,8 +1,8 @@
 import { CustomInput } from "@components/input";
-import { getSubAccountId } from "@pages/contacts/helpers/formatters";
-import { useTransfer } from "@pages/home/contexts/TransferProvider";
-import { isHexadecimalValid } from "@pages/home/helpers/checkers";
-import { isValidInputPrincipal } from "@pages/home/helpers/validators";
+import { getSubAccountId } from "@/pages/contacts/helpers/formatters";
+import { useTransfer } from "@/pages/home/contexts/TransferProvider";
+import { isHexadecimalValid } from "@/pages/home/helpers/checkers";
+import { isValidInputPrincipal } from "@/pages/home/helpers/validators";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 

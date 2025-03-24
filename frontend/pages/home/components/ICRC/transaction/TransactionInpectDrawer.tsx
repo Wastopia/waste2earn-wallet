@@ -11,9 +11,9 @@ import { useMemo } from "react";
 import DrawerTransaction from "@/pages/home/components/ICRC/transaction/Transaction";
 import { SpecialTxTypeEnum, TransactionTypeEnum } from "@/common/const";
 import { useTranslation } from "react-i18next";
-import { GeneralHook } from "@pages/home/hooks/generalHook";
+import { GeneralHook } from "@/pages/home/hooks/generalHook";
 import { setSelectedTransaction } from "@redux/transaction/TransactionReducer";
-import { getAddress } from "@common/utils/icrc";
+import { getAddress } from "@/common/utils/icrc";
 
 export default function TransactionInspectDrawer() {
   const dispatch = useAppDispatch();

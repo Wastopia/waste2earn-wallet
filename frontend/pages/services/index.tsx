@@ -1,9 +1,9 @@
-import Menu from "@pages/components/Menu";
+import Menu from "@/pages/components/Menu";
 import ServicesFilters from "@/pages/services/components/ServicesFilters";
 import ServicesList from "@/pages/services//components/ServicesList";
 import { useCallback } from "react";
 import useServices from "@/pages/services/hooks/useServices";
-import SendReceiveDrawer from "@pages/home/components/ICRC/transaction/SendReceiveDrawer";
+import SendReceiveDrawer from "@/pages/home/components/ICRC/transaction/SendReceiveDrawer";
 
 export default function Services() {
   const {

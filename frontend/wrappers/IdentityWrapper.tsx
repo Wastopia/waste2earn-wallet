@@ -1,5 +1,5 @@
 import { AuthClient } from "@dfinity/auth-client";
-import watchOnlyRefresh from "@pages/helpers/watchOnlyRefresh";
+import watchOnlyRefresh from "@/pages/helpers/watchOnlyRefresh";
 import { handleLoginApp } from "@redux/CheckAuth";
 import { useAppDispatch } from "@redux/Store";
 import { setAuth } from "@redux/auth/AuthReducer";

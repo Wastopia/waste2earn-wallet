@@ -31,7 +31,7 @@ const switchContainerCVA = cva(["p-0 relative rounded-full"], {
       true: ["opacity-60 pointer-events-none"],
     },
     checked: {
-      false: ["bg-AccpetButtonColor"],
+      false: ["bg-AcceptButtonColor"],
       true: ["bg-[#26A17B]"],
     },
     size: {

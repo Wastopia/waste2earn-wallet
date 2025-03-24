@@ -1,7 +1,7 @@
 import { TAllowance } from "@/@types/allowance";
 import { SortOrder, SortOrderEnum } from "@/@types/common";
 import { excludeNamesFromAllowance, includeNamesToAllowances } from "./mappers";
-import { toHoleBigInt } from "@common/utils/amount";
+import { toHoleBigInt } from "@/common/utils/amount";
 
 export function sortBySubAccount(order: SortOrder, filteredData: TAllowance[]) {
   const includedNames = includeNamesToAllowances(filteredData);

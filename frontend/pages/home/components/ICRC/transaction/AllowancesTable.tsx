@@ -1,16 +1,16 @@
 import { ReactComponent as SortIcon } from "@assets/svg/files/sort.svg";
 //
 import { AllowancesTableColumns } from "@/@types/allowance";
-import useAllowances from "@pages/allowances/hooks/useAllowances";
-import { middleTruncation } from "@common/utils/strings";
-import { formatDateTime } from "@common/utils/datetimeFormaters";
+import useAllowances from "@/pages/allowances/hooks/useAllowances";
+import { middleTruncation } from "@/common/utils/strings";
+import { formatDateTime } from "@/common/utils/datetimeFormaters";
 import { useTranslation } from "react-i18next";
 import { useAppSelector } from "@redux/Store";
 import { CustomCopy } from "@components/tooltip";
-import ActionCard from "@pages/allowances/components/ActionCard";
+import ActionCard from "@/pages/allowances/components/ActionCard";
 import clsx from "clsx";
-import UpdateAllowanceDrawer from "@pages/allowances/components/UpdateAllowanceDrawer";
-import DeleteAllowanceModal from "@pages/allowances/components/DeleteAllowanceModal";
+import UpdateAllowanceDrawer from "@/pages/allowances/components/UpdateAllowanceDrawer";
+import DeleteAllowanceModal from "@/pages/allowances/components/DeleteAllowanceModal";
 
 const columns = ["subAccount", "spender", "amount", "expiration", "action"];
 

@@ -24,7 +24,7 @@ export default function AllowanceFilter(props: AllowanceFilterProps) {
   const [assetSelectOpen, setAssetSelectOpen] = useState(false);
 
   return (
-    <div className="flex items-center justify-center w-2/6">
+    <div className="flex items-center justify-center w-2/7">
       <div className="flex items-center justify-center mr-4">
         <p className="mr-4 text-md dark:text-gray-color-9 text-black-color">{t("asset")}</p>
         <AssetFilter

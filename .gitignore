@@ -27,3 +27,4 @@ Makefile.prod
 *.sw?
 
 src/declarations
+

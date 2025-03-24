@@ -7,8 +7,8 @@ import { Asset } from "@redux/models/AccountModels";
 import { Dispatch, SetStateAction } from "react";
 import clsx from "clsx";
 import { Contact } from "@redux/models/ContactsModels";
-import { useContact } from "@pages/contacts/contexts/ContactProvider";
-import { useContactError } from "@pages/contacts/contexts/ContactErrorProvider";
+import { useContact } from "@/pages/contacts/contexts/ContactProvider";
+import { useContactError } from "@/pages/contacts/contexts/ContactErrorProvider";
 
 interface ContactAssetElementProps {
   contAst: Asset;

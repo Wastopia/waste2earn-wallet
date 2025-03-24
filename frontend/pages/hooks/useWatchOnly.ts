@@ -1,5 +1,5 @@
-import { EditWatchOnlyItem } from "@pages/components/topbar/WatchOnlyRecords";
-import { WatchOnlyItem } from "@pages/login/components/WatchOnlyInput";
+import { EditWatchOnlyItem } from "@/pages/components/topbar/WatchOnlyRecords";
+import { WatchOnlyItem } from "@/pages/login/components/WatchOnlyInput";
 import { useAppSelector } from "@redux/Store";
 import { useEffect, useState } from "react";
 

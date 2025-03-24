@@ -282,77 +282,139 @@
     },
     "migrationStrategies": {}
   },
-  
-    "kyc_details": {
-      "schema": {
-        "title": "KYC Details Schema",
-        "version": 1,
-        "description": "Schema for storing KYC details",
-        "type": "object",
-        "primaryKey": "principalId",
-        "properties": {
-          "principalId": {
-            "type": "string"
+  "kyc_details": {
+    "schema": {
+      "version": 0,
+      "primaryKey": "userId",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "maxLength": 100
+        },
+        "status": {
+          "type": "string",
+          "enum": ["pending", "approved", "rejected"]
+        },
+        "personalInfo": {
+          "type": "object",
+          "properties": {
+            "firstName": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "lastName": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "dateOfBirth": {
+              "type": "string",
+              "format": "date"
+            },
+            "nationality": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "phoneNumber": {
+              "type": "string",
+              "maxLength": 20
+            },
+            "email": {
+              "type": "string",
+              "maxLength": 100
+            }
           },
-          "userType": {
-            "type": "string",
-            "enum": ["validator", "collector", "regular"]
+          "required": ["firstName", "lastName", "dateOfBirth", "nationality", "phoneNumber", "email"]
+        },
+        "address": {
+          "type": "object",
+          "properties": {
+            "street": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "city": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "state": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "country": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "postalCode": {
+              "type": "string",
+              "maxLength": 20
+            }
           },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "phone": {
-            "type": "string"
-          },
-          "birthday": {
-            "type": "string"
-          },
-          "address": {
-            "type": "string"
-          },
-          "nationality": {
-            "type": "string"
-          },
-          "gender": {
-            "type": "string"
-          },
-          "occupation": {
-            "type": "string"
-          },
-          "photo": {
-            "type": "string"
-          },
-          "bankDetails": {
+          "required": ["street", "city", "state", "country", "postalCode"]
+        },
+        "documents": {
+          "type": "array",
+          "items": {
             "type": "object",
             "properties": {
-              "gcash": {
-                "type": "string"
+              "type": {
+                "type": "string",
+                "enum": ["passport", "nationalId", "drivingLicense", "utilityBill"]
               },
-              "paymaya": {
-                "type": "string"
+              "number": {
+                "type": "string",
+                "maxLength": 100
               },
-              "bpi": {
-                "type": "object",
-                "properties": {
-                  "accountNumber": {
-                    "type": "string"
-                  },
-                  "accountName": {
-                    "type": "string"
-                  }
-                }
+              "expiryDate": {
+                "type": "string",
+                "format": "date"
+              },
+              "fileUrl": {
+                "type": "string",
+                "maxLength": 500
+              },
+              "verificationStatus": {
+                "type": "string",
+                "enum": ["pending", "verified", "rejected"]
               }
+            },
+            "required": ["type", "number", "expiryDate", "fileUrl", "verificationStatus"]
+          }
+        },
+        "verificationDetails": {
+          "type": "object",
+          "properties": {
+            "submittedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "verifiedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "verifiedBy": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "remarks": {
+              "type": "string",
+              "maxLength": 500
             }
           }
         },
-        "required": ["principalId", "userType", "firstName", "lastName", "email", "phone", "birthday", "address", "nationality", "gender", "occupation"]
-      }
-    }
-  
+        "riskLevel": {
+          "type": "string",
+          "enum": ["low", "medium", "high"]
+        },
+        "deleted": {
+          "type": "boolean"
+        },
+        "updatedAt": {
+          "type": "number"
+        }
+      },
+      "required": ["userId", "status", "personalInfo", "address", "documents", "deleted", "updatedAt"]
+    },
+    "migrationStrategies": {}
+  }
 }

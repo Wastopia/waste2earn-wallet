@@ -6,7 +6,7 @@ import { ReactComponent as CloseIcon } from "@assets/svg/files/close.svg";
 import { BasicModal } from "@components/modal";
 import { Service, ServiceAsset } from "@redux/models/ServiceModels";
 import { useTranslation } from "react-i18next";
-import { toFullDecimal } from "@common/utils/amount";
+import { toFullDecimal } from "@/common/utils/amount";
 
 interface NotifyAssetModalProps {
   open: boolean;

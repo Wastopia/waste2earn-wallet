@@ -1,5 +1,5 @@
 import { Transaction } from "@redux/models/AccountModels";
-import { SortOrderEnum } from "@pages/home/components/ICRC/transaction/TransactionsScroll";
+import { SortOrderEnum } from "@/pages/home/components/ICRC/transaction/TransactionsScroll";
 import dayjs from "dayjs";
 
 export const sortByDate = (direction: SortOrderEnum, transactions: Transaction[] = []): Transaction[] => {

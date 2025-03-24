@@ -42,24 +42,26 @@ function getDrawerContainerStyle(isDrawerOpen: boolean) {
     "z-[1000]",
     "w-[31rem]",
     "h-screen",
-    "top-5",
+    "top-1/2",
+    "mt-[10rem]",
+    "left-1/2",
+    "-translate-x-1/2",
+    "-translate-y-1/2",
     "bg-PrimaryColorLight",
     "dark:bg-PrimaryColor",
-    "transition-{right}",
+    "transition-all",
     "duration-500",
     "ease-in-out",
     "flex flex-col",
-    isDrawerOpen ? "right-0" : "-right-[30rem]",
+    "rounded-lg",
+    isDrawerOpen ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none",
   );
 }
 
 function getDrawerBlank(isDrawerOpen: boolean) {
   return clsx(
     "fixed",
-    "top-5",
-    "bottom-0",
-    "left-0",
-    "right-0",
+    "inset-0",
     "z-[1000]",
     "bg-black",
     "opacity-60",

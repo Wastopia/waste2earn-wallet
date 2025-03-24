@@ -3,15 +3,15 @@ import { Actor } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
 import store from "@redux/Store";
 //
-import { _SERVICE as LedgerActor } from "@candid/icrcLedger/icrcLedgerService";
-import { idlFactory as LedgerFactory } from "@candid/icrcLedger/icrcLedgerCandid.did";
+import { _SERVICE as LedgerActor } from "@/candid/icrcLedger/icrcLedgerService";
+import { idlFactory as LedgerFactory } from "@/candid/icrcLedger/icrcLedgerCandid.did";
 import dayjs from "dayjs";
 import { ApproveParams } from "@dfinity/ledger-icrc";
 import { getCanister } from "./getIcrcCanister";
 import { TAllowance } from "@/@types/allowance";
-import { hexToUint8Array } from "@common/utils/hexadecimal";
-import { toFullDecimal, toHoleBigInt } from "@common/utils/amount";
-import logger from "@common/utils/logger";
+import { hexToUint8Array } from "@/common/utils/hexadecimal";
+import { toFullDecimal, toHoleBigInt } from "@/common/utils/amount";
+import logger from "@/common/utils/logger";
 
 function calculateExpirationAsBigInt(
   expirationString: string | undefined,

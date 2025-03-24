@@ -1,4 +1,4 @@
-import { WatchOnlyItem } from "@pages/login/components/WatchOnlyInput";
+import { WatchOnlyItem } from "@/pages/login/components/WatchOnlyInput";
 
 const WATCH_ONLY_SESSIONS = "watch-only-sessions";
 
