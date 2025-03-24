@@ -24,7 +24,13 @@ interface RegistrationForm {
   email: string;
   phone: string;
   birthday: string;
-  address: string;
+  address: {
+    street: string;
+    city: string;
+    state: string;
+    country: string;
+    postalCode: string;
+  };
   nationality: string;
   gender: string;
   occupation: string;
@@ -58,7 +64,13 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
     email: '',
     phone: '',
     birthday: '',
-    address: '',
+    address: {
+      street: '',
+      city: '',
+      state: '',
+      country: 'Philippines',
+      postalCode: ''
+    },
     nationality: '',
     gender: '',
     occupation: '',
@@ -75,10 +87,18 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Validate required fields
+      if (!form.firstName || !form.lastName || !form.email || !form.phone || 
+          !form.birthday || !form.address.street || !form.address.city || 
+          !form.address.state || !form.address.postalCode || !form.nationality) {
+        alert(t('Please fill in all required fields'));
+        return;
+      }
+
       // Format the data according to the KYC schema
       const kycData = {
         userId: form.principalId,
-        status: 'pending',
+        status: 'pending' as const,
         personalInfo: {
           firstName: form.firstName,
           lastName: form.lastName,
@@ -86,33 +106,39 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
           nationality: form.nationality,
           phoneNumber: form.phone,
           email: form.email,
-          gender: form.gender,
-          occupation: form.occupation
+          gender: form.gender || '',
+          occupation: form.occupation || ''
         },
         address: {
-          street: form.address,
-          city: '', // You might want to add these fields to the form
-          state: '',
-          country: 'Philippines',
-          postalCode: ''
+          street: form.address.street,
+          city: form.address.city,
+          state: form.address.state,
+          country: form.address.country,
+          postalCode: form.address.postalCode
         },
-        documents: [], // You might want to add document upload functionality
-        bankDetails: form.userType === 'validator' ? {
-          gcash: form.bankDetails?.gcash || '',
-          paymaya: form.bankDetails?.paymaya || '',
-          bpi: {
-            accountName: form.bankDetails?.bpi?.accountName || '',
-            accountNumber: form.bankDetails?.bpi?.accountNumber || ''
-          }
-        } : undefined,
+        documents: [{
+          type_: 'profile_photo',
+          number: 'N/A',
+          expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 year from now
+          fileUrl: photoPreview || '',
+          verificationStatus: 'pending' as const
+        }],
         verificationDetails: {
           submittedAt: Date.now(),
-          verifiedAt: 0,
-          verifiedBy: '',
-          remarks: ''
+          verifiedAt: undefined,
+          verifiedBy: undefined,
+          remarks: undefined
         },
-        riskLevel: 'medium',
-        updatedAt: Date.now(),
+        bankDetails: form.userType === 'validator' ? {
+          gcash: form.bankDetails?.gcash || undefined,
+          paymaya: form.bankDetails?.paymaya || undefined,
+          bpi: form.bankDetails?.bpi ? {
+            accountName: form.bankDetails.bpi.accountName || '',
+            accountNumber: form.bankDetails.bpi.accountNumber || ''
+          } : undefined
+        } : undefined,
+        riskLevel: 'medium' as const,
+        updatedAt: Math.floor(Date.now() / 1000),
         deleted: false
       };
 
@@ -124,7 +150,12 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
       onClose();
     } catch (error) {
       console.error('Failed to save KYC details:', error);
-      alert(t('Failed to save your details. Please try again.'));
+      // Show more detailed error message
+      if (error instanceof Error) {
+        alert(t('Failed to save your details: ') + error.message);
+      } else {
+        alert(t('Failed to save your details. Please try again.'));
+      }
     }
   };
 
@@ -340,8 +371,51 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
                 <CustomInput
                   required
                   type="text"
-                  value={form.address}
-                  onChange={(e) => handleInputChange('address', e.target.value)}
+                  value={form.address.street}
+                  onChange={(e) => handleInputChange('address.street', e.target.value)}
+                />
+              </div>
+            </div>
+
+            {/* Address Fields */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium">{t("Street Address")}</label>
+                <CustomInput
+                  required
+                  type="text"
+                  value={form.address.street}
+                  onChange={(e) => handleInputChange('address.street', e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium">{t("City")}</label>
+                <CustomInput
+                  required
+                  type="text"
+                  value={form.address.city}
+                  onChange={(e) => handleInputChange('address.city', e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium">{t("State/Province")}</label>
+                <CustomInput
+                  required
+                  type="text"
+                  value={form.address.state}
+                  onChange={(e) => handleInputChange('address.state', e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium">{t("Postal Code")}</label>
+                <CustomInput
+                  required
+                  type="text"
+                  value={form.address.postalCode}
+                  onChange={(e) => handleInputChange('address.postalCode', e.target.value)}
                 />
               </div>
             </div>

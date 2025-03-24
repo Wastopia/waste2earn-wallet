@@ -32,8 +32,8 @@ export const shortAddress = (address: string, digitsL: number, digitsR: number, 
 export const principalToAccountIdentifier = (p: string, s?: number[] | number) => {
   const padding = Buffer.from("\x0Aaccount-id");
   const array = new Uint8Array([...padding, ...Principal.fromText(p).toUint8Array(), ...getSubAccountArray(s)]);
-  const hash = sha224(array.buffer);
-  const checksum = to32bits(getCrc32(new Uint8Array(hash).buffer));
+  const hash = sha224(array);
+  const checksum = to32bits(getCrc32(hash));
   const array2 = new Uint8Array([...checksum, ...hash]);
   return array2;
 };

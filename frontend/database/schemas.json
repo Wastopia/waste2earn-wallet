@@ -299,56 +299,25 @@
         "personalInfo": {
           "type": "object",
           "properties": {
-            "firstName": {
-              "type": "string",
-              "maxLength": 100
-            },
-            "lastName": {
-              "type": "string",
-              "maxLength": 100
-            },
-            "dateOfBirth": {
-              "type": "string",
-              "format": "date"
-            },
-            "nationality": {
-              "type": "string",
-              "maxLength": 100
-            },
-            "phoneNumber": {
-              "type": "string",
-              "maxLength": 20
-            },
-            "email": {
-              "type": "string",
-              "maxLength": 100
-            }
+            "firstName": { "type": "string" },
+            "lastName": { "type": "string" },
+            "dateOfBirth": { "type": "string" },
+            "nationality": { "type": "string" },
+            "phoneNumber": { "type": "string" },
+            "email": { "type": "string" },
+            "gender": { "type": "string" },
+            "occupation": { "type": "string" }
           },
           "required": ["firstName", "lastName", "dateOfBirth", "nationality", "phoneNumber", "email"]
         },
         "address": {
           "type": "object",
           "properties": {
-            "street": {
-              "type": "string",
-              "maxLength": 200
-            },
-            "city": {
-              "type": "string",
-              "maxLength": 100
-            },
-            "state": {
-              "type": "string",
-              "maxLength": 100
-            },
-            "country": {
-              "type": "string",
-              "maxLength": 100
-            },
-            "postalCode": {
-              "type": "string",
-              "maxLength": 20
-            }
+            "street": { "type": "string" },
+            "city": { "type": "string" },
+            "state": { "type": "string" },
+            "country": { "type": "string" },
+            "postalCode": { "type": "string" }
           },
           "required": ["street", "city", "state", "country", "postalCode"]
         },
@@ -357,63 +326,50 @@
           "items": {
             "type": "object",
             "properties": {
-              "type": {
-                "type": "string",
-                "enum": ["passport", "nationalId", "drivingLicense", "utilityBill"]
-              },
-              "number": {
-                "type": "string",
-                "maxLength": 100
-              },
-              "expiryDate": {
-                "type": "string",
-                "format": "date"
-              },
-              "fileUrl": {
-                "type": "string",
-                "maxLength": 500
-              },
-              "verificationStatus": {
+              "type_": { "type": "string" },
+              "number": { "type": "string" },
+              "expiryDate": { "type": "string" },
+              "fileUrl": { "type": "string" },
+              "verificationStatus": { 
                 "type": "string",
                 "enum": ["pending", "verified", "rejected"]
               }
             },
-            "required": ["type", "number", "expiryDate", "fileUrl", "verificationStatus"]
+            "required": ["type_", "number", "expiryDate", "fileUrl", "verificationStatus"]
           }
         },
         "verificationDetails": {
           "type": "object",
           "properties": {
-            "submittedAt": {
-              "type": "string",
-              "format": "date-time"
-            },
-            "verifiedAt": {
-              "type": "string",
-              "format": "date-time"
-            },
-            "verifiedBy": {
-              "type": "string",
-              "maxLength": 100
-            },
-            "remarks": {
-              "type": "string",
-              "maxLength": 500
-            }
-          }
+            "submittedAt": { "type": "number" },
+            "verifiedAt": { "type": ["number", "null"] },
+            "verifiedBy": { "type": ["string", "null"] },
+            "remarks": { "type": ["string", "null"] }
+          },
+          "required": ["submittedAt"]
         },
         "riskLevel": {
           "type": "string",
           "enum": ["low", "medium", "high"]
         },
-        "deleted": {
-          "type": "boolean"
+        "bankDetails": {
+          "type": ["object", "null"],
+          "properties": {
+            "gcash": { "type": ["string", "null"] },
+            "paymaya": { "type": ["string", "null"] },
+            "bpi": {
+              "type": ["object", "null"],
+              "properties": {
+                "accountName": { "type": "string" },
+                "accountNumber": { "type": "string" }
+              }
+            }
+          }
         },
-        "updatedAt": {
-          "type": "number"
-        }
+        "updatedAt": { "type": "number" },
+        "deleted": { "type": "boolean" }
       },
-      "required": ["userId", "status", "personalInfo", "address", "documents", "deleted", "updatedAt"]
+      "required": ["userId", "status", "personalInfo", "address", "documents", "riskLevel", "updatedAt", "deleted"]
     },
     "migrationStrategies": {}
   }
