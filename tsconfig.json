@@ -26,16 +26,8 @@
     "paths": {
       "@/*": ["frontend/*"],
       "@components/*": ["frontend/components/*"],
-      "@services/*": ["frontend/services/*"],
-      "@types/*": ["frontend/types/*"],
       "@database/*": ["frontend/database/*"],
-      "@redux/*": ["frontend/redux/*"],
-      "@assets/*": ["frontend/assets/*"],
-      "@pages/*": ["frontend/pages/*"],
-      "@hooks/*": ["frontend/pages/hooks/*"],
-      "@workers/*": ["frontend/pages/workers/*"],
-      "@common/*": ["frontend/common/*"],
-      "@candid/*": ["frontend/candid/*"]
+      "@redux/*": ["frontend/redux/*"]
     }
   },
   "references": [{ "path": "./tsconfig.node.json" }],

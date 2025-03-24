@@ -1,14 +1,14 @@
 import { useEffect } from "react";
 import TransferForm from "@/pages/home/components/ICRC/transaction/transfer/TransferForm";
-import TransferViewProvider, { TransferView, useTransferView } from "@pages/home/contexts/TransferViewProvider";
+import TransferViewProvider, { TransferView, useTransferView } from "@/pages/home/contexts/TransferViewProvider";
 import ReceiverQRScanner from "@/pages/home/components/ICRC/transaction/transfer/ReceiverQRScanner";
 import TransferDetailsConfirmation from "@/pages/home/components/ICRC/transaction/transfer/TransferDetailsConfirmation";
 import SenderAllowanceQRScanner from "@/pages/home/components/ICRC/transaction/transfer/SenderAllowanceQRScanner";
 import TransferStatusModal from "@/pages/home/components/ICRC/transaction/transfer/TransferStatusModal";
 import { useAppSelector } from "@redux/Store";
-import { useTransfer } from "@pages/home/contexts/TransferProvider";
+import { useTransfer } from "@/pages/home/contexts/TransferProvider";
 import logger from "@/common/utils/logger";
-import TransferStatusProvider from "@pages/home/contexts/TransferStatusProvider";
+import TransferStatusProvider from "@/pages/home/contexts/TransferStatusProvider";
 
 function Transfer() {
   const { view } = useTransferView();
@@ -31,7 +31,7 @@ export default function Wrapper() {
 
   useEffect(() => {
     if (!selectedAccount || !selectedAsset) {
-      logger.debug("TransferIntializer: selectedAccount or selectedAsset is null");
+      logger.debug("TransferInitializer: selectedAccount or selectedAsset is null");
       return;
     }
 

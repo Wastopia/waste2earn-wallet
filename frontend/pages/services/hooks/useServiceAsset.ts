@@ -1,6 +1,6 @@
 import { ServiceSubAccount, TransactionDrawer } from "@/@types/transactions";
-import { NotifyResult } from "@candid/icrcx/service.did";
-import { getAssetDetails } from "@common/libs/icrc";
+import { NotifyResult } from "@/candid/icrcx/service.did";
+import { getAssetDetails } from "@/common/libs/icrc";
 import { useAppDispatch, useAppSelector } from "@redux/Store";
 import { Asset } from "@redux/models/AccountModels";
 import { ServiceAsset } from "@redux/models/ServiceModels";
@@ -16,7 +16,7 @@ import {
 } from "@redux/transaction/TransactionActions";
 import { useState } from "react";
 import { db } from "@/database/db";
-import { TransferFromTypeEnum, TransferToTypeEnum, useTransfer } from "@pages/home/contexts/TransferProvider";
+import { TransferFromTypeEnum, TransferToTypeEnum, useTransfer } from "@/pages/home/contexts/TransferProvider";
 
 export default function useServiceAsset() {
   const dispatch = useAppDispatch();

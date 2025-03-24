@@ -1,4 +1,4 @@
-import Menu from "@pages/components/Menu";
+import Menu from "@/pages/components/Menu";
 import AllowanceFilter from "./components/AllowanceFilter";
 import AllowanceList from "./components/AllowanceList";
 import AddAllowanceDrawer from "./components/AddAllowanceDrawer";

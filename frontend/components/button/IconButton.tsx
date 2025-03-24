@@ -17,11 +17,11 @@ export default function IconButton(props: IconButtonProps) {
   );
 }
 
-const iconButtonCVA = cva(["bg-AccpetButtonColor", "m-0", "rounded-md"], {
+const iconButtonCVA = cva(["bg-AcceptButtonColor", "m-0", "rounded-md"], {
   variants: {
     color: {
       inherit: [],
-      primary: ["bg-AccpetButtonColor"],
+      primary: ["bg-AcceptButtonColor"],
       secondary: [],
       success: [],
       error: [],

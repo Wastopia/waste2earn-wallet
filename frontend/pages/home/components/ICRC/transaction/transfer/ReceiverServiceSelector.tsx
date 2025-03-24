@@ -6,7 +6,7 @@ import { SelectOption } from "@/@types/components";
 import { useAppSelector } from "@redux/Store";
 import { Principal } from "@dfinity/principal";
 import { Buffer } from "buffer";
-import { useTransfer } from "@pages/home/contexts/TransferProvider";
+import { useTransfer } from "@/pages/home/contexts/TransferProvider";
 import { Asset } from "@redux/models/AccountModels";
 import logger from "@/common/utils/logger";
 import { CustomInput } from "@components/input";
@@ -14,7 +14,7 @@ import BeneficiaryContactBook from "./BeneficiaryContactBook";
 import { Contact } from "@redux/models/ContactsModels";
 import ReceiverContactBeneficiarySelector from "./ReceiverContactBeneficiarySelector";
 import { t } from "i18next";
-import { hexStringToPrincipal } from "@common/utils/unitArray";
+import { hexStringToPrincipal } from "@/common/utils/unitArray";
 
 export default function ServiceBookReceiver() {
   const { transferState, setTransferState } = useTransfer();

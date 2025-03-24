@@ -1,11 +1,11 @@
 import { ReactComponent as QRScanIcon } from "@assets/svg/files/qr.svg";
 //
 import { BasicSwitch } from "@components/switch";
-import { TransferFromTypeEnum, useTransfer } from "@pages/home/contexts/TransferProvider";
+import { TransferFromTypeEnum, useTransfer } from "@/pages/home/contexts/TransferProvider";
 import { useTranslation } from "react-i18next";
 import AllowanceSenderContactBook from "@/pages/home/components/ICRC/transaction/transfer/AllowanceSenderContactBook";
 import AllownaceSenderInputs from "@/pages/home/components/ICRC/transaction/transfer/AllowanceSenderInputs";
-import { TransferView, useTransferView } from "@pages/home/contexts/TransferViewProvider";
+import { TransferView, useTransferView } from "@/pages/home/contexts/TransferViewProvider";
 
 export default function AllowanceSenderAccountSelector() {
   const { setView } = useTransferView();

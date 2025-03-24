@@ -1,7 +1,7 @@
 import SearchIcon from "@assets/svg/files/icon-search.svg";
-import { IconTypeEnum } from "@common/const";
-import { getAssetIcon } from "@common/utils/icons";
-import { removeExtraSpaces } from "@common/utils/strings";
+import { IconTypeEnum } from "@/common/const";
+import { getAssetIcon } from "@/common/utils/icons";
+import { removeExtraSpaces } from "@/common/utils/strings";
 import { CustomInput } from "@components/input";
 //
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";

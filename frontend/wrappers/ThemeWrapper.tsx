@@ -1,6 +1,6 @@
 import { ThemesEnum } from "@/common/const";
 import { db } from "@/database/db";
-import { ThemeHook } from "@pages/hooks/themeHook";
+import { ThemeHook } from "@/pages/hooks/themeHook";
 import { useEffect, useRef } from "react";
 
 export default function ThemeWrapper({ children }: { children: JSX.Element }) {

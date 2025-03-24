@@ -20,6 +20,15 @@ small {
     "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif !important;
 }
 
+// Mobile-first base styles
+html, body {
+  min-width: 360px;
+  min-height: 640px;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
 @mixin scroll-y-light {
   overflow-y: auto;
   scrollbar-width: 1px !important;
@@ -49,7 +58,7 @@ small {
   scrollbar-width: 1px !important;
 
   &::-webkit-scrollbar {
-    width: 5px !important;
+    width: 4px !important;
     height: 0px;
   }
 
@@ -59,8 +68,8 @@ small {
   }
 
   &::-webkit-scrollbar-thumb {
-    border-radius: 5px !important;
-    background-color: #c4c4c479 !important;
+    border-radius: 4px !important;
+    background-color: #ebe9e979 !important;
   }
 }
 
@@ -76,12 +85,14 @@ body {
   display: flex;
   font-weight: 400;
   font-size: 16px;
+  overflow-x: hidden;
 }
 
 #root {
   min-height: 100vh;
   width: 100%;
   position: relative;
+  overflow-x: hidden;
 }
 
 .App {
@@ -90,6 +101,8 @@ body {
   overflow-y: auto;
   text-align: center;
   position: relative;
+  padding: 0 16px; // Add padding for mobile
+  box-sizing: border-box;
 
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {
@@ -148,7 +161,7 @@ h5 {
   }
   #html5-qrcode-select-camera {
     background: #ffffff !important;
-    color: #1b183f !important;
+    color: #11041f !important;
   }
 }
 
@@ -165,5 +178,16 @@ h5 {
 
   to {
     transform: rotate(-360deg);
+  }
+}
+
+// Add responsive font sizes
+@media screen and (max-width: 480px) {
+  html {
+    font-size: 14px;
+  }
+  
+  .App {
+    padding: 0 12px;
   }
 }

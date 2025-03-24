@@ -1,7 +1,7 @@
 import { ReactComponent as SortIcon } from "@assets/svg/files/sort.svg";
 import { Contact, ContactAccount } from "@redux/models/ContactsModels";
 import { useAppSelector } from "@redux/Store";
-import logger from "@common/utils/logger";
+import logger from "@/common/utils/logger";
 import AddContactAccountRow from "./AddContactAccountRow";
 import DisplayContactAccountRow from "./DisplayContactAccountRow";
 import { useState } from "react";

@@ -7,7 +7,7 @@ import { removeAllowanceErrorAction, setAllowanceErrorAction } from "@redux/allo
 import { Asset } from "@redux/models/AccountModels";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { validateAmount } from "@common/utils/amount";
+import { validateAmount } from "@/common/utils/amount";
 
 interface IAmountFormItemProps {
   allowance: TAllowance;

@@ -1,16 +1,16 @@
-import { TransferFromTypeEnum, useTransfer } from "@pages/home/contexts/TransferProvider";
+import { TransferFromTypeEnum, useTransfer } from "@/pages/home/contexts/TransferProvider";
 import { useAppSelector } from "@redux/Store";
 import { useTranslation } from "react-i18next";
 import logger from "@/common/utils/logger";
-import { middleTruncation } from "@common/utils/strings";
+import { middleTruncation } from "@/common/utils/strings";
 import { AvatarEmpty } from "@components/avatar";
-import { getIconSrc } from "@common/utils/icons";
+import { getIconSrc } from "@/common/utils/icons";
 import { Asset, SubAccount } from "@redux/models/AccountModels";
 import { useEffect, useState } from "react";
-import { getAllowanceDetails } from "@common/libs/icrcledger/icrcAllowance";
+import { getAllowanceDetails } from "@/common/libs/icrcledger/icrcAllowance";
 import { ContactAccount, defaultContactSubAccount } from "@redux/models/ContactsModels";
-import { defaultSubAccount } from "@common/defaultTokens";
-import { toFullDecimal } from "@common/utils/amount";
+import { defaultSubAccount } from "@/common/defaultTokens";
+import { toFullDecimal } from "@/common/utils/amount";
 
 export default function SenderDetails() {
   const { t } = useTranslation();

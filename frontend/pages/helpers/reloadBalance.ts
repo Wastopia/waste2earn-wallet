@@ -1,12 +1,12 @@
 import { db } from "@/database/db";
-import contactCacheRefresh from "@pages/contacts/helpers/contactCacheRefresh";
-import { allowanceCacheRefresh } from "@pages/allowances/helpers/cache";
+import contactCacheRefresh from "@/pages/contacts/helpers/contactCacheRefresh";
+import { allowanceCacheRefresh } from "@/pages/allowances/helpers/cache";
 import { updateAllBalances } from "@redux/assets/AssetActions";
 import { setAppDataRefreshing } from "@redux/common/CommonReducer";
 import store from "@redux/Store";
-import { transactionCacheRefresh } from "@pages/home/helpers/cache";
+import { transactionCacheRefresh } from "@/pages/home/helpers/cache";
 import logger from "@/common/utils/logger";
-import serviceCacheRefresh from "@pages/contacts/helpers/serviceCacheRefresh";
+import serviceCacheRefresh from "@/pages/contacts/helpers/serviceCacheRefresh";
 
 export default async function reloadBallance() {
   try {

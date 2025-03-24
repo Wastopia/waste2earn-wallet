@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { CustomButton } from "@components/button";
 import { useAppDispatch, useAppSelector } from "@redux/Store";
 import { setRoutingPath } from "@redux/auth/AuthReducer";
-import { RoutingPathEnum } from "@common/const";
+import { RoutingPathEnum } from "@/common/const";
 
 interface MenuProps {
   noMargin?: boolean;

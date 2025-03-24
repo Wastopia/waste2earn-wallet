@@ -10,7 +10,7 @@ import { clsx } from "clsx";
 import { setTransactionDrawerAction } from "@redux/transaction/TransactionActions";
 import { TransactionDrawer } from "@/@types/transactions";
 import { getAssetIcon } from "@/common/utils/icons";
-import { toFullDecimal } from "@common/utils/amount";
+import { toFullDecimal } from "@/common/utils/amount";
 import { useState } from "react";
 import TopUpModal from "../../TopUpModal";
 
@@ -22,8 +22,8 @@ export default function ICRCSubaccountAction() {
 
   return (
     <div className="flex flex-row justify-between items-center w-full h-[4.75rem] bg-TransactionHeaderColorLight dark:bg-TransactionHeaderColor rounded-md">
-      <div className="flex flex-col justify-center items-start bg-SelectRowColor w-[17rem] h-full rounded-l-md p-4 text-[#ffff]">
-        <div className="flex flex-row items-center justify-between w-full gap-1">
+      <div className="flex flex-col justify-center items-start bg-SelectRowColor w-[15rem] h-full rounded-l-md p-4 text-[#ffff]">
+        <div className="flex flex-row items-center justify-between w-full space-x-2rem">
           {getAssetIcon(IconTypeEnum.Enum.HEADER, selectedAsset?.tokenSymbol, selectedAsset?.logo)}
           <div className="flex flex-col items-end justify-center">
             <p className="font-semibold text-[1.15rem] text-right">{`${toFullDecimal(
@@ -35,7 +35,7 @@ export default function ICRCSubaccountAction() {
           </div>
         </div>
       </div>
-      <div className="flex flex-row justify-around items-center h-full w-[calc(100%-17rem)] text-ThirdTextColorLight dark:text-ThirdTextColor">
+      <div className="flex flex-row justify-around items-center h-full w-[calc(100%-2rem)] text-ThirdTextColorLight dark:text-ThirdTextColor">
         <div
           className={clsx(
             "flex flex-col justify-center items-center w-1/3 gap-1",

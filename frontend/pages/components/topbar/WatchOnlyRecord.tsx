@@ -2,7 +2,7 @@ import { CustomInput } from "@components/input";
 import { SetStateAction, Dispatch } from "react";
 import DeleteWatchOnlyRecordModal from "./DeleteWatchOnlyRecordModal";
 import { EditWatchOnlyItem } from "./WatchOnlyRecords";
-import { WatchOnlyItem } from "@pages/login/components/WatchOnlyInput";
+import { WatchOnlyItem } from "@/pages/login/components/WatchOnlyInput";
 import { handlePrincipalAuthenticated } from "@redux/CheckAuth";
 import clsx from "clsx";
 import useWatchOnlyMutation, { MAX_ALIAS_ADDRESS_LENGTH } from "./useWatchOnlyMutation";
@@ -11,13 +11,13 @@ import ActionIcons from "./ActionIcons";
 import { clearDataContacts } from "@redux/contacts/ContactsReducer";
 import { setTransactions } from "@redux/transaction/TransactionReducer";
 import { setReduxAllowances } from "@redux/allowance/AllowanceReducer";
-import { shortAddress } from "@common/utils/icrc";
+import { shortAddress } from "@/common/utils/icrc";
 import { setAppDataRefreshing } from "@redux/common/CommonReducer";
 import { db } from "@/database/db";
 import { updateAllBalances } from "@redux/assets/AssetActions";
-import { transactionCacheRefresh } from "@pages/home/helpers/cache";
-import { allowanceCacheRefresh } from "@pages/allowances/helpers/cache";
-import contactCacheRefresh from "@pages/contacts/helpers/contactCacheRefresh";
+import { transactionCacheRefresh } from "@/pages/home/helpers/cache";
+import { allowanceCacheRefresh } from "@/pages/allowances/helpers/cache";
+import contactCacheRefresh from "@/pages/contacts/helpers/contactCacheRefresh";
 import { setAssets, setSelectedAccount, setSelectedAsset } from "@redux/assets/AssetReducer";
 
 interface WatchOnlyRecordProps {

@@ -2,7 +2,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import ContactAssetPop from "@/pages/contacts/components/ICRC/contactAssetPop";
 import { useAppSelector } from "@redux/Store";
 import { Asset } from "@redux/models/AccountModels";
-import SubAccountFormItem from "@pages/contacts/components/ICRC/AddContact/SubAccountFormItem";
+import SubAccountFormItem from "@/pages/contacts/components/ICRC/AddContact/SubAccountFormItem";
 
 interface ContactAssetDetailsProps {
   contactAssetSelected: string;

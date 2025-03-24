@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { BasicModal } from "@components/modal";
 import { CustomButton } from "@components/button";
@@ -10,11 +10,15 @@ import { ReactComponent as PaymayaIcon } from "@assets/svg/files/paymaya.svg";
 import { ReactComponent as BpiIcon } from "@assets/svg/files/bpi.svg";
 import { clsx } from "clsx";
 import { useAppSelector } from "@redux/Store";
-import { Order, PaymentMethod } from "@/types/p2p";
+import { Order, PaymentMethod, PaymentVerification } from "@/types/p2p";
 import { p2pService } from "@/services/p2p";
 import { LoadingLoader } from "@components/loader";
+import { useSnackbar } from "notistack";
 import PaymentInstructions from "./PaymentInstructions";
 import ValidatorRegistration from './ValidatorRegistration';
+import { LocalRxdbDatabase } from "@database/local-rxdb";
+import store from "@redux/Store";
+import { TokenMarketInfo } from "@redux/models/TokenModels";
 
 interface Validator {
   id: string;
@@ -30,7 +34,7 @@ interface Message {
   id: string;
   type: 'order' | 'message' | 'payment' | 'image';
   content: string;
-  sender: 'validator' | 'user';
+  sender: 'validator' | 'user' | 'system';
   timestamp: Date;
   orderDetails?: Order;
   isNew?: boolean;
@@ -94,18 +98,12 @@ const VALIDATORS: Validator[] = [
   // },
 ];
 
-interface PaymentMethodIcon {
-  id: string;
-  icon: React.FC<React.SVGProps<SVGSVGElement>>;
-}
-
 const PAYMENT_METHOD_ICONS: Record<string, React.FC<React.SVGProps<SVGSVGElement>>> = {
   gcash: GcashIcon,
   maya: PaymayaIcon,
   bpi: BpiIcon,
 };
 
-const ESCROW_TIMEOUT = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 const MIN_ORDER_AMOUNT = 1; // Minimum WASTE token amount
 const MAX_ORDER_AMOUNT = 10000; // Maximum WASTE token amount
 
@@ -114,7 +112,7 @@ const ORDER_SIZE_TIERS = {
   SMALL: { max: 100, timeout: 12 * 60 * 60 * 1000 }, // 12 hours for orders <= 100 WASTE
   MEDIUM: { max: 1000, timeout: 24 * 60 * 60 * 1000 }, // 24 hours for orders <= 1000 WASTE
   LARGE: { max: 5000, timeout: 48 * 60 * 60 * 1000 }, // 48 hours for orders <= 5000 WASTE
-  XLARGE: { max: 10000, timeout: 72 * 60 * 60 * 1000 }, // 72 hours for orders > 5000 WASTE
+  XLARGE: { max: 10000, timeout: 72 * 60 * 60 * 1000 }, // 72 hours for orders > 10000 WASTE
 };
 
 const RATE_LIMIT = {
@@ -137,6 +135,8 @@ const ORDER_STATUS_TRACKING = {
   EXPIRED: "expired"
 } as const;
 
+const USD_TO_PHP_RATE = 56; // Fixed exchange rate from USD to PHP
+
 const TopUpModal = ({ onClose }: TopUpModalProps) => {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<"swap" | "buy">("buy");
@@ -157,13 +157,22 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const assets = useAppSelector((state) => state.asset.list.assets);
   const wasteToken = assets.find(asset => asset.tokenSymbol === "WASTE");
-  const WASTE_TOKEN_PRICE = 1; // Price per WASTE token in PHP
+  const WASTE_TOKEN_PRICE = useMemo(() => {
+    if (!wasteToken) return 1;
+    const market = store.getState().asset.utilData.tokensMarket.find(
+      (tm: TokenMarketInfo) => tm.symbol === wasteToken.tokenSymbol
+    );
+    if (!market) return 1;
+    return market.price * USD_TO_PHP_RATE; // Convert USD price to PHP
+  }, [wasteToken]);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedValidator, setSelectedValidator] = useState<string>("");
   const [showValidatorList, setShowValidatorList] = useState(false);
-  const [validatorFilter, setValidatorFilter] = useState<'all' | 'active'>('all');
+  const [validatorFilter, setValidatorFilter] = useState<'all' | 'active'>('active');
   const [showValidatorRegistration, setShowValidatorRegistration] = useState(false);
+  const [validators, setValidators] = useState<Validator[]>([]);
+  const { enqueueSnackbar } = useSnackbar();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -172,6 +181,7 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
   useEffect(() => {
     loadOrders();
     loadPaymentMethods();
+    loadValidators();
     scrollToBottom();
   }, []);
 
@@ -196,6 +206,20 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
       }
     } catch (error) {
       console.error("Failed to load payment methods:", error);
+    }
+  };
+
+  const loadValidators = async () => {
+    try {
+      setLoading(true);
+      const db = LocalRxdbDatabase.instance;
+      // Fetch validators from the database
+      const validatorsData = await db.getValidators();
+      setValidators(validatorsData);
+    } catch (error) {
+      console.error('Error loading validators:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -358,7 +382,7 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
         id: Math.random().toString(),
         type: 'message',
         content: `Tokens locked in escrow: ${order.amount} WASTE
-Order Tier: ${orderTier}
+        Order Tier: ${orderTier}
 Escrow Duration: ${escrowTimeout / (60 * 60 * 1000)} hours
 Expires: ${new Date(Date.now() + escrowTimeout).toLocaleString()}`,
         sender: 'validator',
@@ -419,32 +443,84 @@ Auto-cancellation if not paid by: ${new Date(Date.now() + escrowTimeout).toLocal
   };
 
   const handleConfirmPayment = async () => {
-    if (!selectedOrder) return;
+    if (!selectedOrder || !selectedImage) {
+      enqueueSnackbar('Please select an order and upload payment proof', { variant: 'error' });
+      return;
+    }
     
     try {
       setLoading(true);
-      // Here you would typically:
-      // 1. Upload payment proof
-      // 2. Create payment verification
-      // 3. Update order status
-      await p2pService.createPaymentVerification({
-        orderId: selectedOrder.id,
-        proof: "", // This would be the uploaded proof
+      
+      // 1. Convert image to base64
+      const reader = new FileReader();
+      const imageBase64Promise = new Promise<string>((resolve) => {
+        reader.onloadend = () => {
+          resolve(reader.result as string);
+        };
+        reader.readAsDataURL(selectedImage);
       });
       
+      const imageBase64 = await imageBase64Promise;
+      
+      // 2. Create payment verification with proof
+      const verification: PaymentVerification = {
+        orderId: selectedOrder.id,
+        status: "pending",
+        proof: imageBase64,
+      };
+      
+      await p2pService.createPaymentVerification(verification);
+      
+      // 3. Update order status to payment_submitted
+      await p2pService.updateOrderStatus(selectedOrder.id, 'payment_submitted');
+      
+      // 4. Add confirmation message to chat
+      setMessages(prev => [...prev, {
+        id: Math.random().toString(),
+        type: 'message',
+        content: 'Payment proof submitted successfully. Awaiting verification.',
+        sender: 'system',
+        timestamp: new Date(),
+        orderDetails: selectedOrder,
+        isNew: true
+      }]);
+      
+      // 5. Reset states
       setShowPaymentInstructions(false);
+      setSelectedImage(null);
       setSelectedOrder(null);
+      
+      // 6. Show success message
+      enqueueSnackbar('Payment proof submitted successfully', { variant: 'success' });
+      
+      // 7. Reload orders to get updated status
       await loadOrders();
+      
     } catch (error) {
       console.error("Failed to confirm payment:", error);
+      enqueueSnackbar('Failed to submit payment proof', { variant: 'error' });
     } finally {
       setLoading(false);
     }
   };
 
   const handleValidatorSelect = (validatorId: string) => {
-    setSelectedValidator(validatorId);
-    setShowValidatorList(false);
+    const validator = validators.find(v => v.id === validatorId);
+    if (validator) {
+      setSelectedValidator(validatorId);
+      setShowValidatorList(false);
+      
+      // Add a system message about the validator selection
+      setMessages(prev => [...prev, {
+        id: Math.random().toString(),
+        type: 'message',
+        content: `Connected with validator: ${validator.name}`,
+        sender: 'validator',
+        timestamp: new Date(),
+        validatorId: validatorId,
+        isNew: true
+      }]);
+    }
   };
 
   const handleSendMessage = () => {
@@ -462,91 +538,78 @@ Auto-cancellation if not paid by: ${new Date(Date.now() + escrowTimeout).toLocal
     setNewMessage("");
   };
 
-  const filteredValidators = VALIDATORS.filter(validator => 
-    validatorFilter === 'all' || validator.isActive
-  );
+  const filteredValidators = useMemo(() => {
+    return validators.filter(validator => 
+      validatorFilter === 'all' || (validatorFilter === 'active' && validator.isActive)
+    ).sort((a, b) => {
+      // Sort by rating first
+      if (b.rating !== a.rating) return b.rating - a.rating;
+      // Then by response time
+      return parseInt(a.responseTime) - parseInt(b.responseTime);
+    });
+  }, [validators, validatorFilter]);
 
   const renderValidatorList = () => {
-    return (
-      <div className="absolute bottom-full mb-2 right-0 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-BorderColorTwoLight dark:border-BorderColorTwo overflow-hidden">
-        <div className="p-3 border-b border-BorderColorTwoLight dark:border-BorderColorTwo">
-          <div className="flex items-center justify-between mb-2">
-            <h4 className="text-sm font-medium">{t("Select Validator")}</h4>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setValidatorFilter('all')}
-              className={clsx(
-                "text-xs px-2 py-1 rounded",
-                validatorFilter === 'all' 
-                  ? "bg-slate-color-success text-white" 
-                  : "bg-gray-100 dark:bg-gray-700"
-              )}
-            >
-              {t("All")}
-            </button>
-            <button
-              onClick={() => setValidatorFilter('active')}
-              className={clsx(
-                "text-xs px-2 py-1 rounded",
-                validatorFilter === 'active' 
-                  ? "bg-slate-color-success text-white" 
-                  : "bg-gray-100 dark:bg-gray-700"
-              )}
-            >
-              {t("Active Only")}
-            </button>
-          </div>
-          <div className="text-xs text-gray-500 mt-2">
-            {filteredValidators.length} {validatorFilter === 'active' ? 'active ' : ''}validators available
-          </div>
+    if (loading) {
+      return (
+        <div className="flex justify-center items-center p-8">
+          <LoadingLoader />
         </div>
-        <div className="max-h-64 overflow-y-auto">
+      );
+    }
+
+    if (filteredValidators.length === 0) {
+      return (
+        <div className="text-center p-4 text-gray-500">
+          {validatorFilter === 'active' 
+            ? t("No active validators available")
+            : t("No validators available")}
+        </div>
+      );
+    }
+
+    return (
+      <div className="absolute top-full right-0 mt-2 w-80 max-h-96 overflow-y-auto bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-BorderColorTwoLight dark:border-BorderColorTwo z-50">
+        {renderValidatorFilterToggle()}
+        <div className="grid grid-cols-1 gap-2 p-2">
           {filteredValidators.map((validator) => (
             <button
               key={validator.id}
               onClick={() => handleValidatorSelect(validator.id)}
               className={clsx(
-                "w-full p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-BorderColorTwoLight dark:border-BorderColorTwo last:border-0",
-                selectedValidator === validator.id && "bg-gray-50 dark:bg-gray-700"
+                "flex items-center gap-3 p-3 rounded-lg transition-all",
+                "hover:bg-gray-50 dark:hover:bg-gray-700",
+                !validator.isActive && "opacity-50"
               )}
+              disabled={!validator.isActive}
             >
-              <div className="flex items-start gap-3">
-                <div className="relative">
-                  <img 
-                    src={validator.avatarUrl} 
+              <div className="relative">
+                {validator.avatarUrl ? (
+                  <img
+                    src={validator.avatarUrl}
                     alt={validator.name}
                     className="w-10 h-10 rounded-full"
                   />
-                  <div 
-                    className={clsx(
-                      "absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-white dark:border-gray-800",
-                      validator.isActive ? "bg-green-500" : "bg-gray-400"
-                    )}
-                  />
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">{validator.name}</span>
-                    <span className={clsx(
-                      "text-xs px-2 py-0.5 rounded",
-                      validator.isActive 
-                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
-                        : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-400"
-                    )}>
-                      {validator.isActive ? t("Active") : t("Inactive")}
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                    <span className="text-lg font-semibold">
+                      {validator.name.charAt(0)}
                     </span>
                   </div>
-                  <div className="mt-1 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                    <div className="flex items-center">
-                      <span className="text-yellow-500">★</span>
-                      <span className="ml-1">{validator.rating}</span>
-                    </div>
-                    <span>•</span>
-                    <div>{validator.responseTime}</div>
-                    <span>•</span>
-                    <div>{validator.totalOrders} orders</div>
-                  </div>
+                )}
+                <div 
+                  className={clsx(
+                    "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-gray-800",
+                    validator.isActive ? "bg-green-500" : "bg-gray-400"
+                  )}
+                />
+              </div>
+              <div className="flex-1 text-left">
+                <div className="font-medium">{validator.name}</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  <span>⭐ {validator.rating.toFixed(1)}</span>
+                  <span className="mx-1">•</span>
+                  <span>{validator.responseTime}</span>
                 </div>
               </div>
             </button>
@@ -586,27 +649,6 @@ Auto-cancellation if not paid by: ${new Date(Date.now() + escrowTimeout).toLocal
     );
   };
 
-  const handleConfirmOrder = async (orderId: string) => {
-    try {
-      setLoading(true);
-      // Here you would typically confirm the order in your backend
-      await p2pService.updateOrderStatus(orderId, "payment_pending");
-      
-      setMessages(prev => [...prev, {
-        id: Math.random().toString(),
-        type: 'message',
-        content: 'Order confirmed! Please proceed with the payment.',
-        sender: 'validator',
-        timestamp: new Date(),
-        isNew: true
-      }]);
-    } catch (error) {
-      console.error("Failed to confirm order:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleCancelOrder = async (orderId: string) => {
     try {
       setLoading(true);
@@ -624,7 +666,7 @@ Auto-cancellation if not paid by: ${new Date(Date.now() + escrowTimeout).toLocal
     } catch (error) {
       console.error("Failed to cancel order:", error);
     } finally {
-      setLoading(false);
+      onClose();
     }
   };
 
@@ -655,10 +697,10 @@ Auto-cancellation if not paid by: ${new Date(Date.now() + escrowTimeout).toLocal
                     "flex-1 bg-slate-color-success text-white text-sm py-1",
                     "hover:bg-slate-color-success/90"
                   )}
-                  onClick={() => handleConfirmOrder(message.orderDetails!.id)}
+                  onClick={() => message.orderDetails && handleAcceptOrder(message.orderDetails)}
                   disabled={loading}
                 >
-                  {loading ? <LoadingLoader /> : t("Confirm Order")}
+                  {loading ? <LoadingLoader /> : t("Accept Order")}
                 </CustomButton>
                 <CustomButton
                   className={clsx(
@@ -760,6 +802,36 @@ Auto-cancellation if not paid by: ${new Date(Date.now() + escrowTimeout).toLocal
     }
   };
 
+  const renderValidatorFilterToggle = () => (
+    <div className="flex items-center gap-2 mb-4">
+      <span className="text-sm text-gray-500">{t("Show:")}</span>
+      <div className="flex rounded-lg border border-BorderColorTwoLight dark:border-BorderColorTwo overflow-hidden">
+        <button
+          className={clsx(
+            "px-3 py-1 text-sm",
+            validatorFilter === 'all'
+              ? "bg-slate-color-success text-white"
+              : "hover:bg-gray-50 dark:hover:bg-gray-800"
+          )}
+          onClick={() => setValidatorFilter('all')}
+        >
+          {t("All")}
+        </button>
+        <button
+          className={clsx(
+            "px-3 py-1 text-sm",
+            validatorFilter === 'active'
+              ? "bg-slate-color-success text-white"
+              : "hover:bg-gray-50 dark:hover:bg-gray-800"
+          )}
+          onClick={() => setValidatorFilter('active')}
+        >
+          {t("Active Only")}
+        </button>
+      </div>
+    </div>
+  );
+
   return (
     <BasicModal
       open={true}
@@ -797,7 +869,7 @@ Auto-cancellation if not paid by: ${new Date(Date.now() + escrowTimeout).toLocal
                   )}
                   onClick={() => setActiveTab("swap")}
                 >
-                  {t("Swap Tokens")}
+                  {t("Swap")}
                 </button>
                 <button
                   className={clsx(
@@ -899,7 +971,7 @@ Auto-cancellation if not paid by: ${new Date(Date.now() + escrowTimeout).toLocal
                       type="number"
                       value={amount}
                       onChange={handleAmountChange}
-                      placeholder={t("Waste Token Amount")}
+                      placeholder={t("Amount")}
                     />
                   </div>
                   <div className="flex flex-col gap-2">
@@ -908,7 +980,7 @@ Auto-cancellation if not paid by: ${new Date(Date.now() + escrowTimeout).toLocal
                       type="number"
                       value={price}
                       disabled
-                      placeholder={t("Php Amount")}
+                      placeholder={t("Amount")}
                     />
                   </div>
                   <div className="flex flex-col gap-2">

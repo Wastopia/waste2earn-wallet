@@ -2,10 +2,10 @@ import { AllowanceValidationErrorsEnum } from "@/@types/allowance";
 import { middleTruncation } from "@/common/utils/strings";
 import { ReactComponent as AlertIcon } from "@assets/svg/files/alert-icon.svg";
 import { ReactComponent as CloseIcon } from "@assets/svg/files/close.svg";
-import { LoadingLoader } from "@components/loader";
-import { BasicModal } from "@components/modal";
-import { BasicButton } from "@components/button";
-import useDeleteAllowance from "@pages/allowances/hooks/useDeleteAllowance";
+import { LoadingLoader } from "@/components/loader";
+import { BasicModal } from "@/components/modal";
+import { BasicButton } from "@/components/button";
+import useDeleteAllowance from "@/pages/allowances/hooks/useDeleteAllowance";
 import { useAppSelector } from "@redux/Store";
 import {
   setFullAllowanceErrorsAction,

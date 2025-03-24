@@ -7,7 +7,7 @@ import PrivateRoute from "./components/privateRoute";
 import { useAppSelector } from "@redux/Store";
 import Loader from "./components/Loader";
 import WorkersWrapper from "@/wrappers/WorkersWrapper";
-import { RoutingPathEnum } from "@common/const";
+import { RoutingPathEnum } from "@/common/const";
 import TransferProvider from "./home/contexts/TransferProvider";
 
 const Login = lazy(() => import("@/pages/login"));

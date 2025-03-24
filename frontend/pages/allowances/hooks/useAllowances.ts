@@ -4,7 +4,7 @@ import { useAppSelector } from "@redux/Store";
 import { useMemo, useState } from "react";
 import { filterByAsset, filterBySpenderAndSubAccount } from "../helpers/filters";
 import { sortByAmount, sortByExpiration, sortBySpender, sortBySubAccount } from "../helpers/sorters";
-import { RoutingPathEnum } from "@common/const";
+import { RoutingPathEnum } from "@/common/const";
 
 export default function useAllowances() {
   const { route } = useAppSelector((state) => state.auth);

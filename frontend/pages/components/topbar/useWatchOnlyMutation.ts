@@ -1,7 +1,7 @@
-import { getWatchOnlySessionsFromLocal, updateWatchOnlySessionFromLocal } from "@pages/helpers/watchOnlyStorage";
+import { getWatchOnlySessionsFromLocal, updateWatchOnlySessionFromLocal } from "@/pages/helpers/watchOnlyStorage";
 import { Dispatch, SetStateAction } from "react";
 import { EditWatchOnlyItem } from "./WatchOnlyRecords";
-import { WatchOnlyItem } from "@pages/login/components/WatchOnlyInput";
+import { WatchOnlyItem } from "@/pages/login/components/WatchOnlyInput";
 import { setReduxWatchOnlyHistory } from "@redux/auth/AuthReducer";
 import { useAppDispatch } from "@redux/Store";
 

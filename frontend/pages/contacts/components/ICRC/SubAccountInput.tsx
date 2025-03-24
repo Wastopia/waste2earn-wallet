@@ -1,14 +1,14 @@
 import { ContactAccount } from "@redux/models/ContactsModels";
 import { CustomInput } from "@components/input";
 import { Dispatch, forwardRef, SetStateAction } from "react";
-import { getSubAccount, getSubAccountId } from "@pages/contacts/helpers/formatters";
+import { getSubAccount, getSubAccountId } from "@/pages/contacts/helpers/formatters";
 import { ContactAccountError } from "./AddContactAccountRow";
-import { validatePrincipal } from "@common/utils/definityIdentity";
+import { validatePrincipal } from "@/common/utils/definityIdentity";
 import { useAppSelector } from "@redux/Store";
 import { t } from "i18next";
 import * as RadixSwitch from "@radix-ui/react-switch";
 import clsx from "clsx";
-import { isHexadecimalValid } from "@pages/home/helpers/checkers";
+import { isHexadecimalValid } from "@/pages/home/helpers/checkers";
 
 interface SubAccountInputProps {
   newAccount: ContactAccount | null;

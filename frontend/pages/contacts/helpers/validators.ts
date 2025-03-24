@@ -1,6 +1,6 @@
 import { Contact, ContactAccount } from "@redux/models/ContactsModels";
-import { validatePrincipal } from "@common/utils/definityIdentity";
-import { isHexadecimalValid } from "@pages/home/helpers/checkers";
+import { validatePrincipal } from "@/common/utils/definityIdentity";
+import { isHexadecimalValid } from "@/pages/home/helpers/checkers";
 
 export const isContactNameValid = (name: string): boolean => {
   return name.trim() !== "" && name.length <= 32;

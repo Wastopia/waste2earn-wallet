@@ -1,10 +1,10 @@
-import React, { memo, useState } from "react";
+import { memo, useState } from "react";
 import { IconButton } from "@components/button";
 import { BasicModal } from "@components/modal";
 import { PlusIcon } from "@radix-ui/react-icons";
 import AddContact from "@/pages/contacts/components/ICRC/AddContact";
-import ContactErrorProvider from "@pages/contacts/contexts/ContactErrorProvider";
-import ContactProvider from "@pages/contacts/contexts/ContactProvider";
+import ContactErrorProvider from "@/pages/contacts/contexts/ContactErrorProvider";
+import ContactProvider from "@/pages/contacts/contexts/ContactProvider";
 
 function AddContactModal() {
   const [open, setOpen] = useState(false);

@@ -1,11 +1,11 @@
-import { chunkTransactions } from "@pages/home/helpers/mappers";
+import { chunkTransactions } from "@/pages/home/helpers/mappers";
 import { useAppDispatch, useAppSelector } from "@redux/Store";
 import { useEffect, useRef } from "react";
 import { setTransactions, updateTxWorkerSubAccount } from "@redux/transaction/TransactionReducer";
-import { AssetSymbolEnum } from "@common/const";
-import { getAllTransactionsICP, getAllTransactionsICRC1 } from "@pages/home/helpers/requests";
+import { AssetSymbolEnum } from "@/common/const";
+import { getAllTransactionsICP, getAllTransactionsICRC1 } from "@/pages/home/helpers/requests";
 import { Asset, SubAccount, Transaction, TransactionList } from "@redux/models/AccountModels";
-import { hexToUint8Array } from "@common/utils/hexadecimal";
+import { hexToUint8Array } from "@/common/utils/hexadecimal";
 import { isEqual } from "lodash";
 
 // INFO: this wrapper is reponsable of filter and refresh the transactions based on the selected asset, sub account and txWorker update.

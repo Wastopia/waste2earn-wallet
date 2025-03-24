@@ -2,13 +2,13 @@ import store from "@redux/Store";
 import { AccountIdentifier, SubAccount as SubAccountNNS } from "@dfinity/ledger-icp";
 import { Principal } from "@dfinity/principal";
 import { GetAllTransactionsICPParams } from "@/@types/assets";
-import { hexToUint8Array } from "@common/utils/hexadecimal";
+import { hexToUint8Array } from "@/common/utils/hexadecimal";
 import { formatckBTCTransaccion, formatIcpTransaccion } from "@/pages/home/helpers/mappers";
 import { Actor } from "@dfinity/agent";
-import { _SERVICE as LedgerActor } from "@candid/IcrcIndex/icrc_index";
-import { idlFactory as LedgerFactory } from "@candid/IcrcIndex/icrc_index.idl";
+import { _SERVICE as LedgerActor } from "@/candid/IcrcIndex/icrc_index";
+import { idlFactory as LedgerFactory } from "@/candid/IcrcIndex/icrc_index.idl";
 import logger from "@/common/utils/logger";
-import { SpecialTxTypeEnum } from "@common/const";
+import { SpecialTxTypeEnum } from "@/common/const";
 
 export const getAllTransactionsICP = async (params: GetAllTransactionsICPParams) => {
   const { subaccount_index, isOGY } = params;

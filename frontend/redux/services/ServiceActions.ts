@@ -1,10 +1,10 @@
 import { Actor, HttpAgent } from "@dfinity/agent";
 import store from "@redux/Store";
-import { _SERVICE as IcrcxActor } from "@candid/icrcx/service.did";
-import { idlFactory as IcrcxIDLFactory } from "@candid/icrcx/candid.did";
+import { _SERVICE as IcrcxActor } from "@/candid/icrcx/service.did";
+import { idlFactory as IcrcxIDLFactory } from "@/candid/icrcx/candid.did";
 import { ServiceAsset, ServiceData } from "@redux/models/ServiceModels";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
-import { getMetadataInfo } from "@common/utils/icrc";
+import { getMetadataInfo } from "@/common/utils/icrc";
 import { Principal } from "@dfinity/principal";
 import { db } from "@/database/db";
 

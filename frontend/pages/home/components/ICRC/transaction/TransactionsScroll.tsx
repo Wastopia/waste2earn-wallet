@@ -1,9 +1,9 @@
 import TransactionsTable from "@/pages/home/components/ICRC/transaction/TransactionsTable";
 import { useAppSelector } from "@redux/Store";
-import { deChunkTransactions } from "@pages/home/helpers/mappers";
+import { deChunkTransactions } from "@/pages/home/helpers/mappers";
 import { useEffect, useRef, useState } from "react";
 import { Asset, SubAccount, Transaction } from "@redux/models/AccountModels";
-import { sortByDate } from "@pages/home/helpers/sorters";
+import { sortByDate } from "@/pages/home/helpers/sorters";
 
 export enum SortOrderEnum {
   ASC = "asc",

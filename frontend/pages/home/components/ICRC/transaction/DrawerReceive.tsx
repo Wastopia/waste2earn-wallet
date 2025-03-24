@@ -3,9 +3,9 @@ import { encodeIcrcAccount } from "@dfinity/ledger-icrc";
 import { Principal } from "@dfinity/principal";
 import QRCode from "react-qr-code";
 import { CustomCopy } from "@components/tooltip";
-import { AccountHook } from "@pages/hooks/accountHook";
-import { hexToUint8Array } from "@common/utils/hexadecimal";
-import { AssetSymbolEnum } from "@common/const";
+import { AccountHook } from "@/pages/hooks/accountHook";
+import { hexToUint8Array } from "@/common/utils/hexadecimal";
+import { AssetSymbolEnum } from "@/common/const";
 import { AccountIdentifier, SubAccount } from "@dfinity/ledger-icp";
 import { useTranslation } from "react-i18next";
 

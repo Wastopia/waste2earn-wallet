@@ -1,6 +1,6 @@
 import { Principal } from "@dfinity/principal";
 import ICRCLedgerActor from "./actor";
-import { TransferArg } from "@candid/icrcLedger/icrcLedgerService";
+import { TransferArg } from "@/candid/icrcLedger/icrcLedgerService";
 import { HttpAgent } from "@dfinity/agent";
 
 interface ICRC1TranferArgs extends TransferArg {

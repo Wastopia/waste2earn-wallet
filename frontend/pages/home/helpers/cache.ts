@@ -1,9 +1,9 @@
-import { AssetSymbolEnum } from "@common/const";
+import { AssetSymbolEnum } from "@/common/const";
 import { Asset } from "@redux/models/AccountModels";
 import store from "@redux/Store";
 import { setTxWorker } from "@redux/transaction/TransactionReducer";
 import { getAllTransactionsICP, getAllTransactionsICRC1 } from "@/pages/home/helpers/requests";
-import { hexToUint8Array } from "@common/utils/hexadecimal";
+import { hexToUint8Array } from "@/common/utils/hexadecimal";
 import logger from "@/common/utils/logger";
 
 async function fetchICPTransactions(asset: Asset) {

@@ -2,11 +2,11 @@ import { CheckIcon, Cross1Icon, Pencil1Icon, TrashIcon } from "@radix-ui/react-i
 import { Dispatch, SetStateAction } from "react";
 import { WatchOnlyItem } from "@/pages/login/components/WatchOnlyInput";
 import clsx from "clsx";
-import { CustomInput } from "@components/input";
-import { EditWatchOnlyItem } from "@pages/components/topbar/WatchOnlyRecords";
-import DeleteWatchOnlyRecordModal from "@pages/components/topbar/DeleteWatchOnlyRecordModal";
-import useWatchOnlyMutation from "@pages/components/topbar/useWatchOnlyMutation";
-import { shortAddress } from "@common/utils/icrc";
+import { CustomInput } from "@/components/input";
+import { EditWatchOnlyItem } from "@/pages/components/topbar/WatchOnlyRecords";
+import DeleteWatchOnlyRecordModal from "@/pages/components/topbar/DeleteWatchOnlyRecordModal";
+import useWatchOnlyMutation from "@/pages/components/topbar/useWatchOnlyMutation";
+import { shortAddress } from "@/common/utils/icrc";
 
 interface HistoricalItemProps {
   onHistoricalSelectHandler: (principal: string) => void;

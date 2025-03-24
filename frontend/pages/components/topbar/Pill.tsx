@@ -1,4 +1,4 @@
-import { shortAddress } from "@common/utils/icrc";
+import { shortAddress } from "@/common/utils/icrc";
 
 interface PillProps {
   text: string;

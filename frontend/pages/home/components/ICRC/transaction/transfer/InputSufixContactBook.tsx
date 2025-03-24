@@ -5,10 +5,10 @@ import { ReactComponent as SendUserIcon } from "@assets/svg/files/send-user-icon
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useAppSelector } from "@redux/Store";
 import { ContactSubAccount } from "@/@types/transactions";
-import { middleTruncation } from "@common/utils/strings";
+import { middleTruncation } from "@/common/utils/strings";
 import { AvatarEmpty } from "@components/avatar";
 import { Asset } from "@redux/models/AccountModels";
-import { TransferFromTypeEnum, TransferToTypeEnum, useTransfer } from "@pages/home/contexts/TransferProvider";
+import { TransferFromTypeEnum, TransferToTypeEnum, useTransfer } from "@/pages/home/contexts/TransferProvider";
 import { CustomInput } from "@components/input";
 import { ChangeEvent, useState } from "react";
 import { useTranslation } from "react-i18next";

@@ -1,14 +1,14 @@
 import { SupportedStandard } from "@/@types/icrc";
 import store from "@redux/Store";
-import { getMetadataInfo } from "@common/utils/icrc";
-import { getUSDFromToken } from "@common/utils/amount";
+import { getMetadataInfo } from "@/common/utils/icrc";
+import { getUSDFromToken } from "@/common/utils/amount";
 import { Asset } from "@redux/models/AccountModels";
-import { AccountDefaultEnum } from "@common/const";
+import { AccountDefaultEnum } from "@/common/const";
 import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
 import { Principal } from "@dfinity/principal";
 import ICRC1BalanceOf from "@/common/libs/icrcledger/ICRC1BalanceOf";
 import ICRC1SupportedStandards from "@/common/libs/icrcledger/ICRC1SupportedStandards";
-import { hexToUint8Array } from "@common/utils/hexadecimal";
+import { hexToUint8Array } from "@/common/utils/hexadecimal";
 import logger from "@/common/utils/logger";
 
 interface DetailsParams {

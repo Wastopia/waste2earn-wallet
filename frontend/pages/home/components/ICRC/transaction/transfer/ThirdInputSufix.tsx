@@ -2,8 +2,8 @@
 import { ReactComponent as QRScanIcon } from "@assets/svg/files/qr.svg";
 //
 import { useAppSelector } from "@redux/Store";
-import { useTransfer } from "@pages/home/contexts/TransferProvider";
-import { TransferView, useTransferView } from "@pages/home/contexts/TransferViewProvider";
+import { useTransfer } from "@/pages/home/contexts/TransferProvider";
+import { TransferView, useTransferView } from "@/pages/home/contexts/TransferViewProvider";
 import InputSufixContactBook from "@/pages/home/components/ICRC/transaction/transfer/InputSufixContactBook";
 import InputSufixServiceBook from "@/pages/home/components/ICRC/transaction/transfer/InputSufixServiceBook";
 import { useMemo } from "react";

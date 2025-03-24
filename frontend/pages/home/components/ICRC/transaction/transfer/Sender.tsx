@@ -1,5 +1,5 @@
 import { SupportedStandardEnum } from "@/@types/icrc";
-import { TransferFromTypeEnum, useTransfer } from "@pages/home/contexts/TransferProvider";
+import { TransferFromTypeEnum, useTransfer } from "@/pages/home/contexts/TransferProvider";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 import { useAppSelector } from "@redux/Store";
 import { clsx } from "clsx";

@@ -3,10 +3,10 @@ import { useState } from "react";
 import { AvatarEmpty } from "@components/avatar";
 import { SelectOption } from "@/@types/components";
 import { useAppSelector } from "@redux/Store";
-import { useTransfer } from "@pages/home/contexts/TransferProvider";
+import { useTransfer } from "@/pages/home/contexts/TransferProvider";
 import { Contact } from "@redux/models/ContactsModels";
 import { useTranslation } from "react-i18next";
-import { shortAddress } from "@common/utils/icrc";
+import { shortAddress } from "@/common/utils/icrc";
 
 interface ReceiverContactBeneficiarySelectorProps {
   selectedContact?: Contact;

@@ -2,8 +2,8 @@ import { Actor, HttpAgent } from "@dfinity/agent";
 import { backoff, chain, conditionalDelay, once, timeout } from "@dfinity/agent/lib/cjs/polling/strategy";
 import { Principal } from "@dfinity/principal";
 //
-import { _SERVICE as LedgerActor } from "@candid/icrcLedger/icrcLedgerService";
-import { idlFactory as LedgerFactory } from "@candid/icrcLedger/icrcLedgerCandid.did";
+import { _SERVICE as LedgerActor } from "@/candid/icrcLedger/icrcLedgerService";
+import { idlFactory as LedgerFactory } from "@/candid/icrcLedger/icrcLedgerCandid.did";
 
 const FIVE_MINUTES_IN_MSEC = 5 * 60 * 1000;
 const DELAY = 250;

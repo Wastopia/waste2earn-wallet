@@ -1,4 +1,4 @@
-import Menu from "@pages/components/Menu";
+import Menu from "@/pages/components/Menu";
 import SearchIcon from "@assets/svg/files/icon-search.svg";
 import { useCallback, useState } from "react";
 import AssetFilter from "./components/ICRC/AssetFilter";

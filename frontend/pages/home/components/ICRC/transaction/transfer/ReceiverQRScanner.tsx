@@ -1,9 +1,9 @@
-import { subUint8ArrayToHex } from "@common/utils/unitArray";
+import { subUint8ArrayToHex } from "@/common/utils/unitArray";
 import { decodeIcrcAccount } from "@dfinity/ledger-icrc";
-import QRscanner from "@pages/components/QRscanner";
+import QRscanner from "@/pages/components/QRscanner";
 import logger from "@/common/utils/logger";
-import { TransferView, useTransferView } from "@pages/home/contexts/TransferViewProvider";
-import { TransferToTypeEnum, useTransfer } from "@pages/home/contexts/TransferProvider";
+import { TransferView, useTransferView } from "@/pages/home/contexts/TransferViewProvider";
+import { TransferToTypeEnum, useTransfer } from "@/pages/home/contexts/TransferProvider";
 
 export default function ReceiverQRScanner() {
   const { setView } = useTransferView();

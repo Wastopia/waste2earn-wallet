@@ -1,12 +1,12 @@
 import { ChangeEvent, useState } from "react";
-import { TransferFromTypeEnum, useTransfer } from "@pages/home/contexts/TransferProvider";
+import { TransferFromTypeEnum, useTransfer } from "@/pages/home/contexts/TransferProvider";
 import { useAppSelector } from "@redux/Store";
 import logger from "@/common/utils/logger";
-import { getTokenFromUSD, getUSDFromToken, toFullDecimal, toHoleBigInt } from "@common/utils/amount";
-import ICRC1BalanceOf from "@common/libs/icrcledger/ICRC1BalanceOf";
+import { getTokenFromUSD, getUSDFromToken, toFullDecimal, toHoleBigInt } from "@/common/utils/amount";
+import ICRC1BalanceOf from "@/common/libs/icrcledger/ICRC1BalanceOf";
 import { Principal } from "@dfinity/principal";
-import { hexToUint8Array } from "@common/utils/hexadecimal";
-import ICRC2Allowance from "@common/libs/icrcledger/ICRC2Allowance";
+import { hexToUint8Array } from "@/common/utils/hexadecimal";
+import ICRC2Allowance from "@/common/libs/icrcledger/ICRC2Allowance";
 
 interface MaxAmount {
   maxAmount: string;

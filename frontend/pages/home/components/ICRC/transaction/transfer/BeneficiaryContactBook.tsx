@@ -9,7 +9,7 @@ import { CustomInput } from "@components/input";
 import { ChangeEvent, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Contact } from "@redux/models/ContactsModels";
-import { shortAddress } from "@common/utils/icrc";
+import { shortAddress } from "@/common/utils/icrc";
 
 interface BeneficiaryContactBookProps {
   fromAllowances?: boolean;

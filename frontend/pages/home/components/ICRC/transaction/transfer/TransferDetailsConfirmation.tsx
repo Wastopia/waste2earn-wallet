@@ -1,26 +1,26 @@
 import { BasicButton } from "@components/button";
-import { TransferFromTypeEnum, TransferToTypeEnum, useTransfer } from "@pages/home/contexts/TransferProvider";
+import { TransferFromTypeEnum, TransferToTypeEnum, useTransfer } from "@/pages/home/contexts/TransferProvider";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import logger from "@/common/utils/logger";
 import SenderDetails from "@/pages/home/components/ICRC/transaction/transfer/SenderDetail";
 import ReceiverDetails from "@/pages/home/components/ICRC/transaction/transfer/ReceiverDetails";
 import AmountDetails from "@/pages/home/components/ICRC/transaction/transfer/AmountDetails";
-import { toHoleBigInt, validateAmount } from "@common/utils/amount";
+import { toHoleBigInt, validateAmount } from "@/common/utils/amount";
 import { useAppDispatch, useAppSelector } from "@redux/Store";
 import { Principal } from "@dfinity/principal";
-import { hexadecimalToUint8Array, hexToUint8Array } from "@common/utils/hexadecimal";
-import ICRC1BalanceOf from "@common/libs/icrcledger/ICRC1BalanceOf";
-import ICRC2Allowance from "@common/libs/icrcledger/ICRC2Allowance";
-import ICRC1Tranfer from "@common/libs/icrcledger/ICRC1Tranfer";
-import ICRC2TransferForm from "@common/libs/icrcledger/ICRC2TransferForm";
-import ICRCXWithdraw from "@common/libs/icrcledger/ICRCXTransfer";
+import { hexadecimalToUint8Array, hexToUint8Array } from "@/common/utils/hexadecimal";
+import ICRC1BalanceOf from "@/common/libs/icrcledger/ICRC1BalanceOf";
+import ICRC2Allowance from "@/common/libs/icrcledger/ICRC2Allowance";
+import ICRC1Tranfer from "@/common/libs/icrcledger/ICRC1Tranfer";
+import ICRC2TransferForm from "@/common/libs/icrcledger/ICRC2TransferForm";
+import ICRCXWithdraw from "@/common/libs/icrcledger/ICRCXTransfer";
 import { updateServiceAssetAmounts } from "@redux/services/ServiceReducer";
-import { getElapsedSecond } from "@common/utils/datetimeFormaters";
-import { TransferStatus, useTransferStatus } from "@pages/home/contexts/TransferStatusProvider";
-import { TransferView, useTransferView } from "@pages/home/contexts/TransferViewProvider";
+import { getElapsedSecond } from "@/common/utils/datetimeFormaters";
+import { TransferStatus, useTransferStatus } from "@/pages/home/contexts/TransferStatusProvider";
+import { TransferView, useTransferView } from "@/pages/home/contexts/TransferViewProvider";
 import { LoadingLoader } from "@components/loader";
-import reloadBallance from "@pages/helpers/reloadBalance";
+import reloadBallance from "@/pages/helpers/reloadBalance";
 
 interface ErrorResult {
   isError: boolean;
@@ -55,7 +55,7 @@ export default function TransferDetailsConfirmation() {
       <ReceiverDetails />
       <AmountDetails />
 
-      <div className="flex items-center justify-end mt-6 max-w-[23rem] mx-auto">
+      <div className="flex items-center justify-start mt-6 max-w-[23rem] mx-auto">
         {!isLoading && <p className="mr-4 text-md text-slate-color-error text-right">{errorMessage}</p>}
         {isLoading && <LoadingLoader />}
 
@@ -85,7 +85,7 @@ export default function TransferDetailsConfirmation() {
 
     if (!isAmountValid) {
       setErrorMessage(t("error.transfer.invalid.decimal.amount"));
-      throw new Error("onTransfer: Amount decial is invalid");
+      throw new Error("onTransfer: Amount decimal is invalid");
     }
 
     if (transferState.fromType === TransferFromTypeEnum.own) transferFromOwn();
@@ -127,12 +127,12 @@ export default function TransferDetailsConfirmation() {
         canisterId: Principal.fromText(currentAsset.address),
         account: {
           owner: Principal.fromText(transferState.fromPrincipal),
-          subaccount: [new Uint8Array(hexToUint8Array(transferState.fromSubAccount))],
+          subaccount: [new Uint8Array(hexToUint8Array(transferState.fromSubAccount))]
         },
         spender: {
           owner: userPrincipal,
           subaccount: [],
-        },
+        }
       });
       const allowanceAmount = allowance.allowance;
 

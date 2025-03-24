@@ -40,17 +40,17 @@ module.exports = {
       "7xl": "5rem",
     },
     screens: {
-      defaults: "1475px",
+      defaults: "1475px"
     },
     colors: {
-      PrimaryColor: "#1b183f",
+      PrimaryColor: "#11041f",
       PrimaryColorLight: "#ffffff",
       SecondaryColor: "#211e49",
       SecondaryColorLight: "#f2f2f1",
       ThirdColor: "#131030",
       ThirdColorLight: "#bfbfbf",
       PrimaryTextColor: "#ffffff",
-      PrimaryTextColorLight: "#1b183f",
+      PrimaryTextColorLight: "#11041f",
       SecondaryTextColor: "#b1afcd",
       SecondaryTextColorLight: "#211e49",
       ThirdTextColor: "#ffffffb3",
@@ -78,7 +78,7 @@ module.exports = {
       RadioNoCheckColorLight: "#4442777f",
       SvgColorLight: "#6F6C99",
       SvgColor: "#6F6C99",
-      AccpetButtonColor: "#07f22e",
+      AcceptButtonColor: "#1c9e32",
       DenyButtonColor: "#332F60",
       SearchInputBorder: "#444277",
       SearchInputBorderLight: "#DFDFE6",
@@ -116,7 +116,7 @@ module.exports = {
 
       // BACKGROUND
       "level-1-color": "#141331",
-      "level-2-color": "#1b183f",
+      "level-2-color": "#11041f",
       // GRAY COLORS
       "black-color": "#201D47",
       "gray-color-1": "#363459",

@@ -1,6 +1,6 @@
 import { Actor, HttpAgent } from "@dfinity/agent";
-import { _SERVICE as LedgerActor } from "@candid/IcrcIndex/icrc_index";
-import { idlFactory as LedgerFactory } from "@candid/IcrcIndex/icrc_index.idl";
+import { _SERVICE as LedgerActor } from "@/candid/IcrcIndex/icrc_index";
+import { idlFactory as LedgerFactory } from "@/candid/IcrcIndex/icrc_index.idl";
 import { Principal } from "@dfinity/principal";
 
 export interface ICRCIndexActorArgs {

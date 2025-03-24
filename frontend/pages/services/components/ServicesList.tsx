@@ -5,8 +5,8 @@ import { ReactComponent as CheckIcon } from "@assets/svg/files/edit-check.svg";
 import { ReactComponent as CloseIcon } from "@assets/svg/files/close.svg";
 import { TrashIcon } from "@radix-ui/react-icons";
 //
-import { shortAddress } from "@common/utils/icrc";
-import { getInitialFromName } from "@common/utils/strings";
+import { shortAddress } from "@/common/utils/icrc";
+import { getInitialFromName } from "@/common/utils/strings";
 import { CustomInput } from "@components/input";
 import { CustomCopy } from "@components/tooltip";
 import { Service } from "@redux/models/ServiceModels";

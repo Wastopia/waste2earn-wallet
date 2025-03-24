@@ -1,14 +1,14 @@
 import { CustomInput } from "@components/input";
 import { ReactComponent as TrashIcon } from "@assets/svg/files/trash-empty.svg";
 import { useTranslation } from "react-i18next";
-import { asciiHex } from "@pages/contacts/constants/asciiHex";
+import { asciiHex } from "@/pages/contacts/constants/asciiHex";
 import { Contact, ContactAccount } from "@redux/models/ContactsModels";
 import AllowanceTooltip from "../AllowanceTooltip";
-import logger from "@common/utils/logger";
-import { useContactError } from "@pages/contacts/contexts/ContactErrorProvider";
-import { useContact } from "@pages/contacts/contexts/ContactProvider";
-import { isContactSubaccountIdValid } from "@pages/contacts/helpers/validators";
-import { getSubAccount, getSubAccountId } from "@pages/contacts/helpers/formatters";
+import logger from "@/common/utils/logger";
+import { useContactError } from "@/pages/contacts/contexts/ContactErrorProvider";
+import { useContact } from "@/pages/contacts/contexts/ContactProvider";
+import { isContactSubaccountIdValid } from "@/pages/contacts/helpers/validators";
+import { getSubAccount, getSubAccountId } from "@/pages/contacts/helpers/formatters";
 
 interface AddSubAccountOnCreateProps {
   contactAssetSelected: string;

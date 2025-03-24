@@ -5,7 +5,7 @@ import { ReactComponent as DropIcon } from "@assets/svg/files/chevron-right-icon
 import { CustomInput } from "@components/input";
 import { ContactSubAccount } from "@/@types/transactions";
 import { useAppSelector } from "@redux/Store";
-import { useTransfer } from "@pages/home/contexts/TransferProvider";
+import { useTransfer } from "@/pages/home/contexts/TransferProvider";
 import logger from "@/common/utils/logger";
 import { AvatarEmpty } from "@components/avatar";
 import { useTranslation } from "react-i18next";

@@ -1,7 +1,7 @@
 import { HttpAgent } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
 import ICRCLedgerActor from "./actor";
-import { ApproveArgs } from "@candid/icrcLedger/icrcLedgerService";
+import { ApproveArgs } from "@/candid/icrcLedger/icrcLedgerService";
 
 interface ICRC2ApproveArgs extends ApproveArgs {
   canisterId: string | Principal;

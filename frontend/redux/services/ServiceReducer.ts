@@ -1,4 +1,4 @@
-import { assetsServiceToData } from "@common/utils/service";
+import { assetsServiceToData } from "@/common/utils/service";
 import { Service, ServiceAsset, ServiceAssetData, ServiceData } from "@redux/models/ServiceModels";
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { saveServices } from "@/redux/services/ServiceActions";

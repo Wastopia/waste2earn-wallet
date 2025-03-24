@@ -9,8 +9,8 @@ import { SpecialTxTypeEnum, TransactionTypeEnum } from "@/common/const";
 import { Fragment, useState } from "react";
 import { useAppSelector } from "@redux/Store";
 import CodeElement from "@components/TableCodeElement";
-import { getAddress, getAssetSymbol } from "@common/utils/icrc";
-import { toFullDecimal } from "@common/utils/amount";
+import { getAddress, getAssetSymbol } from "@/common/utils/icrc";
+import { toFullDecimal } from "@/common/utils/amount";
 
 export const useTransactionsTable = () => {
   const { t } = useTranslation();

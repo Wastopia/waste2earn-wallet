@@ -5,7 +5,7 @@ import SearchIcon from "@assets/svg/files/icon-search.svg";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useAppSelector } from "@redux/Store";
 import { AvatarEmpty } from "@components/avatar";
-import { TransferToTypeEnum, useTransfer } from "@pages/home/contexts/TransferProvider";
+import { TransferToTypeEnum, useTransfer } from "@/pages/home/contexts/TransferProvider";
 import { Service } from "@redux/models/ServiceModels";
 import { Principal } from "@dfinity/principal";
 import { Buffer } from "buffer";

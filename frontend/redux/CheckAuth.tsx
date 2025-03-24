@@ -20,8 +20,8 @@ import { Ed25519KeyIdentity, DelegationIdentity } from "@dfinity/identity";
 import { Principal } from "@dfinity/principal";
 import { Secp256k1KeyIdentity } from "@dfinity/identity-secp256k1";
 import { db, DB_Type } from "@/database/db";
-import { addWatchOnlySessionToLocal } from "@pages/helpers/watchOnlyStorage";
-import watchOnlyRefresh from "@pages/helpers/watchOnlyRefresh";
+import { addWatchOnlySessionToLocal } from "@/pages/helpers/watchOnlyStorage";
+import watchOnlyRefresh from "@/pages/helpers/watchOnlyRefresh";
 import { clearServiceData } from "./services/ServiceReducer";
 
 const AUTH_PATH = `/authenticate/?applicationName=${import.meta.env.VITE_APP_NAME}&applicationLogo=${

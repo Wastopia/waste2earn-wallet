@@ -11,7 +11,7 @@ import DeleteSubAccountModal from "./DeleteSubAccountModal";
 import { useAppDispatch, useAppSelector } from "@redux/Store";
 import { db } from "@/database/db";
 import { setSelectedAccount, setSelectedAsset, setSubAccountMutation } from "@redux/assets/AssetReducer";
-import { toFullDecimal } from "@common/utils/amount";
+import { toFullDecimal } from "@/common/utils/amount";
 
 interface AccountAccordionItemProps {
   currentSubAccount: SubAccount;

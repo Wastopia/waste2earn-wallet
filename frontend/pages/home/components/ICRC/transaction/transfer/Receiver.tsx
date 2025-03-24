@@ -1,6 +1,6 @@
 import { ReactComponent as DownAmountIcon } from "@assets/svg/files/down-blue-arrow.svg";
 import { BasicSwitch } from "@components/switch";
-import { TransferFromTypeEnum, TransferToTypeEnum, useTransfer } from "@pages/home/contexts/TransferProvider";
+import { TransferFromTypeEnum, TransferToTypeEnum, useTransfer } from "@/pages/home/contexts/TransferProvider";
 import { useTranslation } from "react-i18next";
 import ReceiverThird from "@/pages/home/components/ICRC/transaction/transfer/ReceiverThird";
 import ReceiverManual from "@/pages/home/components/ICRC/transaction/transfer/ReceiverManual";

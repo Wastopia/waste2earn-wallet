@@ -2,10 +2,10 @@
 import { ReactComponent as PlusIcon } from "@assets/svg/files/plus-icon.svg";
 import SearchIcon from "@assets/svg/files/icon-search.svg";
 //
-import { IconTypeEnum } from "@common/const";
-import { getAssetIcon } from "@common/utils/icons";
-import { CustomButton } from "@components/button";
-import { CustomCheck } from "@components/checkbox";
+import { IconTypeEnum } from "@/common/const";
+import { getAssetIcon } from "@/common/utils/icons";
+import { CustomButton } from "@/components/button";
+import { CustomCheck } from "@/components/checkbox";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useAppSelector } from "@redux/Store";
 import { ServiceAsset } from "@redux/models/ServiceModels";
