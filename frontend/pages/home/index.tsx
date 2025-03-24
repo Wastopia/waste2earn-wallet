@@ -68,12 +68,12 @@ const Home = () => {
           
           <CustomButton
             className={clsx(
-              "bg-slate-color-success text-white px-6 py-2",
+              "bg-slate-color-success text-white px-6 py-2 text-sm",
               "hover:bg-slate-color-success/90 transition-colors duration-200"
             )}
             onClick={() => setShowKYCRegistration(true)}
           >
-            {t("Register")}
+            {t("Complete your KYC Registration")}
           </CustomButton>
           
         </div>

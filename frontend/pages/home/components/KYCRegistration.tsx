@@ -36,11 +36,11 @@ interface RegistrationForm {
   occupation: string;
   photo?: File;
   bankDetails?: {
-    gcash: string;
-    paymaya: string;
-    bpi: {
-      accountNumber: string;
-      accountName: string;
+    gcash?: string;
+    paymaya?: string;
+    bpi?: {
+      accountNumber?: string;
+      accountName?: string;
     };
   };
 }
@@ -74,15 +74,67 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
     nationality: '',
     gender: '',
     occupation: '',
-    bankDetails: {
-      gcash: '',
-      paymaya: '',
-      bpi: {
-        accountNumber: '',
-        accountName: ''
-      }
-    }
+    bankDetails: undefined  // Initialize as undefined for non-validator users
   });
+
+  const handleInputChange = (field: string, value: string) => {
+    if (field.includes('.')) {
+      const [parent, child, grandchild] = field.split('.');
+      if (grandchild && parent === 'bankDetails' && child === 'bpi') {
+        // Handle BPI account details
+        setForm(prev => ({
+          ...prev,
+          bankDetails: {
+            ...prev.bankDetails,
+            bpi: {
+              ...(prev.bankDetails?.bpi || {}),
+              [grandchild]: value
+            }
+          }
+        }));
+      } else if (parent === 'address') {
+        // Handle address fields
+        setForm(prev => ({
+          ...prev,
+          address: {
+            ...prev.address,
+            [child]: value
+          }
+        }));
+      } else if (parent === 'bankDetails') {
+        // Handle other bank details (gcash, paymaya)
+        setForm(prev => ({
+          ...prev,
+          bankDetails: {
+            ...prev.bankDetails,
+            [child]: value
+          }
+        }));
+      }
+    } else if (field === 'userType') {
+      // Handle user type changes
+      const userType = value as UserType;
+      setForm(prev => ({
+        ...prev,
+        userType,
+        // Reset bank details when switching user types
+        bankDetails: userType === 'validator' ? {
+          gcash: '',
+          paymaya: '',
+          bpi: {
+            accountName: '',
+            accountNumber: ''
+          }
+        } : undefined
+      }));
+    } else {
+      // Handle top-level fields
+      setForm(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -93,6 +145,14 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
           !form.address.state || !form.address.postalCode || !form.nationality) {
         alert(t('Please fill in all required fields'));
         return;
+      }
+
+      // Validate bank details for validators
+      if (form.userType === 'validator') {
+        if (!form.bankDetails?.bpi?.accountName || !form.bankDetails?.bpi?.accountNumber) {
+          alert(t('Please fill in BPI account details'));
+          return;
+        }
       }
 
       // Format the data according to the KYC schema
@@ -119,7 +179,7 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
         documents: [{
           type_: 'profile_photo',
           number: 'N/A',
-          expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 year from now
+          expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           fileUrl: photoPreview || '',
           verificationStatus: 'pending' as const
         }],
@@ -129,51 +189,31 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
           verifiedBy: undefined,
           remarks: undefined
         },
-        bankDetails: form.userType === 'validator' ? {
-          gcash: form.bankDetails?.gcash || undefined,
-          paymaya: form.bankDetails?.paymaya || undefined,
-          bpi: form.bankDetails?.bpi ? {
-            accountName: form.bankDetails.bpi.accountName || '',
-            accountNumber: form.bankDetails.bpi.accountNumber || ''
-          } : undefined
+        bankDetails: form.userType === 'validator' && form.bankDetails?.bpi?.accountName && form.bankDetails?.bpi?.accountNumber ? {
+          gcash: form.bankDetails.gcash || '',
+          paymaya: form.bankDetails.paymaya || '',
+          bpi: {
+            accountName: form.bankDetails.bpi.accountName,
+            accountNumber: form.bankDetails.bpi.accountNumber
+          }
         } : undefined,
         riskLevel: 'medium' as const,
         updatedAt: Math.floor(Date.now() / 1000),
         deleted: false
       };
 
-      // Save KYC details to the database
+      console.log('Saving KYC details:', kycData); // Add logging
       await LocalRxdbDatabase.instance.addKYCDetails(kycData);
       
-      // Show confirmation modal
       alert(t('Thank you for registering! Your details have been saved.'));
       onClose();
     } catch (error) {
       console.error('Failed to save KYC details:', error);
-      // Show more detailed error message
       if (error instanceof Error) {
         alert(t('Failed to save your details: ') + error.message);
       } else {
         alert(t('Failed to save your details. Please try again.'));
       }
-    }
-  };
-
-  const handleInputChange = (field: string, value: string) => {
-    if (field.includes('.')) {
-      const [parent, child] = field.split('.');
-      setForm(prev => ({
-        ...prev,
-        [parent]: {
-          ...(prev[parent as keyof RegistrationForm] as any),
-          [child]: value
-        }
-      }));
-    } else {
-      setForm(prev => ({
-        ...prev,
-        [field]: value
-      }));
     }
   };
 
@@ -366,15 +406,6 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
                   onChange={(e) => handleInputChange('birthday', e.target.value)}
                 />
               </div>
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium">{t("Address")}</label>
-                <CustomInput
-                  required
-                  type="text"
-                  value={form.address.street}
-                  onChange={(e) => handleInputChange('address.street', e.target.value)}
-                />
-              </div>
             </div>
 
             {/* Address Fields */}
@@ -465,12 +496,12 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
             {form.userType === 'validator' && (
               <div className="flex flex-col gap-4">
                 <h3 className="text-base sm:text-lg font-medium">{t("Payment Details")}</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
                     <label className="text-sm font-medium">{t("GCash")}</label>
                     <CustomInput
                       type="text"
-                      value={form.bankDetails?.gcash}
+                      value={form.bankDetails?.gcash || ''}
                       onChange={(e) => handleInputChange('bankDetails.gcash', e.target.value)}
                       placeholder="+63"
                     />
@@ -479,18 +510,31 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
                     <label className="text-sm font-medium">{t("PayMaya")}</label>
                     <CustomInput
                       type="text"
-                      value={form.bankDetails?.paymaya}
+                      value={form.bankDetails?.paymaya || ''}
                       onChange={(e) => handleInputChange('bankDetails.paymaya', e.target.value)}
                       placeholder="+63"
+                    />
+                  </div>
+                </div>
+                
+                {/* BPI Account Details */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium">{t("BPI Account Name")}</label>
+                    <CustomInput
+                      type="text"
+                      value={form.bankDetails?.bpi?.accountName}
+                      onChange={(e) => handleInputChange('bankDetails.bpi.accountName', e.target.value)}
+                      placeholder="Account Name"
                     />
                   </div>
                   <div className="flex flex-col gap-2">
                     <label className="text-sm font-medium">{t("BPI Account Number")}</label>
                     <CustomInput
-                      type="text"
+                      type="number"
                       value={form.bankDetails?.bpi?.accountNumber}
                       onChange={(e) => handleInputChange('bankDetails.bpi.accountNumber', e.target.value)}
-                      placeholder="**********"
+                      placeholder="Account Number"
                     />
                   </div>
                 </div>
@@ -504,7 +548,7 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
                 "hover:bg-slate-color-success/90 transition-colors duration-200"
               )}
             >
-              {t("Complete Registration")}
+              {t("Submit")}
             </CustomButton>
           </form>
         </div>

@@ -59,13 +59,21 @@ export class LocalStorageDatabase extends IWalletDatabase {
    * @param fixedPrincipal Watch-only login Principal ID
    */
   async setIdentity(identity: Identity | null, fixedPrincipal?: Principal): Promise<void> {
-    this.principalId = fixedPrincipal?.toString() || identity?.getPrincipal().toText() || "";
-    this._doesRecordByPrincipalExist();
-    //
-    this._assetStateSync();
-    this._contactStateSync();
-    this._allowanceStateSync();
-    this._serviceStateSync();
+    const newPrincipalId = fixedPrincipal?.toString() || identity?.getPrincipal().toText() || "";
+    
+    // Only reinitialize if the principal ID has changed
+    if (this.principalId !== newPrincipalId) {
+      this.principalId = newPrincipalId;
+      
+      // Check and initialize storage for this principal if needed
+      this._doesRecordByPrincipalExist();
+      
+      // Sync states with Redux store
+      await this._assetStateSync();
+      await this._contactStateSync();
+      await this._allowanceStateSync();
+      await this._serviceStateSync();
+    }
   }
 
   /**
@@ -82,10 +90,15 @@ export class LocalStorageDatabase extends IWalletDatabase {
    * @param newAssets Array of Asset objects
    */
   private async _assetStateSync(newAssets?: Asset[]): Promise<void> {
+    if (!this.principalId || this.principalId.trim() === '') {
+      return;
+    }
     const assets = newAssets || JSON.parse(localStorage.getItem(`assets-${this.principalId}`) || "[]");
     const noBalanceAssets = resetAssetAmount(assets);
     store.dispatch(setAssets(noBalanceAssets));
-    assets[0].tokenSymbol && store.dispatch(setAccordionAssetIdx([assets[0].tokenSymbol]));
+    if (assets.length > 0 && assets[0].tokenSymbol) {
+      store.dispatch(setAccordionAssetIdx([assets[0].tokenSymbol]));
+    }
   }
 
   /**
@@ -341,8 +354,11 @@ export class LocalStorageDatabase extends IWalletDatabase {
   }
 
   private _setAssets(allAssets: Asset[]) {
+    if (!this.principalId || this.principalId.trim() === '') {
+      return;
+    }
     const assets = [...allAssets].sort((a, b) => a.sortIndex - b.sortIndex);
-    this.principalId.trim() !== "" && localStorage.setItem(`assets-${this.principalId}`, JSON.stringify(assets));
+    localStorage.setItem(`assets-${this.principalId}`, JSON.stringify(assets));
   }
 
   private _getContacts(): Contact[] {
@@ -382,12 +398,27 @@ export class LocalStorageDatabase extends IWalletDatabase {
    * @returns void
    */
   private _doesRecordByPrincipalExist() {
+    // Only proceed if we have a valid principalId
+    if (!this.principalId || this.principalId.trim() === '') {
+      return;
+    }
+
     const assetExist = !!localStorage.getItem(`assets-${this.principalId}`);
     const contactExist = !!localStorage.getItem(`contacts-${this.principalId}`);
     const allowanceExist = !!localStorage.getItem(`allowances-${this.principalId}`);
     const servicesExist = !!localStorage.getItem(`services-${this.principalId}`);
 
-    if (!assetExist) this._setAssets([...defaultTokens]);
+    // Only initialize with default tokens if no assets exist for this principal
+    if (!assetExist) {
+      const defaultAssets = defaultTokens.map(token => ({
+        ...token,
+        updatedAt: Math.floor(Date.now() / 1000),
+        deleted: false
+      }));
+      this._setAssets(defaultAssets);
+    }
+
+    // Initialize empty arrays for other collections if they don't exist
     if (!contactExist) this._setContacts([]);
     if (!allowanceExist) this._setAllowances([]);
     if (!servicesExist) this._setServices([]);

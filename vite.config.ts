@@ -52,6 +52,8 @@ const DFX_PORT = dfxJson.networks.local.bind.split(":")[1];
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
+  const isIC = process.env.DFX_NETWORK === "ic";
+  
   return {
     optimizeDeps: {
       esbuildOptions: {
@@ -96,12 +98,13 @@ export default defineConfig(({ mode }) => {
       fs: {
         allow: ["."],
       },
-      proxy: {
-        // This proxies all http requests made to /api to our running dfx instance
+      proxy: isIC ? {} : {
         "/api": {
-          target: `http://0.0.0.0:${DFX_PORT}`,
+          target: `http://127.0.0.1:${DFX_PORT}`,
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, "/api"),
+          secure: false,
+          ws: true
         },
       },
       port: 3000,

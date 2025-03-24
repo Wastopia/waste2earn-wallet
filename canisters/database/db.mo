@@ -4,16 +4,12 @@ import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
 import Result "mo:base/Result";
-import Time "mo:base/Time";
-import Iter "mo:base/Iter";
 import Types "types";
-import Documents "documents";
 import List "mo:base/List";
 import Buffer "mo:base/Buffer";
 import HashMap "mo:base/HashMap";
 import Text "mo:base/Text";
 import Hash "mo:base/Hash";
-import Principal "mo:base/Principal";
 
 module {
   public type DbInit<T, PK> = Types.DbInit<T, PK>;
@@ -28,9 +24,8 @@ module {
       };
       pk_store = HashMap.HashMap<PK, Nat>(0, pkEqual, pkHash);
       updated_store = HashMap.HashMap<Nat64, Nat>(0, Nat64.equal, func(n : Nat64) : Hash.Hash { 
-        // Simple but effective hash for Nat64
-        let hashValue = Nat64.toNat(n) % (2**32 - 1);
-        Nat32.fromNat(hashValue);
+        // Use bitwise operations for safer hash
+        Nat32.fromNat(Nat64.toNat(n & 0xFFFFFFFF));
       });
     }
   };
@@ -64,7 +59,7 @@ module {
 
   public func getLatest<T, PK>(
     use : DbUse<T, PK>,
-    updatedAt : Nat32,
+    _updatedAt : Nat32,
     lastId : ?PK,
     limit : Nat,
   ) : [T] {
@@ -114,7 +109,7 @@ module {
   public func deleteDocument<T>(use : DbUse<T, Text>, id : Text) : Result.Result<(), Text> {
     switch (use.pk_store.get(id)) {
       case (null) #err("Document not found");
-      case (?idx) {
+      case (?_idx) {
         use.pk_store.delete(id);
         #ok();
       };
@@ -170,7 +165,7 @@ module {
   public func updateOrderStatus<T>(
     use : DbUse<T, Text>,
     orderId : Text,
-    status : Text,
+    _status : Text,
     updateOrder : T -> T,
   ) : Result.Result<T, Text> {
     switch (use.pk_store.get(orderId)) {
@@ -191,9 +186,9 @@ module {
   public func updateKYCStatus<T>(
     use : DbUse<T, Text>,
     userId : Text,
-    status : Text,
-    reason : Text,
-    note : ?Text,
+    _status : Text,
+    _reason : Text,
+    _note : ?Text,
     updateKYC : T -> T,
   ) : Result.Result<T, Text> {
     switch (use.pk_store.get(userId)) {
@@ -214,7 +209,7 @@ module {
   public func updateValidatorStatus<T>(
     use : DbUse<T, Text>,
     validatorId : Text,
-    active : Bool,
+    _active : Bool,
     updateValidator : T -> T,
   ) : Result.Result<T, Text> {
     switch (use.pk_store.get(validatorId)) {

@@ -1,91 +1,290 @@
-type WalletDatabase = service {
-  doesStorageExist : () -> (bool) query;
-  dump : () -> (
-    vec record {
-      principal;
-      record {
-        vec opt AssetDocument;
-        vec opt ContactDocument;
-        vec opt AllowanceDocument;
-      };
-    }
-  ) query;
-  pullAllowances : (nat32, opt text, nat) -> (vec AllowanceDocument) query;
-  pullAssets : (nat32, opt text, nat) -> (vec AssetDocument) query;
-  pullContacts : (nat32, opt text, nat) -> (vec ContactDocument) query;
-  pullServices : (nat32, opt text, nat) -> (vec ServiceDocument) query;
-  pushAllowances : (vec AllowanceDocument) -> (vec AllowanceDocument);
-  pushAssets : (vec AssetDocument) -> (vec AssetDocument);
-  pushContacts : (vec ContactDocument) -> (vec ContactDocument);
-  pushServices : (vec ServiceDocument) -> (vec ServiceDocument);
-};
-type ContactDocument = record {
-  accountIdentifier : text;
-  accounts : vec record {
-    name : text;
-    subaccount : text;
-    subaccountId : text;
-    tokenSymbol : text;
-  };
-  deleted : bool;
-  name : text;
-  "principal" : text;
-  updatedAt : nat32;
-};
-type AssetDocument = record {
-  address : text;
-  decimal : text;
-  deleted : bool;
-  index : text;
-  logo : text;
-  name : text;
-  shortDecimal : text;
-  sortIndex : nat32;
-  subAccounts : vec record {
-    address : text;
-    amount : text;
-    currency_amount : text;
-    decimal : nat32;
-    name : text;
-    sub_account_id : text;
-    symbol : text;
-    transaction_fee : text;
-  };
-  supportedStandards : vec text;
-  symbol : text;
-  tokenName : text;
-  tokenSymbol : text;
-  updatedAt : nat32;
-};
-type AllowanceDocument = record {
-  asset : record {
-    address : text;
-    decimal : text;
-    logo : text;
-    name : text;
-    supportedStandards : vec text;
-    symbol : text;
-    tokenName : text;
-    tokenSymbol : text;
-  };
-  deleted : bool;
-  id : text;
-  spender : text;
-  subAccountId : text;
-  updatedAt : nat32;
-};
-type ServiceDocument = record {
-  name : text;
-  "principal" : text;
-  assets : vec record {
-    tokenSymbol : text;
-    logo : text;
-    tokenName : text;
-    decimal : text;
-    shortDecimal : text;
-    "principal" : text;
-  };
-  updatedAt : nat32;
-  deleted : bool;
-};
-service : () -> WalletDatabase;
+type ValidatorDocument = 
+ record {
+   avatarUrl: opt text;
+   deleted: bool;
+   id: text;
+   isActive: bool;
+   name: text;
+   rating: float64;
+   responseTime: text;
+   totalOrders: nat;
+   updatedAt: nat32;
+ };
+type User = 
+ record {
+   createdAt: int;
+   email: text;
+   firstName: text;
+   lastName: text;
+   phoneNumber: text;
+   riskLevel: text;
+   status: text;
+   updatedAt: nat32;
+   userId: text;
+ };
+type ServiceDocument = 
+ record {
+   assets:
+    vec
+     record {
+       decimal: text;
+       logo: text;
+       "principal": text;
+       shortDecimal: text;
+       tokenName: text;
+       tokenSymbol: text;
+     };
+   deleted: bool;
+   name: text;
+   "principal": text;
+   updatedAt: nat32;
+ };
+type Result_2 = 
+ variant {
+   err: text;
+   ok: KYCDocument;
+ };
+type Result_1 = 
+ variant {
+   err: text;
+   ok: OrderDocument;
+ };
+type Result = 
+ variant {
+   err: text;
+   ok: ValidatorDocument;
+ };
+type PaymentVerificationDocument = 
+ record {
+   deleted: bool;
+   orderId: text;
+   proof: opt text;
+   status: text;
+   updatedAt: nat32;
+   verifiedAt: opt int;
+   verifiedBy: opt text;
+ };
+type PaymentMethodDetails = 
+ record {
+   accountName: opt text;
+   accountNumber: opt text;
+   bankName: opt text;
+   walletAddress: opt text;
+ };
+type PaymentMethod = 
+ record {
+   details: PaymentMethodDetails;
+   id: text;
+   methodType: text;
+   name: text;
+ };
+type OrderDocument = 
+ record {
+   amount: float64;
+   createdAt: int;
+   deleted: bool;
+   escrowId: opt text;
+   expiresAt: int;
+   id: text;
+   paymentMethod: PaymentMethod;
+   price: float64;
+   sellerId: text;
+   status: text;
+   updatedAt: nat32;
+ };
+type KYCDocument = 
+ record {
+   address:
+    record {
+      city: text;
+      country: text;
+      postalCode: text;
+      state: text;
+      street: text;
+    };
+   bankDetails: opt BankDetails;
+   deleted: bool;
+   documents:
+    vec
+     record {
+       expiryDate: text;
+       fileUrl: text;
+       number: text;
+       "type": text;
+       verificationStatus: text;
+     };
+   personalInfo:
+    record {
+      dateOfBirth: text;
+      email: text;
+      firstName: text;
+      lastName: text;
+      nationality: text;
+      phoneNumber: text;
+    };
+   riskLevel: text;
+   status: text;
+   updatedAt: nat32;
+   userId: text;
+   verificationDetails:
+    opt
+     record {
+       remarks: opt text;
+       submittedAt: int;
+       verifiedAt: opt int;
+       verifiedBy: opt text;
+     };
+ };
+type ContactDocument = 
+ record {
+   accountIdentifier: text;
+   accounts:
+    vec
+     record {
+       name: text;
+       subaccount: text;
+       subaccountId: text;
+       tokenSymbol: text;
+     };
+   deleted: bool;
+   name: text;
+   "principal": text;
+   updatedAt: nat32;
+ };
+type BankDetails = 
+ record {
+   bpi: opt record {
+              accountName: text;
+              accountNumber: text;
+            };
+   gcash: opt text;
+   paymaya: opt text;
+ };
+type AssetDocument = 
+ record {
+   address: text;
+   decimal: text;
+   deleted: bool;
+   index: text;
+   logo: text;
+   name: text;
+   shortDecimal: text;
+   sortIndex: nat32;
+   subAccounts:
+    vec
+     record {
+       address: text;
+       amount: text;
+       currency_amount: text;
+       decimal: nat32;
+       name: text;
+       sub_account_id: text;
+       symbol: text;
+       transaction_fee: text;
+     };
+   supportedStandards: vec text;
+   symbol: text;
+   tokenName: text;
+   tokenSymbol: text;
+   updatedAt: nat32;
+ };
+type AllowanceDocument = 
+ record {
+   asset:
+    record {
+      address: text;
+      decimal: text;
+      logo: text;
+      name: text;
+      supportedStandards: vec text;
+      symbol: text;
+      tokenName: text;
+      tokenSymbol: text;
+    };
+   deleted: bool;
+   id: text;
+   spender: text;
+   subAccountId: text;
+   updatedAt: nat32;
+ };
+service : {
+  batchUpdateOrderStatus: (vec text, text) -> (vec Result_1);
+  doesStorageExist: () -> (bool) query;
+  dump: () ->
+   (vec
+     record {
+       principal;
+       record {
+         vec AssetDocument;
+         vec ContactDocument;
+         vec AllowanceDocument;
+         vec ServiceDocument;
+         vec OrderDocument;
+         vec PaymentVerificationDocument;
+         vec KYCDocument;
+         vec ValidatorDocument;
+       };
+     }) query;
+  getActiveOrders: () -> (vec OrderDocument);
+  getActiveValidators: () -> (vec ValidatorDocument);
+  getAllUsers: () -> (vec User) query;
+  getKYCByRiskLevel: (text) -> (vec KYCDocument);
+  getKYCByStatus: (text) -> (vec KYCDocument);
+  getKYCStatistics: () ->
+   (record {
+      approvedUsers: nat;
+      highRiskUsers: nat;
+      pendingVerifications: nat;
+      rejectedUsers: nat;
+      totalUsers: nat;
+    }) query;
+  getLatestKYCDetails: (nat32, opt text, nat) -> (vec KYCDocument) query;
+  getLatestOrders: (nat32, opt text, nat) -> (vec OrderDocument) query;
+  getLatestPaymentVerifications: (nat32, opt text, nat) ->
+   (vec PaymentVerificationDocument) query;
+  getLatestValidators: (nat32, opt text, nat) ->
+   (vec ValidatorDocument) query;
+  getOrderById: (text) -> (opt OrderDocument);
+  getOrderStatistics: () ->
+   (record {
+      activeOrders: nat;
+      completedOrders: nat;
+      disputedOrders: nat;
+      totalOrders: nat;
+    }) query;
+  getOrdersByDateRange: (int, int) -> (vec OrderDocument);
+  getOrdersByStatus: (text) -> (vec OrderDocument);
+  getOrdersByUser: (text) -> (vec OrderDocument);
+  getValidatorStatistics: () ->
+   (record {
+      activeValidators: nat;
+      averageRating: float64;
+      totalOrdersProcessed: nat;
+      totalValidators: nat;
+    }) query;
+  getValidatorsByRating: (float64) -> (vec ValidatorDocument);
+  incrementValidatorOrders: (text) -> (Result);
+  pullAllowances: (nat32, opt text, nat) -> (vec AllowanceDocument) query;
+  pullAssets: (nat32, opt text, nat) -> (vec AssetDocument) query;
+  pullContacts: (nat32, opt text, nat) -> (vec ContactDocument) query;
+  pullKYCDetails: (nat32, opt text, nat) -> (vec KYCDocument) query;
+  pullOrders: (nat32, opt text, nat) -> (vec OrderDocument) query;
+  pullPaymentVerifications: (nat32, opt text, nat) ->
+   (vec PaymentVerificationDocument) query;
+  pullServices: (nat32, opt text, nat) -> (vec ServiceDocument) query;
+  pullValidators: (nat32, opt text, nat) -> (vec ValidatorDocument) query;
+  pushAllowances: (vec AllowanceDocument) -> (vec AllowanceDocument);
+  pushAssets: (vec AssetDocument) -> (vec AssetDocument);
+  pushContacts: (vec ContactDocument) -> (vec ContactDocument);
+  pushKYCDetails: (vec KYCDocument) -> (vec KYCDocument);
+  pushOrders: (vec OrderDocument) -> (vec OrderDocument);
+  pushPaymentVerifications: (vec PaymentVerificationDocument) ->
+   (vec PaymentVerificationDocument);
+  pushServices: (vec ServiceDocument) -> (vec ServiceDocument);
+  pushValidators: (vec ValidatorDocument) -> (vec ValidatorDocument);
+  updateKYCStatus: (text, text, text, opt text) -> (Result_2);
+  updateOrderStatus: (text, text) -> (Result_1);
+  updateValidatorRating: (text, float64) -> (Result);
+  updateValidatorResponseTime: (text, text) -> (Result);
+  updateValidatorStatus: (text, bool) -> (Result);
+}
