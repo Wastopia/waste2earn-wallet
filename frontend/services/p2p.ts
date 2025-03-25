@@ -1,4 +1,5 @@
-import { Order, PaymentMethod, Escrow, PaymentVerification } from "@/types/p2p";
+import { Order, PaymentMethod, Escrow, PaymentVerification, Message, MessageRequest } from "@/types/p2p";
+import { ORDER_STATUS_TRACKING } from "@/types/p2p";
 import { LocalRxdbDatabase } from "@database/local-rxdb";
 
 class P2PService {
@@ -22,7 +23,7 @@ class P2PService {
       ...order,
       id: Math.random().toString(36).substr(2, 9),
       createdAt: new Date(),
-      status: "open",
+      status: ORDER_STATUS_TRACKING.CREATED,
       expiresAt: new Date(Date.now() + this.ESCROW_TIMEOUT),
     };
 
@@ -48,7 +49,7 @@ class P2PService {
   }
 
   async getAvailableOrders(): Promise<Order[]> {
-    return this.db.getOrdersByStatus("open");
+    return this.db.getOrdersByStatus(ORDER_STATUS_TRACKING.CREATED);
   }
 
   async getOrderById(orderId: string): Promise<Order | null> {
@@ -124,6 +125,21 @@ class P2PService {
         },
       },
     ];
+  }
+
+  async sendMessage(message: MessageRequest): Promise<void> {
+    // Implement your message sending logic here
+    // For example, API call to your backend
+    await fetch('/api/messages', {
+      method: 'POST',
+      body: JSON.stringify(message)
+    });
+  }
+
+  async getNewMessages(orderId?: string): Promise<Message[]> {
+    // Implement your message fetching logic here
+    const response = await fetch(`/api/messages?orderId=${orderId}`);
+    return response.json();
   }
 }
 

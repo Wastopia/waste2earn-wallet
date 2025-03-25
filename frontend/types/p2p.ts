@@ -10,18 +10,21 @@ export interface Order {
   escrowId?: string;
 }
 
-export type OrderStatus = 
-  | "open"
-  | "escrow_pending"
-  | "escrow_locked"
-  | "payment_pending"
-  | "payment_submitted"
-  | "payment_verified"
-  | "completed"
-  | "cancelled"
-  | "disputed"
-  | "refunded"
-  | "expired";
+export const ORDER_STATUS_TRACKING = {
+  CREATED: "created",
+  ESCROW_PENDING: "escrow_pending",
+  ESCROW_LOCKED: "escrow_locked",
+  PAYMENT_PENDING: "payment_pending",
+  PAYMENT_SUBMITTED: "payment_submitted",
+  PAYMENT_VERIFIED: "payment_verified",
+  COMPLETED: "completed",
+  CANCELLED: "cancelled",
+  DISPUTED: "disputed",
+  REFUNDED: "refunded",
+  EXPIRED: "expired"
+} as const;
+
+export type OrderStatus = typeof ORDER_STATUS_TRACKING[keyof typeof ORDER_STATUS_TRACKING];
 
 export interface PaymentMethod {
   id: string;
@@ -92,4 +95,23 @@ export interface P2PPaymentVerification {
   notes?: string;
   createdAt: string;
   verifiedAt?: string;
+}
+
+export interface MessageRequest {
+  orderId?: string;
+  validatorId: string;
+  content: string;
+  type: string;
+}
+
+export interface Message {
+  id: string;
+  type: 'order' | 'message' | 'payment' | 'image';
+  content: string;
+  sender: 'validator' | 'user' | 'system';
+  timestamp: Date;
+  orderDetails?: Order;
+  isNew?: boolean;
+  imageUrl?: string;
+  validatorId?: string;
 }

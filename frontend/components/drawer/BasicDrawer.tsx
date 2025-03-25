@@ -16,7 +16,7 @@ export default function BasicDrawer(props: IDrawerProps) {
       <div className={getDrawerBlank(isDrawerOpen)} />
       <div className={getDrawerContainerStyle(isDrawerOpen)}>
         {title && onClose && (
-          <div className="flex items-center justify-between px-8 mt-8 mb-8">
+          <div className="flex items-center justify-between px-4 sm:px-8 mt-6 mb-6">
             <h1 className="text-xl font-bold text-PrimaryTextColorLight dark:text-PrimaryTextColor">{title}</h1>
             <CloseIcon onClick={() => onClose?.()} className={getCloseIconStyles(enableClose)} />
           </div>
@@ -40,28 +40,30 @@ function getDrawerContainerStyle(isDrawerOpen: boolean) {
   return clsx(
     "fixed",
     "z-[1000]",
-    "w-[31rem]",
+    "w-full", // Full width on mobile
+    "max-w-[31rem]", // Max width for larger screens
     "h-screen",
-    "top-10",
+    "inset-x-0", // Center horizontally
+    "mx-auto", // Center horizontally
+    "top-[100px]", // Add 100px top margin
     "bg-PrimaryColorLight",
     "dark:bg-PrimaryColor",
-    "transition-left",
+    "transition-all",
     "duration-500",
     "ease-in-out",
     "flex flex-col",
-    isDrawerOpen ? "left-0" : "-left-full",
-    "rounded-lg"
+    "rounded-lg",
+    isDrawerOpen ? "translate-y-0" : "translate-y-full", // Slide up instead of from left
+    "overflow-y-auto", // Allow scrolling
+    "max-h-[calc(100vh-100px)]" // Adjust max height to account for top margin
   );
 }
 
 function getDrawerBlank(isDrawerOpen: boolean) {
   return clsx(
     "fixed",
-    "top-10",
-    "bottom-0",
-    "right-0",
-    "left-0",
-    "z-[1000]",
+    "inset-0", // Cover entire screen
+    "z-[999]", // One less than drawer to be behind it
     "bg-black",
     "opacity-60",
     "transition-opacity",
