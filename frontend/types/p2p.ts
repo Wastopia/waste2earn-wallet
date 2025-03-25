@@ -97,21 +97,20 @@ export interface P2PPaymentVerification {
   verifiedAt?: string;
 }
 
-export interface MessageRequest {
-  orderId?: string;
-  validatorId: string;
-  content: string;
-  type: string;
-}
-
 export interface Message {
   id: string;
-  type: 'order' | 'message' | 'payment' | 'image';
+  type: 'message' | 'payment' | 'system';
   content: string;
-  sender: 'validator' | 'user' | 'system';
+  sender: string;
   timestamp: Date;
-  orderDetails?: Order;
   isNew?: boolean;
-  imageUrl?: string;
-  validatorId?: string;
+  expiresAt?: Date;
+}
+
+export interface MessageRequest {
+  orderId: string;
+  content: string;
+  type: 'message' | 'payment' | 'system';
+  sender: string;
+  validatorId: string;
 }

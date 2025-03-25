@@ -29,11 +29,13 @@ const PAYMENT_METHOD_ICONS: Record<string, React.FC<React.SVGProps<SVGSVGElement
 };
 
 // Add new constants for enhanced escrow features
+const ORDER_TIMEOUT = 5 * 60 * 1000; // 5 minutes in milliseconds
+
 const ORDER_SIZE_TIERS = {
-  SMALL: { max: 100, timeout: 12 * 60 * 60 * 1000 }, // 12 hours for orders <= 100 WASTE
-  MEDIUM: { max: 1000, timeout: 24 * 60 * 60 * 1000 }, // 24 hours for orders <= 1000 WASTE
-  LARGE: { max: 5000, timeout: 48 * 60 * 60 * 1000 }, // 48 hours for orders <= 5000 WASTE
-  XLARGE: { max: 10000, timeout: 72 * 60 * 60 * 1000 }, // 72 hours for orders > 10000 WASTE
+  SMALL: { max: 100, timeout: ORDER_TIMEOUT },
+  MEDIUM: { max: 1000, timeout: ORDER_TIMEOUT },
+  LARGE: { max: 5000, timeout: ORDER_TIMEOUT },
+  XLARGE: { max: 10000, timeout: ORDER_TIMEOUT },
 };
 
 const USD_TO_PHP_RATE = 56; // Fixed exchange rate from USD to PHP

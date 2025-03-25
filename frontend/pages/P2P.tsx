@@ -41,13 +41,15 @@ interface Message {
 
 // Add these constants
 const ORDER_STATUS_TRACKING = {
-  OPEN: "open",
+  CREATED: "created",
+  ESCROW_PENDING: "escrow_pending",
+  ESCROW_LOCKED: "escrow_locked",
   PAYMENT_PENDING: "payment_pending",
   PAYMENT_SUBMITTED: "payment_submitted",
-  PAYMENT_VERIFIED: "payment_verified",
   COMPLETED: "completed",
   DISPUTED: "disputed",
-  CANCELLED: "cancelled"
+  CANCELLED: "cancelled",
+  EXPIRED: "expired"
 } as const;
 
 const ChatContainer = styled(Box)(({ theme }) => ({
@@ -864,7 +866,7 @@ export const P2P: React.FC = () => {
                   variant="contained"
                   color="primary"
                   onClick={() => handleOpenEscrowModal(order)}
-                  disabled={order.sellerId === principal || order.status !== 'open'}
+                  disabled={order.sellerId === principal || order.status !== ORDER_STATUS_TRACKING.CREATED}
                   sx={{ flex: '1 1 auto' }}
                 >
                   Accept Order

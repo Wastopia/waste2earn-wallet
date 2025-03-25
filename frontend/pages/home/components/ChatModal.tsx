@@ -10,10 +10,12 @@ import { LoadingLoader } from "@components/loader";
 import { p2pService } from "@/services/p2p";
 import { useSnackbar } from "notistack";
 import { clsx } from "clsx";
-import { Order, PaymentVerification } from "@/types/p2p";
+import { Order, PaymentVerification, Message as P2PMessage } from "@/types/p2p";
 import { LocalRxdbDatabase } from "@database/local-rxdb";
 import { ORDER_STATUS_TRACKING } from "@/types/p2p";
 
+// Add constant for order timeout
+const ORDER_TIMEOUT = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 interface ChatModalProps {
   isDrawerOpen: boolean;
@@ -21,17 +23,11 @@ interface ChatModalProps {
   selectedOrder?: Order | null;
 }
 
-interface Message {
-  id: string;
+interface Message extends Omit<P2PMessage, 'type'> {
   type: 'order' | 'message' | 'payment' | 'image';
-  content: string;
-  sender: 'validator' | 'user' | 'system';
-  timestamp: Date;
   orderDetails?: Order;
-  isNew?: boolean;
   imageUrl?: string;
   validatorId?: string;
-  expiresAt?: Date;
 }
 
 interface Validator {
@@ -182,32 +178,14 @@ export default function ChatModal({ isDrawerOpen, onClose, selectedOrder }: Chat
       // Update order status to escrow pending
       await p2pService.updateOrderStatus(order.id, ORDER_STATUS_TRACKING.ESCROW_PENDING);
 
-      // Determine escrow timeout based on order size
-      let orderTier;
-      let escrowTimeout;
-      if (order.amount <= 100) {
-        orderTier = "SMALL";
-        escrowTimeout = 12 * 60 * 60 * 1000; // 12 hours
-      } else if (order.amount <= 1000) {
-        orderTier = "MEDIUM";
-        escrowTimeout = 24 * 60 * 60 * 1000; // 24 hours
-      } else if (order.amount <= 5000) {
-        orderTier = "LARGE";
-        escrowTimeout = 48 * 60 * 60 * 1000; // 48 hours
-      } else {
-        orderTier = "XLARGE";
-        escrowTimeout = 72 * 60 * 60 * 1000; // 72 hours
-      }
+      const expiryDate = new Date(Date.now() + ORDER_TIMEOUT);
 
-      const expiryDate = new Date(Date.now() + escrowTimeout);
-
-      // Add escrow confirmation message
+      // Add order confirmation message
       setMessages(prev => [...prev, {
         id: Math.random().toString(),
         type: 'message',
-        content: `Tokens locked in escrow: ${order.amount} WASTE
-Order Tier: ${orderTier}
-Escrow Duration: ${escrowTimeout / (60 * 60 * 1000)} hours`,
+        content: `Order accepted: ${order.amount} WASTE
+Please complete the payment within 5 minutes.`,
         sender: 'system',
         timestamp: new Date(),
         isNew: true,
@@ -219,29 +197,34 @@ Escrow Duration: ${escrowTimeout / (60 * 60 * 1000)} hours`,
         id: Math.random().toString(),
         type: 'payment',
         content: `Please send ${order.price} PHP to ${order.paymentMethod.name}
-Payment window: ${escrowTimeout / (60 * 60 * 1000)} hours`,
+Time remaining: 5 minutes`,
         sender: 'system',
         timestamp: new Date(),
         isNew: true,
         expiresAt: expiryDate
       }]);
 
-      // Set up escrow timeout handler
-      setTimeout(async () => {
+      // Set up order timeout handler
+      const timeoutId = setTimeout(async () => {
         const orderStatus = await p2pService.getOrderById(order.id);
-        if (orderStatus?.status === ORDER_STATUS_TRACKING.ESCROW_LOCKED || 
+        if (orderStatus?.status === ORDER_STATUS_TRACKING.ESCROW_PENDING || 
             orderStatus?.status === ORDER_STATUS_TRACKING.PAYMENT_PENDING) {
           await p2pService.updateOrderStatus(order.id, ORDER_STATUS_TRACKING.EXPIRED);
           setMessages(prev => [...prev, {
             id: Math.random().toString(),
             type: 'message',
-            content: `Order expired. Escrow period of ${escrowTimeout / (60 * 60 * 1000)} hours has elapsed.`,
+            content: 'Order expired. The 5-minute time limit has elapsed.',
             sender: 'system',
             timestamp: new Date(),
             isNew: true
           }]);
+          // Close both modals
+          onClose();
         }
-      }, escrowTimeout);
+      }, ORDER_TIMEOUT);
+
+      // Clean up timeout on component unmount
+      return () => clearTimeout(timeoutId);
 
     } catch (error) {
       console.error("Failed to accept order:", error);
@@ -276,7 +259,7 @@ Payment window: ${escrowTimeout / (60 * 60 * 1000)} hours`,
   };
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || !selectedValidator) return;
+    if (!newMessage.trim() || !selectedValidator || !selectedOrder?.id) return;
 
     const messageId = Math.random().toString();
     try {
@@ -298,10 +281,11 @@ Payment window: ${escrowTimeout / (60 * 60 * 1000)} hours`,
 
       // Send message to backend
       await p2pService.sendMessage({
-        orderId: selectedOrder?.id,
+        orderId: selectedOrder.id,
         validatorId: selectedValidator,
         content: newMessage,
-        type: 'message'
+        type: 'message',
+        sender: 'user'
       });
 
     } catch (error) {
@@ -633,23 +617,27 @@ Payment window: ${escrowTimeout / (60 * 60 * 1000)} hours`,
     );
   };
 
-  // Add this effect to handle message updates
+  // Update the message update effect
   useEffect(() => {
     const handleNewMessage = async () => {
       try {
-        // You can implement real-time message updates here
-        // For example, using WebSocket or polling
-        const newMessages = await p2pService.getNewMessages(selectedOrder?.id);
+        if (!selectedOrder?.id) return;
+        
+        const newMessages = await p2pService.getNewMessages(selectedOrder.id);
         if (newMessages && newMessages.length > 0) {
-          setMessages(prev => [...prev, ...newMessages]);
+          // Convert P2PMessages to local Message format
+          const convertedMessages: Message[] = newMessages.map(msg => ({
+            ...msg,
+            type: msg.type === 'system' ? 'message' : msg.type // Convert system type to message
+          }));
+          setMessages(prev => [...prev, ...convertedMessages]);
         }
       } catch (error) {
         console.error('Error fetching new messages:', error);
       }
     };
 
-    const intervalId = setInterval(handleNewMessage, 5000); // Poll every 5 seconds
-
+    const intervalId = setInterval(handleNewMessage, 5000);
     return () => clearInterval(intervalId);
   }, [selectedOrder?.id]);
 
