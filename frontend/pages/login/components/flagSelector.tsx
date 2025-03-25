@@ -1,5 +1,5 @@
 // svgs
-import { ReactComponent as FlagPhilippines } from "@/assets/svg/files/flag-philippines.svg";
+import { ReactComponent as FlagPhilippines } from "@/assets/svg/files/flag-phil.svg";
 import { ReactComponent as FlagUSA } from "@/assets/svg/files/usa.svg";
 import { ReactComponent as FlagItaly } from "@/assets/svg/files/italia.svg";
 import { ReactComponent as BrazilFlag } from "@/assets/svg/files/brazil.svg";
@@ -17,9 +17,9 @@ const FlagSelector = ({ open, handleOpenChange }: FlagSelectorProps) => {
 
   const languageOpts = [
     { name: "en", flag: <FlagUSA /> },
-    { name: "phil", flag: <FlagPhilippines /> },
     { name: "it", flag: <FlagItaly /> },
     { name: "pt", flag: <BrazilFlag /> },
+    { name: "phil", flag: <FlagPhilippines /> },
   ];
 
   return (

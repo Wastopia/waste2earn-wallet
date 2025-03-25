@@ -265,7 +265,7 @@ export default function TransferForm() {
     // case 3: service min withrawal
     const minWithdrawal = BigInt(serviceAccount.withdrawFee);
     if (balance <= minWithdrawal) {
-      setErrorMessage(t("error.transfer.from.service.less.withdraw.minimun"));
+      setErrorMessage(t("error.transfer.from.service.less.withdraw.minimum"));
       throw new Error("fromServiceValidations: service account balance must be greater than min withdrawal");
     }
 

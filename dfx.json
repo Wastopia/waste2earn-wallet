@@ -15,6 +15,14 @@
       "declarations": {
         "output": "frontend/candid/database"
       }
+    },
+    "chat": {
+      "main": "canisters/database/chat.mo",
+      "type": "motoko",
+      "optimize": "cycles",
+      "declarations": {
+        "output": "frontend/declarations/chat"
+      }
     }
   },
   "defaults": {

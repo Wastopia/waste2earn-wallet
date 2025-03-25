@@ -39,7 +39,7 @@ const ThemeModal = ({ setOpen }: ThemeModalProps) => {
         }}
       >
         <div className={option}>
-          <W2enLight className="max-w-[18rem] h-auto" />
+          <W2enLight className="max-w-[18rem] sm:max-w-[20rem] h-auto" />
           <p className={clsx(logoMsg, "border-BorderColor !text-ThemeColorSelector")}>{t("theme.modal.msg.option")}</p>
         </div>
         <div
@@ -75,7 +75,7 @@ const ThemeModal = ({ setOpen }: ThemeModalProps) => {
         }}
       >
         <div className={option}>
-          <W2enDark className="max-w-[18rem] h-auto" />
+          <W2enDark className="max-w-[18rem] sm:max-w-[10rem] h-auto" />
           <p className={clsx(logoMsg, "border-BorderColor text-ThemeColorSelectorLight")}>
             {t("theme.modal.msg.option")}
           </p>

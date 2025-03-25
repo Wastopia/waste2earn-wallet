@@ -18,12 +18,12 @@ interface ModalProps {
 
 const Modal = ({
   open,
-  width = "w-[32rem]",
+  width = "w-[95%] sm:w-[440px] md:w-[540px] lg:w-[640px]",
   height = "",
   top = "top-[50%]",
   text = "text-PrimaryTextColorLight dark:text-PrimaryTextColor",
   background = "bg-PrimaryColorLight dark:bg-PrimaryColor",
-  padding = "p-6",
+  padding = "p-4 sm:p-6",
   rounded = "rounded-lg",
   border = "",
   overlayZIndex = "1000",
@@ -35,11 +35,21 @@ const Modal = ({
       <Dialog.Root open={open}>
         <Dialog.Portal>
           <Dialog.Overlay
-            className={`bg-black/50 data-[state=open]:animate-overlayShow fixed inset-0 z-[${overlayZIndex}]`}
+            className={`fixed inset-0 bg-black/50 data-[state=open]:animate-overlayShow z-[${overlayZIndex}]`}
           />
-          <Dialog.Content className={`fixed ${top} left-[50%] outline-none shadow-md z-[${contentZIndex}]`}>
+          <Dialog.Content 
+            className={`fixed ${top} left-[50%] outline-none shadow-md z-[${contentZIndex}]`}
+          >
             <div
-              className={`absolute flex flex-col justify-start items-start text-lg translate-x-[-50%] translate-y-[-50%] ${width} ${height}  ${background} ${padding} ${rounded} ${text} ${border}`}
+              className={`
+                absolute flex flex-col justify-start items-start text-base sm:text-lg
+                transform -translate-x-1/2 -translate-y-1/2 
+                transition-all duration-300 ease-out
+                data-[state=open]:animate-contentShow
+                scale-95 hover:scale-100
+                max-h-[90vh] overflow-y-auto
+                ${width} ${height} ${background} ${padding} ${rounded} ${text} ${border}
+              `}
             >
               {children}
             </div>

@@ -173,7 +173,7 @@ export default function TransferDetailsConfirmation() {
         if (amount <= minDeposit) {
           return {
             isError: true,
-            message: t("error.transfer.amount.less.minimun.deposit"),
+            message: t("error.transfer.amount.less.minimum.deposit"),
           };
         }
       }
@@ -283,7 +283,7 @@ export default function TransferDetailsConfirmation() {
         if (amount <= minDeposit) {
           return {
             isError: true,
-            message: t("error.transfer.amount.less.minimun.deposit"),
+            message: t("error.transfer.amount.less.minimum.deposit"),
           };
         }
       }
@@ -353,7 +353,7 @@ export default function TransferDetailsConfirmation() {
     const max = BigInt(serviceSenderAsset.credit);
 
     if (amount <= minWithdraw) {
-      return { isError: true, message: t("error.transfer.amount.less.minimun.withdrawl") };
+      return { isError: true, message: t("error.transfer.amount.less.minimum.withdrawl") };
     }
 
     if (amount > max) {

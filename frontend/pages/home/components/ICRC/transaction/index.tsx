@@ -24,7 +24,7 @@ const DetailList = () => {
   return (
     <Fragment>
       <TransactionsFiltering>
-        <div className="relative flex flex-col items-center justify-center w-full gap-2 pt-5 bg-SecondaryColorLight dark:bg-SecondaryColor pr-9 pl-7">
+        <div className="relative flex flex-col items-center justify-center w-full gap-2 pt-5 bg-SecondaryColorLight dark:bg-SecondaryColor p-2">
           <ICRCSubaccountAction />
           <TablesTab toggle={toggleTab} openTab={openTab} allowanceTabAllowed={allowanceTabAllowed} />
           {openTab === TabOption.TRANSACTIONS && <TransactionsScroll />}

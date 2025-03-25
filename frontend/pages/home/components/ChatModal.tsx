@@ -8,14 +8,22 @@ import { ReactComponent as StarIcon } from "@assets/svg/files/star.svg";
 import { ReactComponent as CloseIcon } from "@assets/svg/files/close.svg";
 import { LoadingLoader } from "@components/loader";
 import { p2pService } from "@/services/p2p";
+import { chatService, MessageType } from "@/services/chat";
 import { useSnackbar } from "notistack";
 import { clsx } from "clsx";
-import { Order, PaymentVerification, Message as P2PMessage } from "@/types/p2p";
+import { Order, PaymentVerification } from "@/types/p2p";
 import { LocalRxdbDatabase } from "@database/local-rxdb";
 import { ORDER_STATUS_TRACKING } from "@/types/p2p";
 
 // Add constant for order timeout
 const ORDER_TIMEOUT = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+// Declare user principal property for window
+declare global {
+  interface Window {
+    userPrincipal: string;
+  }
+}
 
 interface ChatModalProps {
   isDrawerOpen: boolean;
@@ -23,11 +31,17 @@ interface ChatModalProps {
   selectedOrder?: Order | null;
 }
 
-interface Message extends Omit<P2PMessage, 'type'> {
-  type: 'order' | 'message' | 'payment' | 'image';
+interface Message {
+  id: string;
+  type: MessageType;
+  content: string;
+  sender: string;
+  timestamp: Date;
   orderDetails?: Order;
   imageUrl?: string;
   validatorId?: string;
+  isNew?: boolean;
+  expiresAt?: Date;
 }
 
 interface Validator {
@@ -124,8 +138,48 @@ export default function ChatModal({ isDrawerOpen, onClose, selectedOrder }: Chat
         orderDetails: selectedOrder,
         isNew: true
       }]);
+      
+      // Load existing messages
+      loadMessages();
     }
   }, [selectedOrder]);
+
+  const loadMessages = async () => {
+    if (!selectedOrder?.id) return;
+    
+    try {
+      setLoading(true);
+      const orderMessages = await chatService.getMessages(selectedOrder.id);
+      
+      if (orderMessages && orderMessages.length > 0) {
+        // Convert chat service messages to our local format
+        const formattedMessages: Message[] = orderMessages.map(msg => ({
+          id: msg.id,
+          type: msg.messageType as unknown as MessageType,
+          content: msg.content,
+          sender: msg.sender.toString() === window.userPrincipal ? 'user' : 'validator',
+          timestamp: new Date(Number(msg.timestamp) * 1000),
+          validatorId: msg.validatorId,
+          imageUrl: msg.imageUrl,
+          isNew: msg.isNew
+        }));
+        
+        setMessages(prev => {
+          // Filter out system messages that might be duplicated
+          const systemMessages = prev.filter(m => m.sender === 'system');
+          return [...systemMessages, ...formattedMessages];
+        });
+        
+        // Mark messages as read
+        await chatService.markMessagesAsRead(selectedOrder.id);
+      }
+    } catch (error) {
+      console.error('Error loading messages:', error);
+      enqueueSnackbar(t('Failed to load messages'), { variant: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadValidators = async () => {
     try {
@@ -172,37 +226,35 @@ export default function ChatModal({ isDrawerOpen, onClose, selectedOrder }: Chat
   };
 
   const handleAcceptOrder = async (order: Order) => {
+    if (!selectedValidator) {
+      enqueueSnackbar(t('Please select a validator first'), { variant: 'error' });
+      return;
+    }
+    
     try {
       setLoading(true);
       
       // Update order status to escrow pending
       await p2pService.updateOrderStatus(order.id, ORDER_STATUS_TRACKING.ESCROW_PENDING);
 
-      const expiryDate = new Date(Date.now() + ORDER_TIMEOUT);
-
-      // Add order confirmation message
-      setMessages(prev => [...prev, {
-        id: Math.random().toString(),
+      // Add order confirmation message using chatService
+      await chatService.sendMessage({
+        orderId: order.id,
+        content: `Order accepted: ${order.amount} WASTE\nPlease complete the payment within 5 minutes.`,
         type: 'message',
-        content: `Order accepted: ${order.amount} WASTE
-Please complete the payment within 5 minutes.`,
-        sender: 'system',
-        timestamp: new Date(),
-        isNew: true,
-        expiresAt: expiryDate
-      }]);
+        validatorId: selectedValidator
+      });
 
       // Add payment instruction message
-      setMessages(prev => [...prev, {
-        id: Math.random().toString(),
+      await chatService.sendMessage({
+        orderId: order.id,
+        content: `Please send ${order.price} PHP to ${order.paymentMethod.name}\nTime remaining: 5 minutes`,
         type: 'payment',
-        content: `Please send ${order.price} PHP to ${order.paymentMethod.name}
-Time remaining: 5 minutes`,
-        sender: 'system',
-        timestamp: new Date(),
-        isNew: true,
-        expiresAt: expiryDate
-      }]);
+        validatorId: selectedValidator
+      });
+
+      // Reload messages to show the new ones
+      await loadMessages();
 
       // Set up order timeout handler
       const timeoutId = setTimeout(async () => {
@@ -210,14 +262,16 @@ Time remaining: 5 minutes`,
         if (orderStatus?.status === ORDER_STATUS_TRACKING.ESCROW_PENDING || 
             orderStatus?.status === ORDER_STATUS_TRACKING.PAYMENT_PENDING) {
           await p2pService.updateOrderStatus(order.id, ORDER_STATUS_TRACKING.EXPIRED);
-          setMessages(prev => [...prev, {
-            id: Math.random().toString(),
-            type: 'message',
+          
+          await chatService.sendMessage({
+            orderId: order.id,
             content: 'Order expired. The 5-minute time limit has elapsed.',
-            sender: 'system',
-            timestamp: new Date(),
-            isNew: true
-          }]);
+            type: 'message',
+            validatorId: selectedValidator
+          });
+          
+          await loadMessages();
+          
           // Close both modals
           onClose();
         }
@@ -239,14 +293,14 @@ Time remaining: 5 minutes`,
       setLoading(true);
       await p2pService.updateOrderStatus(orderId, ORDER_STATUS_TRACKING.CANCELLED);
       
-      setMessages(prev => [...prev, {
-        id: Math.random().toString(),
-        type: 'message',
+      await chatService.sendMessage({
+        orderId: orderId,
         content: t('Order cancelled.'),
-        sender: 'system',
-        timestamp: new Date(),
-        isNew: true
-      }]);
+        type: 'message',
+        validatorId: selectedValidator
+      });
+      
+      await loadMessages();
 
       // Close ChatModal and return to TopUpModal
       onClose();
@@ -266,11 +320,11 @@ Time remaining: 5 minutes`,
       setLoading(true);
       
       // Add message to local state immediately for better UX
-      const newMessageObj = {
+      const newMessageObj: Message = {
         id: messageId,
-        type: 'message' as const,
+        type: 'message',
         content: newMessage,
-        sender: 'user' as const,
+        sender: 'user',
         timestamp: new Date(),
         validatorId: selectedValidator,
         isNew: true
@@ -280,12 +334,11 @@ Time remaining: 5 minutes`,
       setNewMessage("");
 
       // Send message to backend
-      await p2pService.sendMessage({
+      await chatService.sendMessage({
         orderId: selectedOrder.id,
         validatorId: selectedValidator,
         content: newMessage,
-        type: 'message',
-        sender: 'user'
+        type: 'message'
       });
 
     } catch (error) {
@@ -299,23 +352,44 @@ Time remaining: 5 minutes`,
     }
   };
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
+    if (!file || !file.type.startsWith('image/') || !selectedOrder?.id || !selectedValidator) return;
+
+    try {
+      setLoading(true);
+      
+      // Read file as data URL
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setMessages(prev => [...prev, {
-          id: Math.random().toString(),
-          type: 'image',
-          content: 'Image attachment',
-          sender: 'user',
-          timestamp: new Date(),
-          imageUrl: reader.result as string,
-          isNew: true,
-          validatorId: selectedValidator
-        }]);
-      };
-      reader.readAsDataURL(file);
+      const imageDataPromise = new Promise<string>((resolve) => {
+        reader.onloadend = () => {
+          resolve(reader.result as string);
+        };
+        reader.readAsDataURL(file);
+      });
+      
+      const imageData = await imageDataPromise;
+      
+      // Send image message
+      await chatService.sendMessage({
+        orderId: selectedOrder.id,
+        validatorId: selectedValidator,
+        content: 'Image attachment',
+        type: 'image',
+        imageUrl: imageData
+      });
+      
+      await loadMessages();
+      
+    } catch (error) {
+      console.error('Error sending image:', error);
+      enqueueSnackbar(t('Failed to send image'), { variant: 'error' });
+    } finally {
+      setLoading(false);
+      // Clear the file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -350,15 +424,14 @@ Time remaining: 5 minutes`,
       await p2pService.updateOrderStatus(selectedOrder.id, ORDER_STATUS_TRACKING.PAYMENT_SUBMITTED);
       
       // Add confirmation message to chat
-      setMessages(prev => [...prev, {
-        id: Math.random().toString(),
-        type: 'message',
+      await chatService.sendMessage({
+        orderId: selectedOrder.id,
+        validatorId: selectedValidator,
         content: 'Payment proof submitted successfully. Awaiting verification.',
-        sender: 'system',
-        timestamp: new Date(),
-        orderDetails: selectedOrder,
-        isNew: true
-      }]);
+        type: 'message'
+      });
+      
+      await loadMessages();
       
       // Reset states
       setSelectedImage(null);
@@ -619,25 +692,36 @@ Time remaining: 5 minutes`,
 
   // Update the message update effect
   useEffect(() => {
-    const handleNewMessage = async () => {
+    if (!selectedOrder?.id) return;
+    
+    const handleNewMessages = async () => {
       try {
-        if (!selectedOrder?.id) return;
+        const newMessages = await chatService.getNewMessages(selectedOrder.id);
         
-        const newMessages = await p2pService.getNewMessages(selectedOrder.id);
         if (newMessages && newMessages.length > 0) {
-          // Convert P2PMessages to local Message format
-          const convertedMessages: Message[] = newMessages.map(msg => ({
-            ...msg,
-            type: msg.type === 'system' ? 'message' : msg.type // Convert system type to message
+          // Convert chat service messages to our local format
+          const formattedMessages: Message[] = newMessages.map(msg => ({
+            id: msg.id,
+            type: msg.messageType as unknown as MessageType,
+            content: msg.content,
+            sender: msg.sender.toString() === window.userPrincipal ? 'user' : 'validator',
+            timestamp: new Date(Number(msg.timestamp) * 1000),
+            validatorId: msg.validatorId,
+            imageUrl: msg.imageUrl,
+            isNew: msg.isNew
           }));
-          setMessages(prev => [...prev, ...convertedMessages]);
+          
+          setMessages(prev => [...prev, ...formattedMessages]);
+          
+          // Mark messages as read
+          await chatService.markMessagesAsRead(selectedOrder.id);
         }
       } catch (error) {
         console.error('Error fetching new messages:', error);
       }
     };
 
-    const intervalId = setInterval(handleNewMessage, 5000);
+    const intervalId = setInterval(handleNewMessages, 5000);
     return () => clearInterval(intervalId);
   }, [selectedOrder?.id]);
 

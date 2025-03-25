@@ -180,7 +180,7 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
       {showTopUpModal && (
         <BasicModal
           open={true}
-          width="w-[30rem]"
+          width="w-[30rem] sm:w-[25rem]"
           padding="p-4 sm:p-6"
           border="border border-BorderColorTwoLight dark:border-BorderColorTwo"
         >

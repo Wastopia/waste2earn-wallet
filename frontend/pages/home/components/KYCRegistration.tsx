@@ -1,5 +1,5 @@
 // import React from 'react';
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { BasicModal } from "@components/modal";
 import { CustomButton } from "@components/button";
@@ -7,7 +7,8 @@ import { CustomInput } from "@components/input";
 import { ReactComponent as CloseIcon } from "@assets/svg/files/close.svg";
 import { clsx } from "clsx";
 import { useAppSelector } from "@redux/Store";
-import { LocalRxdbDatabase } from "@database/local-rxdb";
+import toast from "react-hot-toast"; // Using already installed package
+import { kycService, KYCSubmission } from "../../../services/kyc"; // Correct relative path
 
 
 interface KYCRegistrationProps {
@@ -58,8 +59,7 @@ const ValidatorInfo = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
     <>
     <BasicModal
       open={isOpen}
-      width="w-[30rem] sm:w-[75%]"
-      height="h-[48rem] sm:h-[75%]"
+      width="w-[30rem] sm:w-[25rem]"
       padding="p-5 sm:p-7"
       background="bg-slate-200 dark:bg-gray-800"
       border="border border-BorderColorTwoLight dark:border-BorderColorTwo overflow-y-auto"
@@ -74,7 +74,7 @@ const ValidatorInfo = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
           onClick={onClose}
         />
 
-        <div className="flex flex-col gap-4 mt-20">
+        <div className="flex flex-col gap-4 mt-10">
           <h2 className="text-xl font-semibold text-slate-color-success">
             {t("Important Notice: Validator Payment System Trial")}
           </h2>
@@ -147,6 +147,7 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [showValidatorInfo, setShowValidatorInfo] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false); // Add loading state
   
   const [form, setForm] = useState<RegistrationForm>({
     principalId: userPrincipal?.toString() || '',
@@ -168,6 +169,21 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
     occupation: '',
     bankDetails: undefined  // Initialize as undefined for non-validator users
   });
+
+  // Check if user already has KYC on mount
+  useEffect(() => {
+    const checkExistingKYC = async () => {
+      if (userPrincipal) {
+        const hasKYC = await kycService.hasCompletedKYC(userPrincipal.toString());
+        if (hasKYC) {
+          toast.success(t('You have already completed KYC registration'));
+          onClose();
+        }
+      }
+    };
+    
+    checkExistingKYC();
+  }, [userPrincipal, onClose, t]);
 
   const handleInputChange = (field: string, value: string) => {
     if (field === 'userType' && value === 'validator') {
@@ -232,29 +248,71 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
     }
   };
 
+  // Add validation functions
+  const validateForm = (): boolean => {
+    // Check required fields
+    if (!form.firstName || !form.lastName || !form.email || !form.phone || 
+        !form.birthday || !form.address.street || !form.address.city || 
+        !form.address.state || !form.address.postalCode || !form.nationality) {
+      toast.error(t('Please fill in all required fields'));
+      return false;
+    }
+
+    // Validate email format
+    if (!kycService.validateEmail(form.email)) {
+      toast.error(t('Please enter a valid email address'));
+      return false;
+    }
+
+    // Validate phone format
+    if (!kycService.validatePhone(form.phone)) {
+      toast.error(t('Please enter a valid phone number (e.g., +639XXXXXXXXX or 09XXXXXXXXX)'));
+      return false;
+    }
+
+    // Validate date format
+    if (!kycService.validateDate(form.birthday)) {
+      toast.error(t('Please enter a valid date of birth (not in the future)'));
+      return false;
+    }
+
+    // Validate bank details for validators
+    if (form.userType === 'validator') {
+      if (!form.bankDetails?.bpi?.accountName || !form.bankDetails?.bpi?.accountNumber) {
+        toast.error(t('Please fill in BPI account details'));
+        return false;
+      }
+    }
+
+    // Validate photo
+    if (!photoPreview) {
+      toast.error(t('Please upload a profile photo'));
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate form
+    if (!validateForm()) {
+      return;
+    }
+
     try {
-      // Validate required fields
-      if (!form.firstName || !form.lastName || !form.email || !form.phone || 
-          !form.birthday || !form.address.street || !form.address.city || 
-          !form.address.state || !form.address.postalCode || !form.nationality) {
-        alert(t('Please fill in all required fields'));
-        return;
+      setIsSubmitting(true); // Start loading state
+      
+      // Compress the image if available
+      let compressedPhotoUrl = photoPreview;
+      if (photoPreview) {
+        compressedPhotoUrl = await kycService.compressImage(photoPreview);
       }
 
-      // Validate bank details for validators
-      if (form.userType === 'validator') {
-        if (!form.bankDetails?.bpi?.accountName || !form.bankDetails?.bpi?.accountNumber) {
-          alert(t('Please fill in BPI account details'));
-          return;
-        }
-      }
-
-      // Format the data according to the KYC schema
-      const kycData = {
+      // Prepare submission data
+      const kycSubmission: KYCSubmission = {
         userId: form.principalId,
-        status: 'pending' as const,
         personalInfo: {
           firstName: form.firstName,
           lastName: form.lastName,
@@ -272,19 +330,7 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
           country: form.address.country,
           postalCode: form.address.postalCode
         },
-        documents: [{
-          type_: 'profile_photo',
-          number: 'N/A',
-          expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          fileUrl: photoPreview || '',
-          verificationStatus: 'pending' as const
-        }],
-        verificationDetails: {
-          submittedAt: Date.now(),
-          verifiedAt: undefined,
-          verifiedBy: undefined,
-          remarks: undefined
-        },
+        profilePhoto: compressedPhotoUrl || '',
         bankDetails: form.userType === 'validator' && form.bankDetails?.bpi?.accountName && form.bankDetails?.bpi?.accountNumber ? {
           gcash: form.bankDetails.gcash || '',
           paymaya: form.bankDetails.paymaya || '',
@@ -293,27 +339,27 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
             accountNumber: form.bankDetails.bpi.accountNumber
           }
         } : undefined,
-        riskLevel: 'medium' as const,
-        updatedAt: Math.floor(Date.now() / 1000),
-        deleted: false
+        userType: form.userType
       };
 
-      console.log('Saving KYC details:', kycData); // Add logging
-      await LocalRxdbDatabase.instance.addKYCDetails(kycData);
+      // Submit KYC data using service
+      await kycService.submitKYC(kycSubmission);
       
-      alert(t('Thank you for registering! Your details have been saved.'));
+      toast.success(t('Thank you for registering! Your details have been saved.'));
       onClose();
     } catch (error) {
       console.error('Failed to save KYC details:', error);
       if (error instanceof Error) {
-        alert(t('Failed to save your details: ') + error.message);
+        toast.error(t('Failed to save your details: ') + error.message);
       } else {
-        alert(t('Failed to save your details. Please try again.'));
+        toast.error(t('Failed to save your details. Please try again.'));
       }
+    } finally {
+      setIsSubmitting(false); // End loading state
     }
   };
 
-  const handlePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhotoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setForm(prev => ({ ...prev, photo: file }));
@@ -365,7 +411,7 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
     <>
       <BasicModal
         open={true}
-        width="w-[30rem] sm:w-[75%]"
+        width="w-[30rem] sm:w-[25rem]"
         padding="p-5 sm:p-7"
         background="bg-blue-100 dark:bg-gray-800"
         border="border border-BorderColorTwoLight dark:border-BorderColorTwo overflow-y-auto"
@@ -420,7 +466,7 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
               </div>
 
               {/* New Fields: Nationality, Gender, Occupation */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-200 dark:bg-gray-800 p-4 rounded-lg">
                 <div className="flex flex-col gap-2">
                   <label className="text-sm font-medium text-SecondaryTextColorLight dark:text-PrimaryTextColor">{t("Nationality")}</label>
                   <select
@@ -641,12 +687,14 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
 
               <CustomButton
                 type="submit"
+                disabled={isSubmitting}
                 className={clsx(
                   "bg-slate-color-success text-white mt-2 sm:mt-4 w-full sm:w-auto sm:self-end px-6",
-                  "hover:bg-slate-color-success/90 transition-colors duration-200"
+                  "hover:bg-slate-color-success/90 transition-colors duration-200",
+                  isSubmitting && "opacity-70 cursor-not-allowed"
                 )}
               >
-                {t("Submit")}
+                {isSubmitting ? t("Submitting...") : t("Submit")}
               </CustomButton>
             </form>
           </div>

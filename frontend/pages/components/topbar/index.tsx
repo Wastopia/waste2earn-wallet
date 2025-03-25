@@ -1,7 +1,7 @@
 // svgs
 import { ReactComponent as ChevronIcon } from "@/assets/svg/files/chevron-right.svg";
 import { ReactComponent as UsaFlagIcon } from "@/assets/svg/files/usa.svg";
-import { ReactComponent as SpainFlagIcon } from "@/assets/svg/files/españa.svg";
+import { ReactComponent as PhilFlagIcon } from "@/assets/svg/files/flag-phil.svg";
 import { ReactComponent as ItalyFlagIcon } from "@/assets/svg/files/italia.svg";
 import { ReactComponent as BrazilFlagIcon } from "@/assets/svg/files/brazil.svg";
 import { ReactComponent as ICRC1Logo } from "@/assets/svg/files/logo-light.svg";
@@ -51,7 +51,7 @@ const TopBarComponent = ({ isLoginPage }: { isLoginPage: boolean }) => {
 
   const langOpts = [
     { abrev: "en", name: "english", flag: <UsaFlagIcon className={flag} /> },
-    { abrev: "es", name: "spanish", flag: <SpainFlagIcon className={flag} /> },
+    { abrev: "phil", name: "filipino", flag: <PhilFlagIcon className={flag} /> },
     { abrev: "it", name: "italian", flag: <ItalyFlagIcon className={flag} /> },
     { abrev: "pt", name: "portuguese", flag: <BrazilFlagIcon className={flag} /> },
   ];
@@ -64,11 +64,11 @@ const TopBarComponent = ({ isLoginPage }: { isLoginPage: boolean }) => {
   return (
     <Fragment>
       <div className="flex flex-row justify-around px-5 items-center min-h-[8rem] w-full bg-PrimaryColorLight dark:bg-PrimaryColor text-PrimaryTextColorLight dark:text-PrimaryTextColor border-b border-BorderColorFourthLight dark:border-BorderColorFourth">
-        <div className="flexd flex-col items-center justify-start space-y-2 py-2">
+        <div className="flex flex-col items-center justify-start space-y-2 py-2">
         {theme === ThemesEnum.enum.dark ? (
-            <ICRC1LogoDark className="max-w-[20rem] h-auto" />
+            <ICRC1LogoDark className="max-w-[20rem] sm:max-w-[10rem] h-auto" />
           ) : (
-            <ICRC1Logo className="max-w-[20rem] h-auto" />
+            <ICRC1Logo className="max-w-[20rem] sm:max-w-[10rem] h-auto" />
           )}
         </div>
         <div className="flex flex-col justify-between gap-2 text-md">

@@ -61,14 +61,14 @@ const Home = () => {
         <div className="flex items-center gap-4 justify-between w-full">
         <div className="flex justify-start w-full space-x-4">
           <PeopleIcon className="text-slate-color-success" />
-          <span className="text-lg text-SecondaryTextColorLight dark:text-PrimaryTextColor">
+          <span className="text-lg text-SecondaryTextColorLight dark:text-PrimaryTextColor sm:text-sm">
             {t("Hi, I'm")} {firstName}, {t(isValidator ? "validator" : "regular user")}
           </span>
         </div>
           
           <CustomButton
             className={clsx(
-              "bg-slate-color-success text-white px-6 py-2 text-sm",
+              "bg-slate-color-success text-white px-6 py-2 text-sm sm:px-1 sm:py-1",
               "hover:bg-slate-color-success/90 transition-colors duration-200"
             )}
             onClick={() => setShowKYCRegistration(true)}

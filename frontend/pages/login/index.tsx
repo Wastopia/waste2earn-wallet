@@ -20,7 +20,7 @@ const Login = () => {
 
   return (
     <Fragment>
-      <div className="flex flex-col sm:flex-row w-full h-full bg-PrimaryColorLight dark:bg-PrimaryColor">
+      <div className="flex flex-col sm:flex-col w-full h-full bg-PrimaryColorLight dark:bg-PrimaryColor">
         <div className="relative flex flex-col h-[100%] justify-center items-center bg-SecondaryColorLight dark:bg-SecondaryColor bg-center overflow-hidden">
           <div className="w-full h-full">
             <img

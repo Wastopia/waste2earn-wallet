@@ -40,6 +40,11 @@ module.exports = {
       "7xl": "5rem",
     },
     screens: {
+      sm: "360px",
+      md: "768px",
+      lg: "1024px",
+      xl: "1280px",
+      "2xl": "1536px",
       defaults: "1475px"
     },
     colors: {

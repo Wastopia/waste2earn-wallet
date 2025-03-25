@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next";
 import { ReactComponent as CloseIcon } from "@assets/svg/files/close.svg";
 import { DrawerOptionEnum } from "@/common/const";
 import DrawerReceive from "@/pages/home/components/ICRC/transaction/DrawerReceive";
-// eslint-disable-next-line
 import clsx from "clsx";
 import { useMemo } from "react";
 import Transfer from "@/pages/home/components/ICRC/transaction/transfer";
@@ -77,14 +76,14 @@ export default function SendReceiveDrawer() {
   );
 
   function customSend() {
-    return clsx(chechEqId(TransactionDrawer.SEND) ? selectedButton : unselectedButton);
+    return clsx(checkEqId(TransactionDrawer.SEND) ? selectedButton : unselectedButton);
   }
 
   function customReceive() {
-    return clsx(chechEqId(TransactionDrawer.RECEIVE) ? selectedButton : unselectedButton);
+    return clsx(checkEqId(TransactionDrawer.RECEIVE) ? selectedButton : unselectedButton);
   }
 
-  function chechEqId(option: TransactionDrawer) {
+  function checkEqId(option: TransactionDrawer) {
     return transactionDrawer === option;
   }
 }
