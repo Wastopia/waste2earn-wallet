@@ -9,7 +9,7 @@ import {
   AssetMutationAction,
   setAssetMutation,
   setAssetMutationAction,
-  setExtraDataMuatation,
+  setExtraDataMutation,
   setSelectedAccount,
   setSelectedAsset,
 } from "@redux/assets/AssetReducer";
@@ -196,7 +196,7 @@ export default function AssetAccordionItem(props: AssetAccordionItemProps) {
         const findAsset = srv.assets.find((ast) => ast.visible && ast.principal === currentAsset.address);
         return { name: srv.name, credit: findAsset?.credit || "0", address: currentAsset.address };
       });
-    dispatch(setExtraDataMuatation(auxServices.length > 0 ? { deletedServicesAssets: auxServices } : undefined));
+    dispatch(setExtraDataMutation(auxServices.length > 0 ? { deletedServicesAssets: auxServices } : undefined));
     dispatch(setAssetMutation(currentAsset));
     dispatch(setAssetMutationAction(AssetMutationAction.DELETE));
   }

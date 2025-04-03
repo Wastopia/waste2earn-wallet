@@ -6,7 +6,10 @@
         "entrypoint": "dist/index.html"
       },
       "source": ["dist/"],
-      "type": "assets"
+      "type": "assets",
+      "declarations": {
+        "output": "frontend/declarations/assets"
+      }
     },
     "db": {
       "main": "canisters/database/main.mo",

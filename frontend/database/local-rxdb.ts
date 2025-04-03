@@ -1,4 +1,4 @@
-import { DatabaseOptions, IWalletDatabase } from "./i-wallet-database";
+import { DatabaseOptions, IWalletDatabase, IP2PDatabase } from "./i-wallet-database";
 import { createRxDatabase, RxCollection, RxDocument, RxDatabase, addRxPlugin, DeepReadonlyObject } from "rxdb";
 import DBSchemas from "./schemas.json";
 import { extractValueFromArray } from "./helpers";
@@ -11,6 +11,7 @@ import { RxDBUpdatePlugin } from "rxdb/plugins/update";
 // types
 import { TAllowance } from "../@types/allowance";
 import { SupportedStandardEnum } from "../@types/icrc";
+import { KYCDetails, RxKYCCollection, MutableKYCDetails } from '../@types/kyc';
 import {
   AssetDocument as AssetRxdbDocument,
   ContactDocument as ContactRxdbDocument,
@@ -43,8 +44,7 @@ import { Contact } from "@redux/models/ContactsModels";
 import { ServiceData } from "@redux/models/ServiceModels";
 import { setServices as setServicesRedux, setServicesData } from "@redux/services/ServiceReducer";
 import { Identity } from "@dfinity/agent";
-import { Order, PaymentVerification } from "../types/p2p";
-import { sendKYCUpdateEmail } from '@/services/emailService';
+import { Order, PaymentVerification, Escrow } from "../types/p2p";
 
 addRxPlugin(RxDBUpdatePlugin);
 addRxPlugin(RxDBMigrationPlugin);
@@ -60,65 +60,27 @@ export interface KYCDocumentType {
   verificationStatus: 'pending' | 'verified' | 'rejected';
 }
 
-export interface KYCDetails {
-  userId: string;
-  status: 'pending' | 'approved' | 'rejected';
-  personalInfo: {
-    firstName: string;
-    lastName: string;
-    dateOfBirth: string;
-    nationality: string;
-    phoneNumber: string;
-    email: string;
-    gender: string;
-    occupation: string;
-  };
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    country: string;
-    postalCode: string;
-  };
-  documents: Array<{
+// Type-safe KYC document handling interface
+export interface KYCUpdateRequest {
+  documents?: Array<{
     type_: string;
     number: string;
     expiryDate: string;
     fileUrl: string;
-    verificationStatus: 'pending' | 'verified' | 'rejected';
+    verificationStatus: string;
   }>;
-  verificationDetails: {
+  status?: string;
+  riskLevel?: string;
+  verificationDetails?: {
     submittedAt: number;
-    verifiedAt?: number;
-    verifiedBy?: string;
-    remarks?: string;
+    verifiedAt?: number | null;
+    verifiedBy?: string | null;
+    remarks?: string | null;
   };
-  riskLevel: 'low' | 'medium' | 'high';
-  bankDetails?: {
-    gcash?: string;
-    paymaya?: string;
-    bpi?: {
-      accountName: string;
-      accountNumber: string;
-    };
-  };
-  updatedAt: number;
-  deleted: boolean;
 }
 
-interface ValidatorDocument {
-  id: string;
-  name: string;
-  isActive: boolean;
-  rating: number;
-  responseTime: string;
-  totalOrders: number;
-  avatarUrl?: string;
-  deleted: boolean;
-  updatedAt: number;
-}
-
-const collections = {
+// Collection schemas for database initialization
+const dbCollections = {
   assets: {
     schema: DBSchemas.assets.schema
   },
@@ -138,30 +100,17 @@ const collections = {
     schema: DBSchemas.p2p_payment_verifications.schema
   },
   kyc_details: {
-    schema: DBSchemas.kyc_details.schema
+    schema: {
+      version: 0,
+      primaryKey: 'userId',
+      type: 'object',
+      properties: DBSchemas.kyc_details.properties,
+      required: DBSchemas.kyc_details.required
+    }
   }
 };
 
-// Type-safe KYC document handling interfaces
-export interface KYCUpdateRequest {
-  documents?: Array<{
-    type_: string;
-    number: string;
-    expiryDate: string;
-    fileUrl: string;
-    verificationStatus: string;
-  }>;
-  status?: string;
-  riskLevel?: string;
-  verificationDetails?: {
-    submittedAt: number;
-    verifiedAt?: number;
-    verifiedBy?: string;
-    remarks?: string;
-  };
-}
-
-export class LocalRxdbDatabase extends IWalletDatabase {
+export class LocalRxdbDatabase extends IWalletDatabase implements IP2PDatabase {
   // Singleton pattern
   private static _instance: LocalRxdbDatabase | undefined;
   public static get instance(): LocalRxdbDatabase {
@@ -181,7 +130,8 @@ export class LocalRxdbDatabase extends IWalletDatabase {
   private _orders!: RxCollection<Order> | null;
   private _paymentVerifications!: RxCollection<PaymentVerification> | null;
   private _kycDetails!: RxCollection<KYCDetails> | null;
-  private _validators!: RxCollection<ValidatorDocument> | null;
+  private _transactions!: RxCollection<any> | null;
+  private _kyc: RxKYCCollection | null = null;
 
   private constructor() {
     super();
@@ -192,7 +142,39 @@ export class LocalRxdbDatabase extends IWalletDatabase {
     this._orders = null;
     this._paymentVerifications = null;
     this._kycDetails = null;
-    this._validators = null;
+    this._transactions = null;
+  }
+
+  async getValidators(): Promise<Array<{
+    id: string;
+    name: string;
+    isActive: boolean;
+    rating: number;
+    responseTime: string;
+    totalOrders: number;
+    avatarUrl?: string;
+  }>> {
+    // For now, return mock validators since we don't have a validators collection yet
+    return [
+      { 
+        id: 'v1', 
+        name: 'John Validator', 
+        isActive: true,
+        rating: 4.8,
+        responseTime: '< 5 min',
+        totalOrders: 156,
+        avatarUrl: 'https://ui-avatars.com/api/?name=John+Validator'
+      },
+      { 
+        id: 'v2', 
+        name: 'Maria Handler', 
+        isActive: true,
+        rating: 4.9,
+        responseTime: '< 2 min',
+        totalOrders: 243,
+        avatarUrl: 'https://ui-avatars.com/api/?name=Maria+Handler'
+      }
+    ];
   }
 
   async setIdentity(identity: Identity | null): Promise<void> {
@@ -236,12 +218,8 @@ export class LocalRxdbDatabase extends IWalletDatabase {
   }
 
   protected get kycDetails(): Promise<RxCollection<KYCDetails> | null> {
-    return Promise.resolve(this._kycDetails);
-  }
-
-  protected get validators(): Promise<RxCollection<ValidatorDocument> | null> {
-    if (this._validators) return Promise.resolve(this._validators);
-    return this.init().then(() => this._validators);
+    if (this._kycDetails) return Promise.resolve(this._kycDetails);
+    return this.init().then(() => this._kycDetails);
   }
 
   async init(): Promise<void> {
@@ -251,9 +229,114 @@ export class LocalRxdbDatabase extends IWalletDatabase {
       this.db = await createRxDatabase({
         name: dbName,
         storage: getRxStorageDexie(),
-        multiInstance: false,
+        multiInstance: true,
         ignoreDuplicate: true,
+        eventReduce: true,
+        cleanupPolicy: {
+          minimumDeletedTime: 1000 * 60 * 60 * 24 * 30 // 30 days
+        }
       });
+
+      // Initialize collections with schemas
+      const collections = {
+        ...dbCollections,
+        kyc: {
+          schema: {
+            version: 0,
+            primaryKey: 'userId',
+            type: 'object',
+            properties: {
+              userId: { type: 'string' },
+              userType: { type: 'string', enum: ['validator', 'collector', 'regular'] },
+              status: { type: 'string', enum: ['pending', 'approved', 'rejected'] },
+              personalInfo: {
+                type: 'object',
+                properties: {
+                  firstName: { type: 'string' },
+                  lastName: { type: 'string' },
+                  dateOfBirth: { type: 'string' },
+                  nationality: { type: 'string' },
+                  phoneNumber: { type: 'string' },
+                  email: { type: 'string' },
+                  gender: { type: 'string' },
+                  occupation: { type: 'string' }
+                },
+                required: ['firstName', 'lastName', 'dateOfBirth', 'nationality', 'phoneNumber', 'email', 'gender', 'occupation']
+              },
+              address: {
+                type: 'object',
+                properties: {
+                  street: { type: 'string' },
+                  city: { type: 'string' },
+                  state: { type: 'string' },
+                  country: { type: 'string' },
+                  postalCode: { type: 'string' }
+                },
+                required: ['street', 'city', 'state', 'country', 'postalCode']
+              },
+              documents: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    type_: { type: 'string' },
+                    number: { type: 'string' },
+                    expiryDate: { type: 'string' },
+                    fileUrl: { type: 'string' },
+                    verificationStatus: { type: 'string', enum: ['pending', 'verified', 'rejected'] }
+                  },
+                  required: ['type_', 'number', 'expiryDate', 'fileUrl', 'verificationStatus']
+                }
+              },
+              verificationDetails: {
+                type: 'object',
+                properties: {
+                  submittedAt: { type: 'number' },
+                  verifiedAt: { type: ['number', 'null'] },
+                  verifiedBy: { type: ['string', 'null'] },
+                  remarks: { type: ['string', 'null'] }
+                },
+                required: ['submittedAt']
+              },
+              riskLevel: { type: 'string', enum: ['low', 'medium', 'high'] },
+              bankDetails: {
+                type: ['object', 'null'],
+                properties: {
+                  gcash: { type: ['string', 'null'] },
+                  paymaya: { type: ['string', 'null'] },
+                  bpi: {
+                    type: ['object', 'null'],
+                    properties: {
+                      accountName: { type: 'string' },
+                      accountNumber: { type: 'string' }
+                    },
+                    required: ['accountName', 'accountNumber']
+                  }
+                }
+              },
+              _deleted: { type: 'boolean' },
+              updatedAt: { type: 'number' }
+            },
+            required: ['userId', 'userType', 'status', 'personalInfo', 'address', 'documents', 'verificationDetails', 'riskLevel', '_deleted', 'updatedAt']
+          }
+        },
+        transactions: {
+          schema: {
+            version: 0,
+            primaryKey: 'id',
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              tx: { type: 'object' },
+              symbol: { type: 'string' },
+              tokenSymbol: { type: 'string' },
+              subaccount: { type: 'string' },
+              updatedAt: { type: 'number' }
+            },
+            required: ['id', 'tx', 'symbol', 'tokenSymbol', 'subaccount', 'updatedAt']
+          }
+        }
+      };
 
       await this.db.addCollections(collections);
 
@@ -263,7 +346,13 @@ export class LocalRxdbDatabase extends IWalletDatabase {
       this._services = this.db.collections.services;
       this._orders = this.db.collections.orders;
       this._paymentVerifications = this.db.collections.paymentVerifications;
-      this._kycDetails = this.db.collections.kyc_details;
+      this._kyc = this.db.collections.kyc as RxKYCCollection;
+      this._transactions = this.db.collections.transactions;
+
+      // Verify all collections are initialized
+      if (!this._kyc) {
+        throw new Error('KYC collection not initialized');
+      }
 
       // Initialize with default tokens if no assets exist
       const assets = await this._assets?.find().exec();
@@ -280,9 +369,11 @@ export class LocalRxdbDatabase extends IWalletDatabase {
           )
         );
       }
+
     } catch (error) {
       logger.debug("LocalRxDb Init:", error);
       this._invalidateDb();
+      throw error; // Re-throw to handle in the calling code
     }
   }
 
@@ -732,7 +823,7 @@ export class LocalRxdbDatabase extends IWalletDatabase {
     this._orders = null!;
     this._paymentVerifications = null!;
     this._kycDetails = null!;
-    this._validators = null!;
+    this._transactions = null!;
   }
 
   // Order Methods
@@ -839,132 +930,69 @@ export class LocalRxdbDatabase extends IWalletDatabase {
     }
   }
 
-  async addKYCDetails(details: KYCDetails): Promise<void> {
+  async addKYCDetails(details: KYCDetails): Promise<MutableKYCDetails | null> {
     try {
-      const kycCollection = await this.kycDetails;
-      if (!kycCollection) {
+      if (!this._kyc) {
         throw new Error('KYC collection not initialized');
       }
 
-      // Transform the details to match the schema
       const kycDoc = {
         ...details,
-        status: details.status || 'pending',
-        riskLevel: details.riskLevel || 'medium',
-        updatedAt: Date.now(),
-        deleted: false
-      };
-
-      // Check if document already exists
-      const existingDoc = await kycCollection.findOne({
-        selector: { userId: details.userId }
-      }).exec();
-
-      if (existingDoc) {
-        // Update existing document
-        await existingDoc.patch(kycDoc);
-      } else {
-        // Create new document
-        await kycCollection.insert(kycDoc);
-      }
-    } catch (error) {
-      console.error('Error adding KYC details:', error);
-      throw error;
-    }
-  }
-
-  async getValidators(): Promise<ValidatorDocument[]> {
-    try {
-      const documents = await (await this.validators)?.find().exec();
-      return documents?.map(doc => ({
-        id: doc.id,
-        name: doc.name,
-        isActive: doc.isActive,
-        rating: doc.rating,
-        responseTime: doc.responseTime,
-        totalOrders: doc.totalOrders,
-        avatarUrl: doc.avatarUrl,
-        deleted: doc.deleted,
-        updatedAt: doc.updatedAt
-      })) || [];
-    } catch (error) {
-      logger.debug("LocalRxDb GetValidators:", error);
-      return [];
-    }
-  }
-
-  async addValidator(validator: ValidatorDocument): Promise<void> {
-    try {
-      await (await this.validators)?.insert({
-        ...validator,
+        _deleted: false,
         deleted: false,
         updatedAt: Date.now()
-      });
+      };
+
+      const doc = await this._kyc.insert(kycDoc);
+      console.debug('KYC details added successfully:', kycDoc);
+      return doc.toJSON() as MutableKYCDetails;
     } catch (error) {
-      logger.debug("LocalRxDb AddValidator:", error);
+      console.error('Error adding KYC details:', error);
+      return null;
     }
   }
 
-  async updateValidator(id: string, updates: Partial<ValidatorDocument>): Promise<void> {
+  async getKYCDetails(userId: string): Promise<MutableKYCDetails | null> {
     try {
-      const document = await (await this.validators)?.findOne(id).exec();
-      await document?.patch({
-        ...updates,
-        updatedAt: Date.now()
-      });
+      if (!this._kyc) {
+        throw new Error('KYC collection not initialized');
+      }
+
+      const doc = await this._kyc.findOne({ selector: { userId } }).exec();
+      if (!doc) {
+        return null;
+      }
+
+      return doc.toJSON() as MutableKYCDetails;
     } catch (error) {
-      logger.debug("LocalRxDb UpdateValidator:", error);
+      console.error('Error getting KYC details:', error);
+      return null;
     }
   }
 
-  // KYC Management Methods
-  async updateKYCDetails(userId: string, updates: Partial<KYCDetails>): Promise<KYCDetails | null> {
+  async updateKYCDetails(userId: string, updates: Partial<KYCDetails>): Promise<MutableKYCDetails | null> {
     try {
-      const document = await (await this.kycDetails)?.findOne(userId).exec();
-      if (!document) return null;
+      if (!this._kyc) {
+        throw new Error('KYC collection not initialized');
+      }
 
-      const updated = await document.patch({
+      const doc = await this._kyc.findOne({ selector: { userId } }).exec();
+      if (!doc) {
+        return null;
+      }
+
+      const updatedDoc = {
         ...updates,
-        updatedAt: Date.now()
-      });
-
-      // Send email notification for KYC updates
-      const kycUpdate: KYCUpdateRequest = {
-        status: updates.status,
-        riskLevel: updates.riskLevel,
-        documents: updates.documents,
-        verificationDetails: updates.verificationDetails
+        updatedAt: Date.now(),
+        _deleted: false
       };
-      await sendKYCUpdateEmail(kycUpdate, userId);
 
-      const result = updated.toJSON();
-      return {
-        userId: result.userId,
-        status: result.status,
-        personalInfo: { ...result.personalInfo },
-        address: { ...result.address },
-        documents: Array.from(result.documents).map(doc => ({
-          type_: doc.type_,
-          number: doc.number,
-          expiryDate: doc.expiryDate,
-          fileUrl: doc.fileUrl,
-          verificationStatus: doc.verificationStatus
-        })),
-        verificationDetails: result.verificationDetails ? {
-          submittedAt: result.verificationDetails.submittedAt,
-          verifiedAt: result.verificationDetails.verifiedAt,
-          verifiedBy: result.verificationDetails.verifiedBy,
-          remarks: result.verificationDetails.remarks
-        } : {
-          submittedAt: Date.now()
-        },
-        riskLevel: result.riskLevel,
-        bankDetails: result.bankDetails ? { ...result.bankDetails } : undefined,
-        updatedAt: result.updatedAt,
-        deleted: result.deleted
-      };
-    } catch (error: unknown) {
-      logger.debug("LocalRxDb UpdateKYCDetails:", error);
+      const updated = await doc.patch(updatedDoc);
+
+      console.debug('KYC details updated successfully:', updatedDoc);
+      return updated.toJSON() as MutableKYCDetails;
+    } catch (error) {
+      console.error('Error updating KYC details:', error);
       return null;
     }
   }
@@ -995,5 +1023,94 @@ export class LocalRxdbDatabase extends IWalletDatabase {
     riskLevel: 'low' | 'medium' | 'high'
   ): Promise<KYCDetails | null> {
     return this.updateKYCDetails(userId, { riskLevel });
+  }
+
+  // Implement IP2PDatabase methods
+  async addOrder(order: Order): Promise<void> {
+    await this.createOrder(order);
+  }
+
+  async getOpenOrders(): Promise<Order[]> {
+    return this.getOrdersByStatus("created");
+  }
+
+  async getOrderById(orderId: string): Promise<Order | null> {
+    return this.getOrder(orderId);
+  }
+
+  async updateOrderStatus(orderId: string, status: Order["status"]): Promise<void> {
+    await this.updateOrder(orderId, { status });
+  }
+
+  async addEscrow(escrow: Escrow): Promise<void> {
+    try {
+      // Implementation for creating an escrow
+      console.log(`Creating escrow for order ${escrow.orderId}`);
+    } catch (e) {
+      console.error("LocalRxDb AddEscrow:", e);
+    }
+  }
+
+  async getEscrowByOrderId(orderId: string): Promise<Escrow | null> {
+    try {
+      // Implementation for getting an escrow by order id
+      console.log(`Attempting to find escrow for order ${orderId}`);
+      return null;
+    } catch (e) {
+      console.error("LocalRxDb GetEscrowByOrderId:", e);
+      return null;
+    }
+  }
+
+  async addPaymentVerification(verification: PaymentVerification): Promise<void> {
+    await this.createPaymentVerification(verification);
+  }
+
+  async getPaymentVerificationByOrderId(orderId: string): Promise<PaymentVerification | null> {
+    return this.getPaymentVerification(orderId);
+  }
+
+  /**
+   * Update the transaction cache with new transactions
+   * @param transactions Array of transactions to cache
+   */
+  async updateTransactionCache(transactions: any[]): Promise<void> {
+    try {
+      if (!this._transactions) {
+        throw new Error('Transactions collection not initialized');
+      }
+
+      // Prepare transactions for storage
+      const docs = transactions.map(tx => ({
+        id: `${tx.tokenSymbol}-${tx.subaccount}-${tx.tx.timestamp || Date.now()}`,
+        ...tx,
+        updatedAt: Date.now()
+      }));
+
+      // Bulk upsert transactions
+      await this._transactions.bulkUpsert(docs);
+      
+      logger.debug(`Updated transaction cache with ${docs.length} transactions`);
+    } catch (error) {
+      logger.error('Failed to update transaction cache:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get cached transactions
+   */
+  async getCachedTransactions(): Promise<any[]> {
+    try {
+      if (!this._transactions) {
+        throw new Error('Transactions collection not initialized');
+      }
+
+      const docs = await this._transactions.find().exec();
+      return docs.map(doc => doc.toJSON());
+    } catch (error) {
+      logger.error('Failed to get cached transactions:', error);
+      return [];
+    }
   }
 }

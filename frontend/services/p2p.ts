@@ -1,6 +1,38 @@
 import { Order, PaymentMethod, Escrow, PaymentVerification, Message, MessageRequest } from "@/types/p2p";
 import { ORDER_STATUS_TRACKING } from "@/types/p2p";
 import { LocalRxdbDatabase } from "@database/local-rxdb";
+import { kycService, KYCSubmission } from "./kyc";
+import { KYCDetails } from "../@types/kyc";
+import { emailService } from "./emailService";
+
+interface Address {
+  country: string;
+  street: string;
+  city: string;
+  state: string;
+  postalCode: string;
+}
+
+interface KYCDocument {
+  type_: string;
+  verificationStatus: 'pending' | 'verified' | 'rejected';
+}
+
+interface BankDetails {
+  bpi?: {
+    accountName: string;
+    accountNumber: string;
+  } | null;
+  gcash?: string | null;
+  paymaya?: string | null;
+}
+
+// Define SuspiciousPattern interface for proper typing
+interface SuspiciousPattern {
+  type: string;
+  description: string;
+  severity: 'low' | 'medium' | 'high';
+}
 
 class P2PService {
   private static instance: P2PService;
@@ -58,6 +90,10 @@ class P2PService {
 
   async getOrdersByUser(userId: string): Promise<Order[]> {
     return this.db.getOrdersByUser(userId);
+  }
+
+  async getUserOrders(userId: string): Promise<Order[]> {
+    return this.getOrdersByUser(userId);
   }
 
   async createPaymentVerification(verification: Omit<PaymentVerification, "status">): Promise<PaymentVerification> {
@@ -140,6 +176,165 @@ class P2PService {
     // Implement your message fetching logic here
     const response = await fetch(`/api/messages?orderId=${orderId}`);
     return response.json();
+  }
+
+  async validateUserForP2P(userId: string): Promise<boolean> {
+    const hasKYC = await kycService.hasCompletedKYC(userId);
+    if (!hasKYC) {
+      throw new Error('KYC verification required for P2P transactions');
+    }
+    return true;
+  }
+
+  getTransactionLimit(riskLevel: string): number {
+    switch(riskLevel) {
+      case 'low': return 1000;
+      case 'medium': return 5000;
+      case 'high': return 10000;
+      default: return 1000;
+    }
+  }
+
+  validateAddressForPayment(address: Address, paymentMethod: PaymentMethod): void {
+    if (paymentMethod.type === 'bank' && address.country !== 'Philippines') {
+      throw new Error('Bank transfers only available in Philippines');
+    }
+  }
+
+  validateDocumentsForP2P(documents: KYCDocument[]): void {
+    const requiredDocs = ['government_id', 'proof_of_address'];
+    const hasRequiredDocs = requiredDocs.every(doc => 
+      documents.some(d => d.type_ === doc && d.verificationStatus === 'verified')
+    );
+    if (!hasRequiredDocs) {
+      throw new Error('Required documents not verified');
+    }
+  }
+
+  validateBankDetails(bankDetails: BankDetails, kycDetails: KYCDetails): void {
+    if (bankDetails.bpi?.accountName !== `${kycDetails.personalInfo.firstName} ${kycDetails.personalInfo.lastName}`) {
+      throw new Error('Bank account name must match KYC details');
+    }
+  }
+
+  async validateP2PSubmission(submission: KYCSubmission): Promise<boolean> {
+    await this.validateUserForP2P(submission.userId);
+    if (submission.documents) {
+      this.validateDocumentsForP2P(submission.documents);
+    }
+    if (submission.bankDetails && submission.personalInfo) {
+      // Create a minimal KYCDetails object with just the needed fields
+      const kycDetails: Pick<KYCDetails, 'personalInfo'> = {
+        personalInfo: submission.personalInfo
+      };
+      this.validateBankDetails(submission.bankDetails, kycDetails as KYCDetails);
+    }
+    return true;
+  }
+
+  async processKYCForP2P(userId: string): Promise<void> {
+    const hasKYC = await kycService.hasCompletedKYC(userId);
+    if (!hasKYC) {
+      throw new Error('KYC verification required for P2P transactions');
+    }
+    // Additional processing can be added here
+  }
+
+  async updateKYCForP2P(userId: string, _transaction: Order): Promise<void> {
+    const hasKYC = await kycService.hasCompletedKYC(userId);
+    if (!hasKYC) {
+      throw new Error('KYC verification required for P2P transactions');
+    }
+    // Additional processing can be added here
+  }
+
+  showP2PStatus(hasKYC: boolean): string {
+    if (!hasKYC) {
+      return 'KYC verification required for P2P transactions';
+    }
+    return 'Ready for P2P transactions';
+  }
+
+  async monitorP2PTransactions(userId: string): Promise<void> {
+    const transactions = await this.getUserTransactions(userId);
+    const suspiciousPatterns = this.detectSuspiciousPatterns(transactions);
+    if (suspiciousPatterns.length > 0) {
+      // Handle suspicious patterns
+      console.log('Suspicious transaction patterns detected');
+    }
+  }
+
+  async sendP2PNotifications(userId: string, transaction: Order): Promise<void> {
+    try {
+      // Format the message
+      const message = `Transaction Update: ${transaction.status.toUpperCase()}
+      Order ID: ${transaction.id}
+      Amount: ${transaction.amount}
+      Price: ${transaction.price}`;
+      
+      // Send notification using email service
+      await emailService.sendP2PNotification(userId, message);
+    } catch (error) {
+      console.error('Error sending P2P notification:', error);
+    }
+  }
+
+  private async getUserTransactions(userId: string): Promise<Order[]> {
+    try {
+      return await this.getUserOrders(userId);
+    } catch (error) {
+      console.error('Error getting user transactions:', error);
+      return [];
+    }
+  }
+
+  private detectSuspiciousPatterns(transactions: Order[]): SuspiciousPattern[] {
+    const patterns: SuspiciousPattern[] = [];
+    
+    // Skip if no transactions
+    if (!transactions || transactions.length === 0) {
+      return patterns;
+    }
+    
+    // Check for large transactions
+    const largeTransactions = transactions.filter(t => 
+      t && typeof t.amount === 'number' && t.amount > 10000
+    );
+    if (largeTransactions.length > 0) {
+      patterns.push({
+        type: 'large_transaction',
+        description: 'Multiple large transactions detected',
+        severity: 'high'
+      });
+    }
+
+    // Check for frequent transactions
+    const getDateValue = (date: any): number => {
+      if (!date) return 0;
+      if (date instanceof Date) return date.getTime();
+      if (typeof date === 'number') return date;
+      if (typeof date === 'string') {
+        const parsed = Date.parse(date);
+        return isNaN(parsed) ? 0 : parsed;
+      }
+      return 0;
+    };
+
+    const last24Hours = transactions.filter(t => {
+      if (!t || !t.createdAt) return false;
+      const createdAtTime = getDateValue(t.createdAt);
+      return createdAtTime > 0 && (Date.now() - createdAtTime < 24 * 60 * 60 * 1000);
+    });
+    
+    if (last24Hours.length > 5) {
+      patterns.push({
+        type: 'frequent_transaction',
+        description: 'Too many transactions in 24 hours',
+        severity: 'medium'
+      });
+    }
+
+    return patterns;
   }
 }
 

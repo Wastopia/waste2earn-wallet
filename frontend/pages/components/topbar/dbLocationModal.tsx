@@ -20,7 +20,7 @@ interface DbLocationModalProps {
   setOpen(value: boolean): void;
 }
 
-export const DB_LOCATION_AUTH = "i23di-cqaaa-aaaao-qjwaq-cai";
+export const DB_LOCATION_AUTH = "";
 
 const DbLocationModal = ({ setOpen }: DbLocationModalProps) => {
   const { t } = useTranslation();

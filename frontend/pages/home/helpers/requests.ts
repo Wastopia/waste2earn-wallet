@@ -15,6 +15,8 @@ export const getAllTransactionsICP = async (params: GetAllTransactionsICPParams)
 
   const myPrincipal = store.getState().auth.userPrincipal;
   let subacc: SubAccountNNS | undefined = undefined;
+  
+  logger.info(`Fetching ICP transactions for subaccount: ${subaccount_index}`);
 
   try {
     subacc = SubAccountNNS.fromBytes(hexToUint8Array(subaccount_index)) as SubAccountNNS;
@@ -27,6 +29,8 @@ export const getAllTransactionsICP = async (params: GetAllTransactionsICPParams)
     principal: myPrincipal,
     subAccount: subacc,
   });
+  
+  logger.info(`Account identifier for ICP transactions: ${accountIdentifier.toHex()}`);
 
   try {
     const response = await fetch(
@@ -51,14 +55,22 @@ export const getAllTransactionsICP = async (params: GetAllTransactionsICPParams)
 
     if (!response.ok) throw Error(`${response.statusText}`);
     const { transactions } = await response.json();
+    
+    logger.info(`Retrieved ${transactions.length} ICP transactions`);
 
     const transactionsInfo = transactions.map(({ transaction, block_identifier }: any) =>
       formatIcpTransaccion(accountIdentifier.toHex(), transaction, block_identifier.hash),
     );
+    
+    logger.info(`Formatted ${transactionsInfo.length} ICP transactions`);
+    // Log a sample transaction for debugging
+    if (transactionsInfo.length > 0) {
+      logger.debug('Sample transaction:', JSON.stringify(transactionsInfo[0]));
+    }
 
     return transactionsInfo;
   } catch (error) {
-    logger.debug("Error getting transactions", error);
+    logger.error("Error getting ICP transactions:", error);
     return [];
   }
 };
@@ -74,6 +86,8 @@ interface GetAllTransactionsICRCParams {
 export const getAllTransactionsICRC1 = async (params: GetAllTransactionsICRCParams) => {
   try {
     const { canisterId, subaccount_index, assetSymbol, canister, subNumber } = params;
+    
+    logger.info(`Fetching ICRC1 transactions for asset: ${assetSymbol}, canister: ${canisterId.toString()}`);
 
     const myAgent = store.getState().auth.userAgent;
     const myPrincipal = store.getState().auth.userPrincipal;
@@ -88,9 +102,14 @@ export const getAllTransactionsICRC1 = async (params: GetAllTransactionsICRCPara
       start: [],
     });
 
-    if (!result?.Ok?.transactions) return [];
+    if (!result?.Ok?.transactions) {
+      logger.error(`No transactions found or error in response for ICRC1: ${JSON.stringify(result)}`);
+      return [];
+    }
+    
+    logger.info(`Retrieved ${result.Ok.transactions.length} ICRC1 transactions`);
 
-    return result?.Ok?.transactions
+    const transactions = result?.Ok?.transactions
       .filter((tx) => tx.transaction.kind !== SpecialTxTypeEnum.Enum.approve)
       .map(({ transaction, id }) => {
         const formatresult = formatckBTCTransaccion({
@@ -104,8 +123,16 @@ export const getAllTransactionsICRC1 = async (params: GetAllTransactionsICRCPara
 
         return formatresult;
       });
+    
+    logger.info(`Formatted ${transactions.length} ICRC1 transactions`);
+    // Log a sample transaction for debugging
+    if (transactions.length > 0) {
+      logger.debug('Sample ICRC1 transaction:', JSON.stringify(transactions[0]));
+    }
+
+    return transactions;
   } catch (error) {
-    logger.debug("Error getting transactions", error);
+    logger.error("Error getting ICRC1 transactions:", error);
     return [];
   }
 };

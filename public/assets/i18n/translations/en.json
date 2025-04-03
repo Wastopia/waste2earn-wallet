@@ -74,10 +74,10 @@
   "not.yet.available": "not yet available",
   "available": "available",
   "devs.only": "developers only",
-  "err.qr.img": "Coudnt detect a valid QR for the image upload",
+  "err.qr.img": "Couldn't detect a valid QR for the image upload",
   "hex.check": "Add index manually",
   "add.subacc": "Add Sub-account",
-  "delete.subacc": "Delete Subaccount",
+  "delete.subacc": "Delete SubAccount",
   "delete.subacc.msg": "Are you sure you want to delete",
   "name.sub.account": "Sub-account Name",
   "account.indentifier": "Account Identifier",
@@ -88,7 +88,7 @@
   "contact.error.duplicated.principal": "Duplicated Contact Principal",
   "contact.error.invalid.account.id": "Invalid Contact Account ID",
   "contact.error.invalid.account.name": "Invalid Contact Account Name",
-  "contact.error.account.exist": "Contact Subaccount already exist",
+  "contact.error.account.exist": "Contact SubAccount already exist",
   "contact.error.principal.self": "Principal is the same as the account",
 
   "copied": "Copied!",
@@ -109,7 +109,7 @@
   "sending.successful": "Sending Successful",
   "transfer.successful": "Transfer Successful",
   "sending.failed": "Failed Transaction",
-  "no.enought.balance": "No enought balance to send asset",
+  "no.enought.balance": "No enough balance to send asset",
   "adding.asset": "Checking balances of new Asset",
   "adding.asset.successful": "Asset added",
   "adding.asset.already.imported": "Asset already Imported",
@@ -160,7 +160,7 @@
   "total.assets": "Total Assets",
   "total.subacc": "Total Sub-accounts",
   "disclaimer.title": "APP DISCLAIMER",
-  "disclaimer.msg": "ICRC Wallet assumes no responsibility or liability for any errors or omissions in the content of this site. This software may contain bugs as it is an alpha software. Please assume responsibility for your funds if you use it with real tokens, it is on your own risk. We recommend use Test Tokens instead. If you want to continue, first agree previous terms.",
+  "disclaimer.msg": "Welcome to our Beta Wallet! We're excited to have you on board and try out our new features. Please note that our software is still in testing and may contain bugs, so we recommend using Test Tokens to explore our platform without risking your real funds. If you do choose to use real tokens, you'll be doing so at your own risk. By proceeding, you acknowledge that you've read and understood these terms. We're committed to transparency and value your feedback in helping us shape the future of our wallet. Confirm that you've read and agreed to these terms to continue, and thank you for being part of our community!",
   "delete.contact.contact.msg": "Are you sure you want to Remove the Contact",
   "delete.contact.asset.msg": "Are you sure you want to Remove the Asset",
   "delete.contact.sub.msg": "Are you sure you want to Remove the Sub-account",
@@ -184,13 +184,13 @@
   "icrc.acc": "ICRC-1 Identifier",
   "unknown": "Unknown",
   "acc.identifier": "Legacy Identifier",
-  "acc.subacc": "Subaccount",
+  "acc.subacc": "SubAccount",
   "acc.principal": "Principal",
   "congrats": "Congratulation",
   "edit": "Edit",
   "delete": "Delete",
   "expiration": "Expiration",
-  "subAccount": "Subaccount",
+  "subAccount": "SubAccount",
   "spender": "Spender",
   "principal": "Principal",
   "no.expiration": "No Expiration",
@@ -229,9 +229,13 @@
   "error.same.sender.receiver": "Same From and To are not allowed",
   "error.invalid.sender.principal": "Invalid From principal",
   "error.invalid.spender.principal": "Invalid spender principal",
-  "error.invalid.sender.subaccount": "Invalid From subaccount",
+  "error.invalid.sender.subaccount": "Invalid From subAccount",
   "error.invalid.receiver.principal": "Invalid To principal",
+<<<<<<< Updated upstream
   "error.invalid.receiver.subaccount": "Invalid To subaccount",
+=======
+  "error.invalid.receiver.subaccount": "Invalid To subAccount",
+>>>>>>> Stashed changes
   "invalid.receiver.identifier": "Invalid ICRC Identifier",
   "error.invalid.sender": "From is not valid",
   "error.invalid.receiver": "To is not valid",
@@ -239,7 +243,7 @@
   "error.not.enough.balance": "Not enough balance",
   "error.lower.than.minimum.deposit": "Check minimum deposit amount",
   "error.lower.than.minimum.withdraw": "Check minimum withdraw amount",
-  "error.allowance.subaccount.not.enough": "Allowance subaccount balance not enough",
+  "error.allowance.subaccount.not.enough": "Allowance subAccount balance not enough",
   "error.allowance.not.enough": "Allowance not enough",
   "error.allowance.not.exist": "Allowance not exist",
 
@@ -250,7 +254,7 @@
   "error.before.present.expiration": "Expiration before present",
   "error.allowance.duplicated": "Allowance already exist",
   "warn.system.loading": "System is loading, wait a few seconds",
-  "error.invalid.subaccount": "Invalid subaccount",
+  "error.invalid.subaccount": "Invalid subAccount",
   "error.self.allowance": "Account owner as spender not allowed",
 
   "error.transfer.asset.empty": "Asset must be selected",
@@ -259,8 +263,8 @@
   "error.transfer.from.no.balance": "FROM has no balance",
   "error.transfer.from.no.enough.balance": "FROM has no enough balance",
   "error.transfer.from.no.cover.fee": "FROM has no balance to cover fee",
-  "error.transfer.from.to.subaccounts.must.different": "FROM and TO subaccounts must be different",
-  "error.transfer.from.to.principal.must.same": "FROM and TO subaccounts must be different",
+  "error.transfer.from.to.subaccounts.must.different": "FROM and TO subAccounts must be different",
+  "error.transfer.from.to.principal.must.same": "FROM and TO subAccounts must be different",
   "error.transfer.from.principal.must.session": "FROM must be the session principal",
   "error.transfer.to.self.allowance": "Self allowance not allowed",
   "error.transfer.allowance.not.exist.expired": "Allowance does not exist or expired",
@@ -269,7 +273,11 @@
   "error.transfer.from.service.not.balance": "FROM service has no balance",
   "error.transfer.from.service.no.fee": "FROM service has no balance to cover fee",
   "error.transfer.from.service.less.withdraw.minimum": "FROM service has less than withdraw minimum",
+<<<<<<< Updated upstream
   "error.transfer.to.service.not.valid.subaccount": "Service subaccount is not valid",
+=======
+  "error.transfer.to.service.not.valid.subaccount": "Service subAccount is not valid",
+>>>>>>> Stashed changes
   "error.transfer.from.service.less.withdraw.minimum.plus.fee": "FROM service has less than withdraw minimum plus fee",
   "error.transfer.invalid.amount": "Amount is not valid",
   "error.transfer.invalid.decimal.amount": "Decimal places exceeds that allowed by the token",
@@ -278,5 +286,9 @@
   "error.transfer.allowance.subaccount.balance.insufficient": "FROM does not have enough balance",
   "error.transfer.to.service.invalid": "TO service is not valid",
   "error.transfer.amount.less.minimum.deposit": "Amount must be higher than deposit fee",
+<<<<<<< Updated upstream
   "error.transfer.amount.less.minimum.withdrawl": "Amount must be higher than withdraw fee"
+=======
+  "error.transfer.amount.less.minimum.withdrawl": "Amount must be higher than withdrawal fee"
+>>>>>>> Stashed changes
 }

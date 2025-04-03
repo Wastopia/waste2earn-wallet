@@ -28,10 +28,17 @@
   "clear": "Linisin",
   "self": "Sarili",
   "beneficiary": "Benepisyaryo",
+<<<<<<< Updated upstream
   "supported.assets": "Mga Suportadong Asset",
   "select.option": "Pumili ng opsyon",
   "selected.all": "Piliin Lahat",
   "processing.took": "Ang pagproseso ay tumagal ng",
+=======
+  "supported.assets": "Suportadong Asset",
+  "select.option": "Pumili ng opsyon",
+  "selected.all": "Piliin Lahat",
+  "processing.took": "Pagproseso ay tumagal ng",
+>>>>>>> Stashed changes
   "seconds": "segundo",
   "balance": "Balanse",
   "submit": "I-submit",
@@ -54,7 +61,11 @@
   "account": "Account",
   "address": "Address",
   "amount": "Halaga",
+<<<<<<< Updated upstream
   "amount.received": "Natanggap na Halaga",
+=======
+  "amount.received": "Natanggap",
+>>>>>>> Stashed changes
   "asset": "Asset",
   "assets": "Mga Asset",
   "agree": "Sumang-ayon",
@@ -63,7 +74,11 @@
 
   "contact": "Kontak",
   "contact.name": "Pangalan ng Kontak",
+<<<<<<< Updated upstream
   "contacts": "Mga Kontak",
+=======
+  "contacts": "Kontak",
+>>>>>>> Stashed changes
   "sending": "Nagpapadala",
   "network": "Network",
   "error": "MALI",
@@ -81,7 +96,11 @@
   "delete.subacc.msg": "Sigurado ka bang gusto mong burahin",
   "name.sub.account": "Pangalan ng Sub-account",
   "account.indentifier": "Account Identifier",
+<<<<<<< Updated upstream
   "allowances.only": "Mga Allowance Lamang",
+=======
+  "allowances.only": "Allowance",
+>>>>>>> Stashed changes
 
   "contact.error.invalid.name": "Di-wastong Pangalan ng Kontak",
   "contact.error.invalid.principal": "Di-wastong Principal ng Kontak",
@@ -121,7 +140,11 @@
   "token.name": "Pangalan",
   "token.decimal": "Mga Decimal",
   "short.form.limit": "Limitasyon ng maikling form",
+<<<<<<< Updated upstream
   "total.balance": "Kabuuang Balanse",
+=======
+  "total.balance": "Balanse",
+>>>>>>> Stashed changes
   "add.assets": "Magdagdag ng Mga Asset",
   "add.asset": "Magdagdag ng Asset",
   "edit.asset": "I-edit ang Asset",
@@ -137,7 +160,11 @@
   "login.title": "Mag-sign-in",
   "login.choose.msg": "Pumili mula sa mga sumusunod na opsyon ng pag-login",
   "login.bottom.msg": "Sa pamamagitan ng pag-sign up, sumasang-ayon ka sa Aming",
+<<<<<<< Updated upstream
   "login.bottom.msg.terms": "Mga Tuntunin ng Serbisyo",
+=======
+  "login.bottom.msg.terms": "Tuntunin ng Serbisyo",
+>>>>>>> Stashed changes
   "login.bottom.msg.policy": "Patakaran sa Privacy",
   "login.mnemonic.expected": "Iminumungkahing parirala na may 12 hanggang 24 na salita (standard BIP39)",
   "transfer.between.accounts": "Maglipat sa sariling account",
@@ -159,8 +186,13 @@
   "total": "Kabuuan",
   "total.assets": "Kabuuang Mga Asset",
   "total.subacc": "Kabuuang Mga Sub-account",
+<<<<<<< Updated upstream
   "disclaimer.title": "DISCLAIMER NG APP",
   "disclaimer.msg": "Ang ICRC Wallet ay hindi umaako ng anumang responsibilidad o pananagutan para sa anumang mga error o pagkukulang sa nilalaman ng site na ito. Ang software na ito ay maaaring may mga bug dahil ito ay alpha software. Mangyaring umako ng responsibilidad para sa iyong mga pondo kung gagamitin mo ito sa mga totoong token, ito ay nasa sarili mong peligro. Inirerekomenda namin na gumamit ng Test Token sa halip. Kung gusto mong magpatuloy, dapat mo munang sumang-ayon sa mga naunang tuntunin.",
+=======
+  "disclaimer.title": "DISCLAIMER",
+  "disclaimer.msg": "Maligayang pagdating sa aming Beta Wallet! Paki-alalahanin na ang aming software ay nasa proseso pa ng pag-subok at maaaring may mga bug. Inirerekomenda namin na gumamit ng Test Tokens upang ma-explore ang aming platform nang walang panganib. Sa pagpapatuloy, kinikilala mo na nabasa at naintindihan mo ang mga terminong ito.",
+>>>>>>> Stashed changes
   "delete.contact.contact.msg": "Sigurado ka bang gusto mong Alisin ang Kontak",
   "delete.contact.asset.msg": "Sigurado ka bang gusto mong Alisin ang Asset",
   "delete.contact.sub.msg": "Sigurado ka bang gusto mong Alisin ang Sub-account",
@@ -175,7 +207,11 @@
   "transaction.received": "Natanggap",
   "transaction.destinationAccount": "Destinasyon na Account",
   "transaction.shippingAccount": "Shipping Account",
+<<<<<<< Updated upstream
   "transaction.transactions": "Mga Transaksyon",
+=======
+  "transaction.transactions": "Transaksyon",
+>>>>>>> Stashed changes
   "no.transactions": "Walang mga transaksyon",
   "transaction.amount": "Halaga",
   "drawer.send.account.error": "Hindi wasto ang Address",
@@ -196,7 +232,11 @@
   "no.expiration": "Walang Expiration",
   "contact.book": "Libro ng Kontak",
   "new": "Bago",
+<<<<<<< Updated upstream
   "allowance.allowances": "Mga Allowance",
+=======
+  "allowance.allowances": "Allowance",
+>>>>>>> Stashed changes
   "allowance.add.allowance": "Magdagdag ng Allowance",
   "allowance.sure.remove": "Sigurado ka bang gusto mong Alisin",
   "allowance.permanently.deleted": "Ang Allowance na ito ay permanenteng mabubura.",
@@ -205,7 +245,11 @@
   "watchOnlyMode.title": "Watch-Only Mode",
   "watchOnlyMode.delete.message": "Sigurado ka bang gusto mong burahin ang record na ito?",
 
+<<<<<<< Updated upstream
   "services": "Mga Serbisyo",
+=======
+  "services": "Serbisyo",
+>>>>>>> Stashed changes
   "minimum.withdraw.is": "Ang minimum na Withdraw ay",
   "minimum.deposit.is": "Ang minimum na Deposit ay",
   "withdraw.fee": " Bayad sa Pag-withdraw",

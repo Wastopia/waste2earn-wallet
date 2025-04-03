@@ -59,12 +59,23 @@ export const formatIcpTransaccion = (
     transaction.canisterId = import.meta.env.VITE_ICP_LEDGER_CANISTER_ID;
     transaction.idx = block_height.toString();
     transaction.symbol = operation.amount.currency.symbol;
+    
+    // Add ICHouse link with validation
+    if (transaction.from && transaction.to && transaction.canisterId) {
+      try {
+        transaction.icHouseLink = `https://ic.house/address/${transaction.canisterId}/${transaction.from}/${transaction.to}`;
+      } catch (error) {
+        logger.error("Error generating ICHouse link:", error);
+      }
+    }
   });
 
   return {
     ...transaction,
     hash: hash + "-" + blockHash,
     timestamp: Math.floor(timestamp / MILI_PER_SECOND),
+    syncStatus: 'synced',
+    lastSyncedAt: Math.floor(timestamp / MILI_PER_SECOND)
   } as Transaction;
 };
 
@@ -185,75 +196,126 @@ interface MapperArgs {
 
 function transferMapper(transfer: Transfer[], initial: Transaction, options: MapperArgs): Transaction {
   return transfer.reduce((acc, current) => {
-    const amount = current.amount.toString();
-    const toOwner = current.to.owner;
-    const fromOwner = current.from.owner;
-    const toSubAccount = current.to.subaccount.length
-      ? `0x${subUint8ArrayToHex((current.to.subaccount as [Uint8Array])[0])}`
-      : "0x0";
-
-    const fromSubAccount = current.from.subaccount.length
-      ? `0x${subUint8ArrayToHex((current.from.subaccount as [Uint8Array])[0])}`
-      : "0x0";
-
-    const subCheck = options.subNumber;
-
-    let type: TransactionType = TransactionTypeEnum.Enum.RECEIVE;
-    if (fromOwner.toString() === options.principal && fromSubAccount === subCheck) {
-      type = TransactionTypeEnum.Enum.SEND;
-    }
-
-    let subaccTo: SubAccountNNS | undefined = undefined;
     try {
-      if (current.to.subaccount.length) {
-        subaccTo = SubAccountNNS.fromBytes((current.to.subaccount as [Uint8Array])[0]) as SubAccountNNS;
+      const amount = current.amount.toString();
+      const toOwner = current.to.owner;
+      const fromOwner = current.from.owner;
+      const toSubAccount = current.to.subaccount.length
+        ? `0x${subUint8ArrayToHex((current.to.subaccount as [Uint8Array])[0])}`
+        : "0x0";
+
+      const fromSubAccount = current.from.subaccount.length
+        ? `0x${subUint8ArrayToHex((current.from.subaccount as [Uint8Array])[0])}`
+        : "0x0";
+
+      const subCheck = options.subNumber;
+      const principalCheck = options.principal;
+
+      // Enhanced logging for transaction type detection
+      logger.debug("Transaction type detection", {
+        fromOwner: fromOwner.toString(),
+        principalCheck,
+        fromSubAccount,
+        subCheck,
+        toOwner: toOwner.toString(),
+        toSubAccount
+      });
+
+      // Improved transaction type detection with null checks
+      let type: TransactionType = TransactionTypeEnum.Enum.RECEIVE;
+      
+      if (!principalCheck) {
+        logger.warn("No principal provided for transaction type detection");
+        type = TransactionTypeEnum.Enum.NONE;
       } else {
-        subaccTo = undefined;
+        // If user is the sender (principal and subaccount match), it's an outgoing/SEND transaction
+        if (fromOwner.toString() === principalCheck && fromSubAccount === subCheck) {
+          type = TransactionTypeEnum.Enum.SEND;
+          logger.debug("Transaction identified as SEND");
+        } 
+        // If user is the receiver (principal and subaccount match), it's an incoming/RECEIVE transaction
+        else if (toOwner.toString() === principalCheck && toSubAccount === subCheck) {
+          type = TransactionTypeEnum.Enum.RECEIVE;
+          logger.debug("Transaction identified as RECEIVE");
+        }
+        // Edge case - fallback based on principal only
+        else {
+          if (fromOwner.toString() === principalCheck) {
+            type = TransactionTypeEnum.Enum.SEND;
+            logger.debug("Fallback: Transaction identified as SEND based on principal only");
+          }
+          else if (toOwner.toString() === principalCheck) {
+            type = TransactionTypeEnum.Enum.RECEIVE;
+            logger.debug("Fallback: Transaction identified as RECEIVE based on principal only");
+          }
+        }
       }
-    } catch (error) {
-      logger.debug("HERE 1: Error parsing subaccount", error);
-      subaccTo = undefined;
-    }
 
-    const identityTo = AccountIdentifier.fromPrincipal({
-      principal: current.to.owner as Principal,
-      subAccount: subaccTo,
-    }).toHex();
-
-    // Get AccountIdentifier of Sender
-    let subaccFrom: SubAccountNNS | undefined = undefined;
-    try {
-      if (current.to.subaccount.length) {
-        subaccFrom = SubAccountNNS.fromBytes((current.to.subaccount as [Uint8Array])[0]) as SubAccountNNS;
-      } else {
-        subaccFrom = undefined;
+      // Get AccountIdentifier of Receiver with error handling
+      let subaccTo: SubAccountNNS | undefined = undefined;
+      let identityTo = "";
+      try {
+        if (current.to.subaccount.length) {
+          subaccTo = SubAccountNNS.fromBytes((current.to.subaccount as [Uint8Array])[0]) as SubAccountNNS;
+        }
+        identityTo = AccountIdentifier.fromPrincipal({
+          principal: current.to.owner as Principal,
+          subAccount: subaccTo,
+        }).toHex();
+      } catch (error) {
+        logger.error("Error getting receiver account identifier:", error);
+        identityTo = current.to.owner.toString();
       }
-    } catch (error) {
-      logger.debug("HERE 2: Error parsing subaccount", error);
-      subaccFrom = undefined;
-    }
-    const identityFrom = AccountIdentifier.fromPrincipal({
-      principal: current.from.owner as Principal,
-      subAccount: subaccFrom,
-    }).toHex();
 
-    return {
-      ...acc,
-      amount,
-      to: toOwner.toString(),
-      toSub: toSubAccount,
-      from: fromOwner.toString(),
-      fromSub: fromSubAccount,
-      identityTo,
-      identityFrom,
-      type,
-    };
+      // Get AccountIdentifier of Sender with error handling
+      let subaccFrom: SubAccountNNS | undefined = undefined;
+      let identityFrom = "";
+      try {
+        if (current.from.subaccount.length) {
+          subaccFrom = SubAccountNNS.fromBytes((current.from.subaccount as [Uint8Array])[0]) as SubAccountNNS;
+        }
+        identityFrom = AccountIdentifier.fromPrincipal({
+          principal: current.from.owner as Principal,
+          subAccount: subaccFrom,
+        }).toHex();
+      } catch (error) {
+        logger.error("Error getting sender account identifier:", error);
+        identityFrom = current.from.owner.toString();
+      }
+
+      return {
+        ...acc,
+        amount,
+        to: toOwner.toString(),
+        toSub: toSubAccount,
+        from: fromOwner.toString(),
+        fromSub: fromSubAccount,
+        identityTo,
+        identityFrom,
+        type,
+      };
+    } catch (error) {
+      logger.error("Error in transfer mapper:", error);
+      return acc;
+    }
   }, initial);
 }
 
 export const formatckBTCTransaccion = (args: FormatBTCArgs): Transaction => {
   const { ckBTCTransaction, id, principal, symbol, canister, subNumber } = args;
   const { approve, burn, kind, mint, timestamp, transfer } = ckBTCTransaction;
+
+  logger.debug("formatckBTCTransaccion called", {
+    id: id.toString(),
+    principal,
+    symbol,
+    kind,
+    subNumber,
+    hasTransfer: !!transfer && transfer.length > 0,
+    hasMint: !!mint && mint.length > 0,
+    hasBurn: !!burn && burn.length > 0,
+    hasApprove: !!approve && approve.length > 0
+  });
 
   const initialTransaction: Transaction = {
     idx: id.toString(),
@@ -272,20 +334,46 @@ export const formatckBTCTransaccion = (args: FormatBTCArgs): Transaction => {
     hash: "",
     timestamp: Math.floor(Number(timestamp) / MILI_PER_SECOND),
     fee: "",
+    syncStatus: 'pending'
   };
 
-  switch (kind) {
-    case SpecialTxTypeEnum.Enum.mint:
-      return mintMapper(mint, initialTransaction);
-    case SpecialTxTypeEnum.Enum.burn:
-      return burnMapper(burn, initialTransaction);
-    case SpecialTxTypeEnum.Enum.approve:
-      return approveMapper(approve, initialTransaction);
-    case SpecialTxTypeEnum.Enum.transfer:
-      return transferMapper(transfer, initialTransaction, { principal, subNumber });
-    default:
-      logger.debug(`formatckBTCTransaccion: unknown transaction type ${kind}`);
-      return initialTransaction;
+  let result: Transaction;
+
+  try {
+    switch (kind) {
+      case SpecialTxTypeEnum.Enum.mint:
+        result = mintMapper(mint, initialTransaction);
+        break;
+      case SpecialTxTypeEnum.Enum.burn:
+        result = burnMapper(burn, initialTransaction);
+        break;
+      case SpecialTxTypeEnum.Enum.approve:
+        result = approveMapper(approve, initialTransaction);
+        break;
+      case SpecialTxTypeEnum.Enum.transfer:
+        result = transferMapper(transfer, initialTransaction, { principal, subNumber });
+        break;
+      default:
+        logger.error(`formatckBTCTransaccion: unknown transaction type ${kind}`);
+        return initialTransaction;
+    }
+
+    // Add ICHouse link with validation
+    if (result.from && result.to && result.canisterId) {
+      try {
+        result.icHouseLink = `https://ic.house/address/${result.canisterId}/${result.from}/${result.to}`;
+      } catch (error) {
+        logger.error("Error generating ICHouse link:", error);
+      }
+    }
+
+    result.syncStatus = 'synced';
+    result.lastSyncedAt = Math.floor(Number(timestamp) / MILI_PER_SECOND);
+
+    return result;
+  } catch (error) {
+    logger.error("Error in formatckBTCTransaccion:", error);
+    return initialTransaction;
   }
 };
 

@@ -8,12 +8,26 @@ import { Themes } from "@/common/const";
 import { Asset } from "@redux/models/AccountModels";
 import { Contact } from "@redux/models/ContactsModels";
 import { ServiceData } from "@redux/models/ServiceModels";
+import { Order, Escrow, PaymentVerification } from "@/types/p2p";
 
 export interface DatabaseOptions {
   /**
    * Sync incoming data with the Redux store.
    */
   sync: boolean;
+}
+
+export interface IP2PDatabase {
+  addOrder(order: Order): Promise<void>;
+  getOpenOrders(): Promise<Order[]>;
+  getOrderById(orderId: string): Promise<Order | null>;
+  updateOrderStatus(orderId: string, status: Order["status"]): Promise<void>;
+  
+  addEscrow(escrow: Escrow): Promise<void>;
+  getEscrowByOrderId(orderId: string): Promise<Escrow | null>;
+  
+  addPaymentVerification(verification: PaymentVerification): Promise<void>;
+  getPaymentVerificationByOrderId(orderId: string): Promise<PaymentVerification | null>;
 }
 
 export abstract class IWalletDatabase {
@@ -124,7 +138,7 @@ export abstract class IWalletDatabase {
   }
 
   /**
-   * Initialice all necessary external systema and
+   * Initialize all necessary external system and
    * data structure before first use.
    */
   abstract init(): Promise<void>;
@@ -180,7 +194,7 @@ export abstract class IWalletDatabase {
 
   /**
    * Find a Contact object by its Principal ID.
-   * @param principal Princial ID
+   * @param principal Principal ID
    * @returns Contact object or NULL if not found
    */
   abstract getContact(principal: string): Promise<Contact | null>;

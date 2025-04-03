@@ -47,6 +47,9 @@ import logger from "@/common/utils/logger";
 import { Contact } from "@redux/models/ContactsModels";
 import { ServiceData } from "@redux/models/ServiceModels";
 import { setServices as setServicesRedux, setServicesData } from "@redux/services/ServiceReducer";
+// === Import KYC types ===
+import { KYCDetails } from "../@types/kyc";
+// === End Import KYC types ===
 
 addRxPlugin(RxDBUpdatePlugin);
 addRxPlugin(RxDBMigrationPlugin);
@@ -80,6 +83,14 @@ export class RxdbDatabase extends IWalletDatabase {
   private servicesReplicationState?: RxReplicationState<any, any>;
   private servicesPullInterval?: any;
 
+  // === Add KYC collection property ===
+  private _kycDetails!: RxCollection<KYCDetails> | null;
+  private kycReplicationState?: RxReplicationState<any, any>;
+  private kycPullInterval?: any;
+  private pushingKYC$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  private pullingKYC$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
+  // === End KYC collection property ===
+
   private pullingAssets$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   private pushingAssets$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
   private pullingContacts$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
@@ -109,6 +120,13 @@ export class RxdbDatabase extends IWalletDatabase {
     return this.init().then(() => this._services);
   }
 
+  // === Add KYC getter ===
+  protected get kycDetails(): Promise<RxCollection<KYCDetails> | null> {
+    if (this._kycDetails) return Promise.resolve(this._kycDetails);
+    return this.init().then(() => this._kycDetails);
+  }
+  // === End KYC getter ===
+
   /**
    * Initialize the rxdb object, adding the collections and setting up the replication.
    * @returns Promise<void>
@@ -130,7 +148,12 @@ export class RxdbDatabase extends IWalletDatabase {
         eventReduce: true,
       });
 
-      const { assets, contacts, allowances, services } = await db.addCollections(DBSchemas);
+      const { assets, contacts, allowances, services, kyc_details } = await db.addCollections({
+        ...DBSchemas,
+        kyc_details: {
+          schema: DBSchemas.kyc_details
+        }
+      });
 
       const assetsReplication = await setupReplication<AssetRxdbDocument, string>(
         assets,
@@ -176,10 +199,28 @@ export class RxdbDatabase extends IWalletDatabase {
       [this.servicesReplicationState, this.servicesPullInterval, this.pushingServices$, this.pullingServices$] =
         servicesReplication;
 
+      // === Add KYC replication ===
+      const kycReplication = await setupReplication<KYCDetails, string>(
+        kyc_details,
+        `kyc_details-${this.principalId}`,
+        "userId",
+        (items) => this._kycPushHandler(items),
+        (minTimestamp, lastId, batchSize) => this._kycPullHandler(minTimestamp, lastId, batchSize),
+      );
+
+      [this.kycReplicationState, 
+        this.kycPullInterval, 
+        this.pushingKYC$, 
+        this.pullingKYC$
+      ] =
+        kycReplication;
+      // === End KYC replication ===
+
       this._assets = assets;
       this._contacts = contacts;
       this._allowances = allowances;
       this._services = services;
+      this._kycDetails = kyc_details;
     } catch (e) {
       logger.debug("RxDb Init:", e);
     }
@@ -209,6 +250,7 @@ export class RxdbDatabase extends IWalletDatabase {
       await this._contactStateSync();
       await this._allowanceStateSync();
       await this._serviceStateSync();
+      await this._kycStateSync();
     }
   }
 
@@ -681,8 +723,9 @@ export class RxdbDatabase extends IWalletDatabase {
       this.pullingContacts$,
       this.pullingAllowances$,
       this.pullingServices$,
+      this.pullingKYC$
     ]).pipe(
-      map(([a, b]) => a || b),
+      map(([a, b, c, d, e]) => a || b || c || d || e),
       distinctUntilChanged(),
     );
   }
@@ -698,8 +741,9 @@ export class RxdbDatabase extends IWalletDatabase {
       this.pushingContacts$,
       this.pushingAllowances$,
       this.pushingServices$,
+      this.pushingKYC$
     ]).pipe(
-      map(([a, b]) => a || b),
+      map(([a, b, c, d, e]) => a || b || c || d || e),
       distinctUntilChanged(),
     );
   }
@@ -795,6 +839,10 @@ export class RxdbDatabase extends IWalletDatabase {
       clearInterval(this.servicesPullInterval);
       this.servicesPullInterval = undefined;
     }
+    if (this.kycPullInterval !== undefined) {
+      clearInterval(this.kycPullInterval);
+      this.kycPullInterval = undefined;
+    }
     if (this.assetsReplicationState) {
       this.assetsReplicationState.cancel().then();
       this.assetsReplicationState = undefined;
@@ -811,13 +859,18 @@ export class RxdbDatabase extends IWalletDatabase {
       this.servicesReplicationState.cancel().then();
       this.servicesReplicationState = undefined;
     }
+    if (this.kycReplicationState) {
+      this.kycReplicationState.cancel().then();
+      this.kycReplicationState = undefined;
+    }
     this._assets = null!;
     this._contacts = null!;
     this._allowances = null!;
     this._services = null!;
+    this._kycDetails = null!;
   }
 
-  private async _assetsPushHandler(items: any[]): Promise<AssetRxdbDocument[]> {
+  private async _assetsPushHandler(items: AssetRxdbDocument[]): Promise<AssetRxdbDocument[]> {
     const arg = items.map(
       (x) =>
         ({
@@ -971,4 +1024,208 @@ export class RxdbDatabase extends IWalletDatabase {
       logger.debug("RxDb DoesDBExist:", e);
     }
   }
+
+  // === Add KYC handler methods ===
+  private async _kycPushHandler(items: KYCDetails[]): Promise<KYCDetails[]> {
+    try {
+      if (!items?.length) return [];
+      return await this.replicaCanister.pushKYCDetails(items);
+    } catch (e) {
+      logger.debug("RxDb _kycPushHandler:", e);
+      return [];
+    }
+  }
+
+  private async _kycPullHandler(minTimestamp: number, lastId: string | null, batchSize: number): Promise<KYCDetails[]> {
+    try {
+      return await this.replicaCanister.pullKYCDetails(minTimestamp, lastId ? [lastId] : [], batchSize);
+    } catch (e) {
+      logger.debug("RxDb _kycPullHandler:", e);
+      return [];
+    }
+  }
+
+  private async _kycStateSync(_newKYCDetails?: KYCDetails[]): Promise<void> {
+    const documents = await (await this.kycDetails)?.find().exec();
+    // Log count of KYC documents for monitoring purposes
+    if (documents) {
+      logger.debug(`KYC documents count: ${documents.length}`);
+    }
+    // KYC data isn't stored in Redux, so no store sync needed here
+    // This is just a placeholder for any future sync needs
+  }
+  // === End KYC handler methods ===
+
+  // === Update KYC methods to properly handle DeepReadonlyObject types ===
+  private _mapKYCDoc(doc: any): KYCDetails {
+    const kycData = doc.toJSON();
+    return {
+      userId: kycData.userId,
+      userType: kycData.userType,
+      status: kycData.status,
+      personalInfo: { ...kycData.personalInfo },
+      address: { ...kycData.address },
+      documents: Array.isArray(kycData.documents) 
+        ? kycData.documents.map((doc: any) => ({
+            type_: doc.type_,
+            number: doc.number,
+            expiryDate: doc.expiryDate,
+            fileUrl: doc.fileUrl,
+            verificationStatus: doc.verificationStatus
+          }))
+        : [],
+      verificationDetails: kycData.verificationDetails 
+        ? {
+            submittedAt: kycData.verificationDetails.submittedAt,
+            verifiedAt: kycData.verificationDetails.verifiedAt,
+            verifiedBy: kycData.verificationDetails.verifiedBy,
+            remarks: kycData.verificationDetails.remarks
+          } 
+        : { submittedAt: Date.now() },
+      riskLevel: kycData.riskLevel,
+      bankDetails: kycData.bankDetails ? { ...kycData.bankDetails } : undefined,
+      updatedAt: kycData.updatedAt,
+      deleted: kycData.deleted || false,
+      _deleted: kycData.deleted || false
+    };
+  }
+
+  /**
+   * Get KYC details by user ID
+   * @param userId User ID to retrieve KYC details for
+   * @returns Promise with KYC details or null if not found
+   */
+  async getKYCDetails(userId: string): Promise<KYCDetails | null> {
+    try {
+      const doc = await (await this.kycDetails)?.findOne(userId).exec();
+      return doc ? this._mapKYCDoc(doc) : null;
+    } catch (e) {
+      logger.debug("RxDb GetKYCDetails:", e);
+      return null;
+    }
+  }
+
+  /**
+   * Get all KYC details
+   * @returns Promise with an array of KYC details
+   */
+  async getAllKYCDetails(): Promise<KYCDetails[]> {
+    try {
+      const docs = await (await this.kycDetails)?.find().exec();
+      return docs ? docs.map(doc => this._mapKYCDoc(doc)) : [];
+    } catch (e) {
+      logger.debug("RxDb GetAllKYCDetails:", e);
+      return [];
+    }
+  }
+
+  /**
+   * Add new KYC details
+   * @param kycData KYC details to add
+   * @returns Promise<void>
+   */
+  async addKYCDetails(kycData: KYCDetails): Promise<void> {
+    try {
+      await (await this.kycDetails)?.insert({
+        ...kycData,
+        deleted: false,
+        updatedAt: Math.floor(Date.now() / 1000),
+      });
+    } catch (e) {
+      logger.debug("RxDb AddKYCDetails:", e);
+      throw new Error(e instanceof Error ? e.message : 'Failed to add KYC details');
+    }
+  }
+
+  /**
+   * Update existing KYC details
+   * @param userId User ID of the KYC details to update
+   * @param updates Partial KYC details to update
+   * @returns Promise with updated KYC details or null on failure
+   */
+  async updateKYCDetails(userId: string, updates: Partial<KYCDetails>): Promise<KYCDetails | null> {
+    try {
+      const document = await (await this.kycDetails)?.findOne(userId).exec();
+      if (!document) return null;
+
+      const updated = await document.patch({
+        ...updates,
+        updatedAt: Math.floor(Date.now() / 1000),
+      });
+
+      return this._mapKYCDoc(updated);
+    } catch (e) {
+      logger.debug("RxDb UpdateKYCDetails:", e);
+      return null;
+    }
+  }
+
+  /**
+   * Update KYC status
+   * @param userId User ID of the KYC details to update
+   * @param status New status
+   * @param verifier ID of the person who verified the KYC
+   * @param remarks Optional remarks about the verification
+   * @returns Promise with updated KYC details or null on failure
+   */
+  async updateKYCStatus(
+    userId: string, 
+    status: 'pending' | 'approved' | 'rejected',
+    verifier: string,
+    remarks?: string
+  ): Promise<KYCDetails | null> {
+    return this.updateKYCDetails(userId, {
+      status,
+      verificationDetails: {
+        submittedAt: Date.now(),
+        verifiedAt: Date.now(),
+        verifiedBy: verifier,
+        remarks: remarks
+      }
+    });
+  }
+
+  /**
+   * Update KYC risk level
+   * @param userId User ID of the KYC details to update
+   * @param riskLevel New risk level
+   * @returns Promise with updated KYC details or null on failure
+   */
+  async updateRiskLevel(
+    userId: string,
+    riskLevel: 'low' | 'medium' | 'high'
+  ): Promise<KYCDetails | null> {
+    return this.updateKYCDetails(userId, { riskLevel });
+  }
+
+  /**
+   * Get KYC details by status
+   * @param status Status to filter by
+   * @returns Promise with array of matching KYC details
+   */
+  async getKYCDetailsByStatus(status: 'pending' | 'approved' | 'rejected'): Promise<KYCDetails[]> {
+    try {
+      const docs = await (await this.kycDetails)?.find({ selector: { status } }).exec();
+      return docs ? docs.map(doc => this._mapKYCDoc(doc)) : [];
+    } catch (e) {
+      logger.debug("RxDb GetKYCDetailsByStatus:", e);
+      return [];
+    }
+  }
+
+  /**
+   * Get KYC details by risk level
+   * @param riskLevel Risk level to filter by
+   * @returns Promise with array of matching KYC details
+   */
+  async getKYCDetailsByRiskLevel(riskLevel: 'low' | 'medium' | 'high'): Promise<KYCDetails[]> {
+    try {
+      const docs = await (await this.kycDetails)?.find({ selector: { riskLevel } }).exec();
+      return docs ? docs.map(doc => this._mapKYCDoc(doc)) : [];
+    } catch (e) {
+      logger.debug("RxDb GetKYCDetailsByRiskLevel:", e);
+      return [];
+    }
+  }
+  // === End of updated KYC methods ===
 }

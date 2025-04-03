@@ -63,7 +63,11 @@ const TopBarComponent = ({ isLoginPage }: { isLoginPage: boolean }) => {
 
   return (
     <Fragment>
+<<<<<<< Updated upstream
       <div className="flex flex-row justify-around px-5 items-center min-h-[8rem] w-full bg-PrimaryColorLight dark:bg-PrimaryColor text-PrimaryTextColorLight dark:text-PrimaryTextColor border-b border-BorderColorFourthLight dark:border-BorderColorFourth">
+=======
+      <div className="flex flex-row justify-center px-2 items-center min-h-[8rem] w-full bg-PrimaryColorLight dark:bg-PrimaryColor text-PrimaryTextColorLight dark:text-PrimaryTextColor border-b border-BorderColorFourthLight dark:border-BorderColorFourth">
+>>>>>>> Stashed changes
         <div className="flex flex-col items-center justify-start space-y-2 py-2">
         {theme === ThemesEnum.enum.dark ? (
             <ICRC1LogoDark className="max-w-[20rem] sm:max-w-[10rem] h-auto" />
@@ -75,7 +79,7 @@ const TopBarComponent = ({ isLoginPage }: { isLoginPage: boolean }) => {
           {!isLoginPage && (
             <div className="flex flex-row items-center justify-start gap-1">
               {identity && <Pill text={(address as string) || ""} start={6} end={4} icon={ethUrl} />}
-              {!watchOnlyMode && <Pill text={authClient} start={12} end={10} icon={icUrl} />}
+              {!watchOnlyMode && <Pill text={authClient} start={6} end={10} icon={icUrl} />}
               {watchOnlyMode && <WatchOnlyPill text={authClient} icon={icUrl} />}
               <CustomCopy size={"small"} copyText={authClient} />
               <RefreshIcon
@@ -87,9 +91,9 @@ const TopBarComponent = ({ isLoginPage }: { isLoginPage: boolean }) => {
               {watchOnlyMode && <p className="opacity-50">{t("watchOnlyMode.title")}</p>}
             </div>
           )}
-            <div className="flex flex-row items-center justify-start pr-2 space-x-5">
+            <div className="flex flex-row items-center justify-center space-x-3">
               {!isLoginPage && (
-                <div className="flex flex-row items-center justify-start py-3 px-0 gap-2 text-md">
+                <div className="flex flex-row items-center justify-center py-3 px-0 gap-2 text-md">
                   <p className="opacity-70">{t("total.balance")}:</p>
                   <p className="font-medium">{`${currencyOpts.find(c => c.code === selectedCurrency)?.symbol}${getTotalAmountInCurrency().toFixed(2)}`}</p>
                   <DropdownMenu.Root>

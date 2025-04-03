@@ -96,7 +96,7 @@ const assetSlice = createSlice({
     setAssetMutationAction(state, action: PayloadAction<AssetMutationAction>) {
       state.mutation.assetAction = action.payload;
     },
-    setExtraDataMuatation(state, action: PayloadAction<any>) {
+    setExtraDataMutation(state, action: PayloadAction<any>) {
       state.mutation.extraData = action.payload;
     },
     setICRC1SystemAssets(state, action: PayloadAction<Asset[]>) {
@@ -204,7 +204,7 @@ export const {
   updateSubAccountBalance,
   setAssetMutation,
   setAssetMutationResult,
-  setExtraDataMuatation,
+  setExtraDataMutation,
 } = assetSlice.actions;
 
 export default assetSlice.reducer;

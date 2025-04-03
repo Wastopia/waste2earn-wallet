@@ -12,7 +12,7 @@ import { Principal } from "@dfinity/principal";
 import { hexadecimalToUint8Array, hexToUint8Array } from "@/common/utils/hexadecimal";
 import ICRC1BalanceOf from "@/common/libs/icrcledger/ICRC1BalanceOf";
 import ICRC2Allowance from "@/common/libs/icrcledger/ICRC2Allowance";
-import ICRC1Tranfer from "@/common/libs/icrcledger/ICRC1Tranfer";
+import ICRC1Transfer from "@/common/libs/icrcledger/ICRC1Transfer";
 import ICRC2TransferForm from "@/common/libs/icrcledger/ICRC2TransferForm";
 import ICRCXWithdraw from "@/common/libs/icrcledger/ICRCXTransfer";
 import { updateServiceAssetAmounts } from "@redux/services/ServiceReducer";
@@ -311,7 +311,7 @@ export default function TransferDetailsConfirmation() {
       setStatus(TransferStatus.SENDING);
 
       // INFO: at this point the asset information is valid
-      await ICRC1Tranfer({
+      await ICRC1Transfer({
         canisterId: Principal.fromText(currentAsset?.address || ""),
         agent: userAgent,
         from_subaccount: hexadecimalToUint8Array(transferState.fromSubAccount),
@@ -353,7 +353,11 @@ export default function TransferDetailsConfirmation() {
     const max = BigInt(serviceSenderAsset.credit);
 
     if (amount <= minWithdraw) {
+<<<<<<< Updated upstream
       return { isError: true, message: t("error.transfer.amount.less.minimum.withdrawl") };
+=======
+      return { isError: true, message: t("error.transfer.amount.less.minimum.withdrawal") };
+>>>>>>> Stashed changes
     }
 
     if (amount > max) {

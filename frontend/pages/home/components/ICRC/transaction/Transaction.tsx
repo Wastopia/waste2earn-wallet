@@ -1,6 +1,6 @@
 // svgs
 import { ReactComponent as DownBlueArrow } from "@assets/svg/files/down-blue-arrow.svg";
-//
+import { ReactComponent as ExternalLinkIcon } from "@assets/svg/files/external-link.svg";
 import { Fragment } from "react";
 import { useTranslation } from "react-i18next";
 import { AssetSymbolEnum, SpecialTxTypeEnum } from "@/common/const";
@@ -15,9 +15,9 @@ import logger from "@/common/utils/logger";
 import { middleTruncation } from "@/common/utils/strings";
 import moment from "moment";
 
+
 const DrawerTransaction = () => {
   const { t } = useTranslation();
-
   const { authClient } = AccountHook();
   const { assets } = useAppSelector((state) => state.asset.list);
   const { ICPSubaccounts } = useAppSelector((state) => state.asset);
@@ -194,6 +194,30 @@ const DrawerTransaction = () => {
             </div>
           </div>
         )}
+        <div className="flex flex-row items-center justify-between w-full font-normal">
+          <p>{t("transactionID")}</p>
+          <div className="flex flex-row items-center justify-start gap-2">
+            <p>{`${shortAddress(selectedTransaction?.hash || "", 12, 12)}`}</p>
+            <CustomCopy
+              size={"small"}
+              copyText={selectedTransaction?.hash || ""}
+              copyStroke="cursor-pointer max-w-[0.7rem] h-auto"
+              isTransaction={true}
+            />
+            {selectedTransaction?.icHouseLink && (
+              <a
+                href={selectedTransaction.icHouseLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center text-primary-color hover:text-primary-color-dark"
+              >
+                
+                <ExternalLinkIcon className="w-4 h-4 text-PrimaryTextColorLight dark:text-PrimaryTextColor" />
+                
+              </a>
+            )}
+          </div>
+        </div>
       </div>
     </Fragment>
   );

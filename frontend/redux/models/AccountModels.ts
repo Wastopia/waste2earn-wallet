@@ -58,6 +58,10 @@ const Transaction = z.object({
   identityTo: z.string().optional(),
   identityFrom: z.string().optional(),
   kind: z.string().optional(),
+  icHouseLink: z.string().optional(),
+  transactionReference: z.string().optional(),
+  syncStatus: z.enum(['pending', 'synced', 'failed']).default('pending'),
+  lastSyncedAt: z.number().optional(),
 });
 
 export type Transaction = z.infer<typeof Transaction>;

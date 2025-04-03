@@ -29,7 +29,7 @@ export type OrderStatus = typeof ORDER_STATUS_TRACKING[keyof typeof ORDER_STATUS
 export interface PaymentMethod {
   id: string;
   name: string;
-  type: "bank" | "gcash" | "maya" | "coins.ph";
+  type: "bank" | "gcash" | "maya" ;
   details: {
     accountNumber?: string;
     accountName?: string;

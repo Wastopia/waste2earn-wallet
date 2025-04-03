@@ -59,6 +59,34 @@
     },
     "migrationStrategies": {}
   },
+  "transactions": {
+    "schema": {
+      "version": 0,
+      "primaryKey": "id",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "tx": { 
+          "type": "object",
+          "properties": {
+            "timestamp": { "type": "number" },
+            "type": { "type": "string" },
+            "amount": { "type": "string" },
+            "fee": { "type": "string" },
+            "status": { "type": "string" },
+            "hash": { "type": "string" }
+          }
+        },
+        "symbol": { "type": "string" },
+        "tokenSymbol": { "type": "string" },
+        "subaccount": { "type": "string" },
+        "updatedAt": { "type": "number" }
+      },
+      "required": ["id", "tx", "symbol", "tokenSymbol", "subaccount", "updatedAt"],
+      "indexes": ["tokenSymbol", "subaccount"]
+    },
+    "migrationStrategies": {}
+  },
   "contacts": {
     "schema": {
       "type": "object",
@@ -283,94 +311,81 @@
     "migrationStrategies": {}
   },
   "kyc_details": {
-    "schema": {
-      "version": 0,
-      "primaryKey": "userId",
-      "type": "object",
-      "properties": {
-        "userId": {
-          "type": "string",
-          "maxLength": 100
+    "version": 0,
+    "primaryKey": "userId",
+    "type": "object",
+    "properties": {
+      "userId": { "type": "string" },
+      "userType": { "type": "string", "enum": ["validator", "collector", "regular"] },
+      "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+      "personalInfo": {
+        "type": "object",
+        "properties": {
+          "firstName": { "type": "string" },
+          "lastName": { "type": "string" },
+          "dateOfBirth": { "type": "string" },
+          "nationality": { "type": "string" },
+          "phoneNumber": { "type": "string" },
+          "email": { "type": "string" },
+          "gender": { "type": "string" },
+          "occupation": { "type": "string" }
         },
-        "status": {
-          "type": "string",
-          "enum": ["pending", "approved", "rejected"]
-        },
-        "personalInfo": {
-          "type": "object",
-          "properties": {
-            "firstName": { "type": "string" },
-            "lastName": { "type": "string" },
-            "dateOfBirth": { "type": "string" },
-            "nationality": { "type": "string" },
-            "phoneNumber": { "type": "string" },
-            "email": { "type": "string" },
-            "gender": { "type": "string" },
-            "occupation": { "type": "string" }
-          },
-          "required": ["firstName", "lastName", "dateOfBirth", "nationality", "phoneNumber", "email"]
-        },
-        "address": {
-          "type": "object",
-          "properties": {
-            "street": { "type": "string" },
-            "city": { "type": "string" },
-            "state": { "type": "string" },
-            "country": { "type": "string" },
-            "postalCode": { "type": "string" }
-          },
-          "required": ["street", "city", "state", "country", "postalCode"]
-        },
-        "documents": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "type_": { "type": "string" },
-              "number": { "type": "string" },
-              "expiryDate": { "type": "string" },
-              "fileUrl": { "type": "string" },
-              "verificationStatus": { 
-                "type": "string",
-                "enum": ["pending", "verified", "rejected"]
-              }
-            },
-            "required": ["type_", "number", "expiryDate", "fileUrl", "verificationStatus"]
-          }
-        },
-        "verificationDetails": {
-          "type": "object",
-          "properties": {
-            "submittedAt": { "type": "number" },
-            "verifiedAt": { "type": ["number", "null"] },
-            "verifiedBy": { "type": ["string", "null"] },
-            "remarks": { "type": ["string", "null"] }
-          },
-          "required": ["submittedAt"]
-        },
-        "riskLevel": {
-          "type": "string",
-          "enum": ["low", "medium", "high"]
-        },
-        "bankDetails": {
-          "type": ["object", "null"],
-          "properties": {
-            "gcash": { "type": ["string", "null"] },
-            "paymaya": { "type": ["string", "null"] },
-            "bpi": {
-              "type": ["object", "null"],
-              "properties": {
-                "accountName": { "type": "string" },
-                "accountNumber": { "type": "string" }
-              }
-            }
-          }
-        },
-        "updatedAt": { "type": "number" },
-        "deleted": { "type": "boolean" }
+        "required": ["firstName", "lastName", "dateOfBirth", "nationality", "phoneNumber", "email", "gender", "occupation"]
       },
-      "required": ["userId", "status", "personalInfo", "address", "documents", "riskLevel", "updatedAt", "deleted"]
+      "address": {
+        "type": "object",
+        "properties": {
+          "street": { "type": "string" },
+          "city": { "type": "string" },
+          "state": { "type": "string" },
+          "country": { "type": "string" },
+          "postalCode": { "type": "string" }
+        },
+        "required": ["street", "city", "state", "country", "postalCode"]
+      },
+      "documents": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "type_": { "type": "string" },
+            "number": { "type": "string" },
+            "expiryDate": { "type": "string" },
+            "fileUrl": { "type": "string" },
+            "verificationStatus": { "type": "string", "enum": ["pending", "verified", "rejected"] }
+          },
+          "required": ["type_", "number", "expiryDate", "fileUrl", "verificationStatus"]
+        }
+      },
+      "verificationDetails": {
+        "type": "object",
+        "properties": {
+          "submittedAt": { "type": "number" },
+          "verifiedAt": { "type": ["number", "null"] },
+          "verifiedBy": { "type": ["string", "null"] },
+          "remarks": { "type": ["string", "null"] }
+        },
+        "required": ["submittedAt"]
+      },
+      "riskLevel": { "type": "string", "enum": ["low", "medium", "high"] },
+      "bankDetails": {
+        "type": ["object", "null"],
+        "properties": {
+          "gcash": { "type": ["string", "null"] },
+          "paymaya": { "type": ["string", "null"] },
+          "bpi": {
+            "type": ["object", "null"],
+            "properties": {
+              "accountName": { "type": "string" },
+              "accountNumber": { "type": "string" }
+            },
+            "required": ["accountName", "accountNumber"]
+          }
+        }
+      },
+      "_deleted": { "type": "boolean" },
+      "updatedAt": { "type": "number" }
     },
-    "migrationStrategies": {}
+    "required": ["userId", "userType", "status", "personalInfo", "address", "documents", "verificationDetails", "riskLevel", "_deleted", "updatedAt"]
   }
 }

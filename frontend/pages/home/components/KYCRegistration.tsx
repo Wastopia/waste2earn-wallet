@@ -1,4 +1,7 @@
+<<<<<<< Updated upstream
 // import React from 'react';
+=======
+>>>>>>> Stashed changes
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { BasicModal } from "@components/modal";
@@ -24,7 +27,7 @@ interface RegistrationForm {
   lastName: string;
   email: string;
   phone: string;
-  birthday: string;
+  dateOfBirth: string;
   address: {
     street: string;
     city: string;
@@ -156,7 +159,7 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
     lastName: '',
     email: '',
     phone: '',
-    birthday: '',
+    dateOfBirth: '',
     address: {
       street: '',
       city: '',
@@ -252,7 +255,11 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
   const validateForm = (): boolean => {
     // Check required fields
     if (!form.firstName || !form.lastName || !form.email || !form.phone || 
+<<<<<<< Updated upstream
         !form.birthday || !form.address.street || !form.address.city || 
+=======
+        !form.dateOfBirth || !form.address.street || !form.address.city || 
+>>>>>>> Stashed changes
         !form.address.state || !form.address.postalCode || !form.nationality) {
       toast.error(t('Please fill in all required fields'));
       return false;
@@ -271,7 +278,11 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
     }
 
     // Validate date format
+<<<<<<< Updated upstream
     if (!kycService.validateDate(form.birthday)) {
+=======
+    if (!kycService.validateDate(form.dateOfBirth)) {
+>>>>>>> Stashed changes
       toast.error(t('Please enter a valid date of birth (not in the future)'));
       return false;
     }
@@ -313,10 +324,14 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
       // Prepare submission data
       const kycSubmission: KYCSubmission = {
         userId: form.principalId,
+<<<<<<< Updated upstream
+=======
+        userType: form.userType,
+>>>>>>> Stashed changes
         personalInfo: {
           firstName: form.firstName,
           lastName: form.lastName,
-          dateOfBirth: form.birthday,
+          dateOfBirth: form.dateOfBirth,
           nationality: form.nationality,
           phoneNumber: form.phone,
           email: form.email,
@@ -330,6 +345,7 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
           country: form.address.country,
           postalCode: form.address.postalCode
         },
+<<<<<<< Updated upstream
         profilePhoto: compressedPhotoUrl || '',
         bankDetails: form.userType === 'validator' && form.bankDetails?.bpi?.accountName && form.bankDetails?.bpi?.accountNumber ? {
           gcash: form.bankDetails.gcash || '',
@@ -340,6 +356,23 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
           }
         } : undefined,
         userType: form.userType
+=======
+        documents: [{
+          type_: 'profile_photo',
+          number: 'N/A',
+          expiryDate: 'N/A',
+          fileUrl: compressedPhotoUrl || '',
+          verificationStatus: 'pending'
+        }],
+        bankDetails: form.userType === 'validator' ? {
+          gcash: form.bankDetails?.gcash || null,
+          paymaya: form.bankDetails?.paymaya || null,
+          bpi: form.bankDetails?.bpi?.accountName && form.bankDetails?.bpi?.accountNumber ? {
+            accountName: form.bankDetails.bpi.accountName,
+            accountNumber: form.bankDetails.bpi.accountNumber
+          } : null
+        } : null
+>>>>>>> Stashed changes
       };
 
       // Submit KYC data using service
@@ -546,8 +579,8 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
                   <CustomInput
                     required
                     type="date"
-                    value={form.birthday}
-                    onChange={(e) => handleInputChange('birthday', e.target.value)}
+                    value={form.dateOfBirth}
+                    onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
                   />
                 </div>
               </div>

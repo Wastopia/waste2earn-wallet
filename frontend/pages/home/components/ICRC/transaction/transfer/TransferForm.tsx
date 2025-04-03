@@ -222,7 +222,7 @@ export default function TransferForm() {
       if (transferState.fromPrincipal === transferState.toPrincipal) {
         if (transferState.fromSubAccount === transferState.toSubAccount) {
           setErrorMessage(t("error.transfer.from.to.subaccounts.must.different"));
-          throw new Error("fromAllowanceValidations: sub accounts must be differents");
+          throw new Error("fromAllowanceValidations: sub accounts must be different");
         }
       }
     }

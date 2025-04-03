@@ -11,7 +11,7 @@ const pulling$: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(false);
  * @param collection Collection to replicate
  * @param replicationIdentifier ID name for the replica
  * @param primaryKey Name of the property that will be the primary key
- * @param pushFunc Handler function to execute when doing a push procress
+ * @param pushFunc Handler function to execute when doing a push process
  * @param pullFunc Handler function to execute when doing a pull process
  * @returns List of handy functions to control the replication process
  */

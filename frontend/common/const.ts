@@ -1,5 +1,6 @@
 // svg
 import IcIcon from "@/assets/img/icp.png";
+import WasteIcon from "@/assets/img/waste.png";
 import ckETHIcon from "@/assets/svg/files/ckETH.svg";
 import ckBTCIcon from "@/assets/svg/files/ckbtc.svg";
 import GoldTokenIcon from "@/assets/svg/files/gldt_icon.svg";
@@ -7,7 +8,7 @@ import OrigynIcon from "@/assets/svg/files/ogy_icon.svg";
 import ckUSDCIcon from "@/assets/svg/files/ckUSDC.svg";
 import { z } from "zod";
 import { ICRC1systemAssets } from "./defaultTokens";
-// import { ICRC2systemAssets } from "./defaultTokens";
+import { ICRC2systemAssets } from "./defaultTokens";
 import { Asset } from "@redux/models/AccountModels";
 import { SupportedStandardEnum } from "../@types/icrc";
 
@@ -81,12 +82,13 @@ export const DIP20systemAssets: Array<Asset> = [];
 export const EXTsystemAssets: Array<Asset> = [];
 export const systemAssets: { [key: string]: Array<Asset> } = {
   [SupportedStandardEnum.Values["ICRC-1"]]: ICRC1systemAssets,
-  // [SupportedStandardEnum.Values["ICRC-2"]]: ICRC2systemAssets
+  [SupportedStandardEnum.Values["ICRC-2"]]: ICRC2systemAssets
 };
 
 
 export const symbolIconDict: { [key: string]: string } = {
   ICP: IcIcon,
+  Waste: WasteIcon,
   ckBTC: ckBTCIcon,
   ckETH: ckETHIcon,
   GLDT: GoldTokenIcon,

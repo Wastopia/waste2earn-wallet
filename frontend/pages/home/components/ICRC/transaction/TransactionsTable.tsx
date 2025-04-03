@@ -1,6 +1,7 @@
 import { ReactComponent as SortIcon } from "@assets/svg/files/sort.svg";
 import UpAmountIcon from "@assets/svg/files/up-amount-icon.svg";
 import DownAmountIcon from "@assets/svg/files/down-amount-icon.svg";
+import { ReactComponent as ExternalLinkIcon } from "@assets/svg/files/external-link.svg";
 //
 import { useAppDispatch, useAppSelector } from "@redux/Store";
 import { clsx } from "clsx";
@@ -15,6 +16,8 @@ import { setTransactionDrawerAction } from "@redux/transaction/TransactionAction
 import { TransactionDrawer } from "@/@types/transactions";
 import { setSelectedTransaction } from "@redux/transaction/TransactionReducer";
 import { LoadingLoader } from "@components/loader";
+import logger from "@/common/utils/logger";
+
 export interface TransactionsTableProps {
   onScroll: (e: React.UIEvent<HTMLDivElement>) => void;
   transactions: Transaction[];
@@ -29,6 +32,16 @@ export default function TransactionsTable(props: TransactionsTableProps) {
   const { assets } = useAppSelector((state) => state.asset.list);
   const { isAppDataFreshing } = useAppSelector((state) => state.common);
   const dispatch = useAppDispatch();
+
+  // Log transaction data for debugging
+  logger.info(`TransactionsTable: Rendering ${transactions.length} transactions`);
+  if (transactions.length === 0) {
+    logger.info('No transactions to display. Checking states:', {
+      selectedAccount: selectedAccount?.sub_account_id,
+      selectedAsset: selectedAsset?.tokenSymbol,
+      isLoading: isAppDataFreshing
+    });
+  }
 
   return (
     <div className="w-full max-h-[calc(100vh-15rem)] scroll-y-light mt-2" onScroll={onScroll}>
@@ -72,6 +85,16 @@ export default function TransactionsTable(props: TransactionsTableProps) {
           </tbody>
         )}
 
+        {transactions.length === 0 && !isAppDataFreshing && (
+          <tbody>
+            <tr>
+              <td colSpan={4} className="pt-[2rem] text-center">
+                {t('No transactions found')}
+              </td>
+            </tr>
+          </tbody>
+        )}
+
         {transactions.length > 0 && (
           <tbody className={bodyStyles}>
             {transactions.map((transaction, index) => {
@@ -89,6 +112,20 @@ export default function TransactionsTable(props: TransactionsTableProps) {
                 selectedAccount?.address || "",
                 selectedAccount?.sub_account_id || "",
               );
+
+              // Log transaction details for debugging
+              if (index === 0) {
+                logger.debug(`First transaction details:`, {
+                  type: transaction.type,
+                  isSend,
+                  from: transaction.from,
+                  fromSub: transaction.fromSub,
+                  to: transaction.to,
+                  toSub: transaction.toSub,
+                  selectedAccountAddress: selectedAccount?.address,
+                  selectedAccountSubId: selectedAccount?.sub_account_id,
+                });
+              }
 
               let srcType;
 
@@ -127,7 +164,22 @@ export default function TransactionsTable(props: TransactionsTableProps) {
                   </td>
 
                   <td className="w-[60%]">
-                    <CodeElement tx={transaction} />
+                    <div className="flex items-center gap-2">
+                      <CodeElement tx={transaction} />
+                      {transaction.icHouseLink && (
+                        <a
+                          href={transaction.icHouseLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:text-primary-dark transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                        >
+                          <ExternalLinkIcon className="w-4 h-4" />
+                        </a>
+                      )}
+                    </div>
                   </td>
 
                   <td className="w-[11%]">
@@ -181,3 +233,56 @@ const bodyStyles = clsx(
 
 const amountTextStyles = (isTo: boolean) =>
   clsx("text-right whitespace-nowrap", isTo ? "text-TextSendColor" : "text-TextReceiveColor");
+
+// const renderTransactionId = (transaction: Transaction) => {
+//   return (
+//     <div className="flex items-center gap-2">
+//       <CodeElement tx={transaction} />
+//       {transaction.icHouseLink && (
+//         <a
+//           href={transaction.icHouseLink}
+//           target="_blank"
+//           rel="noopener noreferrer"
+//           className="text-primary hover:text-primary-dark transition-colors"
+//           onClick={(e) => {
+//             e.stopPropagation();
+//           }}
+//         >
+//           <ExternalLinkIcon className="w-4 h-4" />
+//         </a>
+//       )}
+//     </div>
+//   );
+// };
+
+
+// const renderTransactionStatus = (transaction: Transaction) => {
+//   const status = transaction.syncStatus || 'pending';
+//   const lastSynced = transaction.lastSyncedAt 
+//     ? new Date(transaction.lastSyncedAt).toLocaleString()
+//     : 'Never';
+
+//   return (
+//     <div className="flex flex-col gap-1">
+//       <span className={`capitalize ${getStatusColor(status)}`}>
+//         {status}
+//       </span>
+//       <span className="text-xs text-gray-500">
+//         Last synced: {lastSynced}
+//       </span>
+//     </div>
+//   );
+// };
+
+// const getStatusColor = (status: string) => {
+//   switch (status.toLowerCase()) {
+//     case 'synced':
+//       return 'text-green-500';
+//     case 'pending':
+//       return 'text-yellow-500';
+//     case 'failed':
+//       return 'text-red-500';
+//     default:
+//       return 'text-gray-500';
+//   }
+// };

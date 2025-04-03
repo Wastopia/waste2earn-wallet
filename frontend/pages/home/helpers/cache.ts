@@ -5,6 +5,7 @@ import { setTxWorker } from "@redux/transaction/TransactionReducer";
 import { getAllTransactionsICP, getAllTransactionsICRC1 } from "@/pages/home/helpers/requests";
 import { hexToUint8Array } from "@/common/utils/hexadecimal";
 import logger from "@/common/utils/logger";
+import { LocalRxdbDatabase } from "@/database/local-rxdb";
 
 async function fetchICPTransactions(asset: Asset) {
   const txTransactions = [];
@@ -65,22 +66,35 @@ async function fetchICRC1Transactions(asset: Asset, selectedToken: Asset) {
 
 export async function transactionCacheRefresh(assets: Asset[]) {
   try {
+    logger.debug("Starting transaction refresh with assets:", assets);
     const txWorker = [];
-
+    
     for (const asset of assets) {
+      logger.debug("Processing asset:", asset.tokenSymbol);
+      
       if (asset.tokenSymbol === AssetSymbolEnum.Enum.ICP || asset.tokenSymbol === AssetSymbolEnum.Enum.OGY) {
         const transactionsBySubAccounts = await fetchICPTransactions(asset);
+        logger.debug("ICP/OGY transactions:", transactionsBySubAccounts);
         txWorker.push(...transactionsBySubAccounts);
       } else {
         const selectedAsset = assets.find((currentAsset) => currentAsset.symbol === asset.symbol);
+        logger.debug("Selected ICRC1 asset:", selectedAsset);
+        
         if (selectedAsset) {
-          const transactoinsBySubaccount = await fetchICRC1Transactions(asset, selectedAsset);
-          txWorker.push(...transactoinsBySubaccount);
+          const transactionsBySubaccount = await fetchICRC1Transactions(asset, selectedAsset);
+          logger.debug("ICRC1 transactions:", transactionsBySubaccount);
+          txWorker.push(...transactionsBySubaccount);
         }
       }
     }
-
+    
+    logger.debug("Final txWorker state:", txWorker);
     store.dispatch(setTxWorker(txWorker));
+
+    // Update local database with transactions
+    const db = LocalRxdbDatabase.instance;
+    await db.updateTransactionCache(txWorker);
+
   } catch (error) {
     logger.debug("Error in transactionCacheRefresh worker", error);
   }

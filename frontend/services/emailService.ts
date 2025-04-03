@@ -10,7 +10,7 @@ const formatDocuments = (documents?: Array<{ type_: string; number: string; expi
   `).join('\n');
 };
 
-const formatVerificationDetails = (details?: { submittedAt: number; verifiedAt?: number; verifiedBy?: string; remarks?: string }) => {
+const formatVerificationDetails = (details?: { submittedAt: number; verifiedAt?: number | null; verifiedBy?: string | null; remarks?: string | null }) => {
   if (!details) return 'No verification details provided';
   return `
     • Submitted: ${new Date(details.submittedAt).toLocaleString()}
@@ -91,4 +91,29 @@ Waste2Earn KYC System
     console.error('Error sending KYC update email:', error);
     return false;
   }
-}; 
+};
+
+export interface EmailService {
+  sendEmail(to: string, subject: string, body: string): Promise<void>;
+  sendKYCNotification(userId: string, message: string): Promise<void>;
+  sendP2PNotification(userId: string, message: string): Promise<void>;
+}
+
+class EmailServiceImpl implements EmailService {
+  async sendEmail(to: string, subject: string, body: string): Promise<void> {
+    // Implementation for sending email
+    console.log(`Sending email to ${to}: ${subject}\nBody: ${body}`);
+  }
+
+  async sendKYCNotification(userId: string, message: string): Promise<void> {
+    // Implementation for KYC notifications
+    console.log(`Sending KYC notification to user ${userId}: ${message}`);
+  }
+
+  async sendP2PNotification(userId: string, message: string): Promise<void> {
+    // Implementation for P2P notifications
+    console.log(`Sending P2P notification to user ${userId}: ${message}`);
+  }
+}
+
+export const emailService = new EmailServiceImpl(); 

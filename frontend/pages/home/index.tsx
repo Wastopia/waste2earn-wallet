@@ -9,6 +9,8 @@ import KYCRegistration from "./components/KYCRegistration";
 import UserDataGrid from './components/UserDataGrid';
 import PeopleIcon from '@mui/icons-material/People';
 import { useAppSelector } from '@redux/Store';
+import { LocalRxdbDatabase } from "@/database/local-rxdb";
+import DisclaimerModal from "@components/DisclaimerModal";
 
 const Home = () => {
   const { t } = useTranslation();
@@ -16,7 +18,8 @@ const Home = () => {
   const [userDataGridOpen, setUserDataGridOpen] = useState(false);
   const { userPrincipal } = useAppSelector((state) => state.auth);
   const [firstName, setFirstName] = useState("User");
-  const [isValidator, setIsValidator] = useState(false);
+  const [userType, setUserType] = useState<string>("regular");
+  const [kycStatus, setKycStatus] = useState<string>("pending");
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -36,22 +39,24 @@ const Home = () => {
   }, [userPrincipal]);
 
   useEffect(() => {
-    const checkValidatorStatus = async () => {
+    const fetchKYCStatus = async () => {
       try {
-        const validatorResponse = await fetch(`/api/validators/${userPrincipal}`);
-        if (!validatorResponse.ok) {
-          throw new Error('Failed to check validator status');
+        if (!userPrincipal) return;
+        
+        const db = LocalRxdbDatabase.instance;
+        const kycDetails = await db.getKYCDetails(userPrincipal.toString());
+        
+        if (kycDetails) {
+          setUserType(kycDetails.userType);
+          setKycStatus(kycDetails.status);
         }
-        const validatorData = await validatorResponse.json();
-        setIsValidator(validatorData.isActive);
       } catch (error) {
-        console.error('Error checking validator status:', error);
-        setIsValidator(false);
+        console.error('Error fetching KYC status:', error);
       }
     };
 
     if (userPrincipal) {
-      checkValidatorStatus();
+      fetchKYCStatus();
     }
   }, [userPrincipal]);
 
@@ -59,6 +64,7 @@ const Home = () => {
     <div className="flex flex-col w-full space-y-3">
       <div className="flex justify-center px-4 py-4">
         <div className="flex items-center gap-4 justify-between w-full">
+<<<<<<< Updated upstream
         <div className="flex justify-start w-full space-x-4">
           <PeopleIcon className="text-slate-color-success" />
           <span className="text-lg text-SecondaryTextColorLight dark:text-PrimaryTextColor sm:text-sm">
@@ -75,7 +81,26 @@ const Home = () => {
           >
             {t("Complete your KYC Registration")}
           </CustomButton>
+=======
+          <div className="flex justify-start w-full space-x-4">
+            <PeopleIcon className="text-slate-color-success" />
+            <span className="text-lg text-SecondaryTextColorLight dark:text-PrimaryTextColor sm:text-sm">
+              {t("Hi, I'm")} {firstName}, {t(userType)} ({t(kycStatus)})
+            </span>
+          </div>
+>>>>>>> Stashed changes
           
+          {kycStatus !== 'approved' && (
+            <CustomButton
+              className={clsx(
+                "bg-slate-color-success text-white px-6 py-2 text-sm sm:px-1 sm:py-1",
+                "hover:bg-slate-color-success/90 transition-colors duration-200"
+              )}
+              onClick={() => setShowKYCRegistration(true)}
+            >
+              {t("Complete your KYC Registration")}
+            </CustomButton>
+          )}
         </div>
       </div>
       
@@ -84,7 +109,7 @@ const Home = () => {
       {showKYCRegistration && (
         <KYCRegistration onClose={() => setShowKYCRegistration(false)} />
       )}
-      {isValidator && (
+      {userType === 'validator' && kycStatus === 'approved' && (
         <CustomButton
           className={clsx(
             "bg-slate-color-success text-white px-6 py-2",
@@ -99,6 +124,8 @@ const Home = () => {
         open={userDataGridOpen}
         onClose={() => setUserDataGridOpen(false)}
       />
+      
+      <DisclaimerModal isLoginPage={false} />
     </div>
   );
 };
