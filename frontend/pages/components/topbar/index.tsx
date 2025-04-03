@@ -63,11 +63,7 @@ const TopBarComponent = ({ isLoginPage }: { isLoginPage: boolean }) => {
 
   return (
     <Fragment>
-<<<<<<< Updated upstream
-      <div className="flex flex-row justify-around px-5 items-center min-h-[8rem] w-full bg-PrimaryColorLight dark:bg-PrimaryColor text-PrimaryTextColorLight dark:text-PrimaryTextColor border-b border-BorderColorFourthLight dark:border-BorderColorFourth">
-=======
       <div className="flex flex-row justify-center px-2 items-center min-h-[8rem] w-full bg-PrimaryColorLight dark:bg-PrimaryColor text-PrimaryTextColorLight dark:text-PrimaryTextColor border-b border-BorderColorFourthLight dark:border-BorderColorFourth">
->>>>>>> Stashed changes
         <div className="flex flex-col items-center justify-start space-y-2 py-2">
         {theme === ThemesEnum.enum.dark ? (
             <ICRC1LogoDark className="max-w-[20rem] sm:max-w-[10rem] h-auto" />
