@@ -9,7 +9,7 @@ import { ReactComponent as PaymayaIcon } from "@assets/svg/files/paymaya.svg";
 import { ReactComponent as BpiIcon } from "@assets/svg/files/bpi.svg";
 import { clsx } from "clsx";
 import { useAppSelector } from "@redux/Store";
-import { Order, PaymentMethod } from "@/types/p2p";
+import { Order, PaymentMethod, ORDER_STATUS_TRACKING } from "@/types/p2p";
 import { p2pService } from "@/services/p2p";
 import { LoadingLoader } from "@components/loader";
 import { useSnackbar } from "notistack";
@@ -17,6 +17,7 @@ import PaymentInstructions from "./PaymentInstructions";
 import store from "@redux/Store";
 import { TokenMarketInfo } from "@redux/models/TokenModels";
 import ChatModal from "./ChatModal";
+import { kycService } from "@/services/kyc";
 
 interface TopUpModalProps {
   onClose: () => void;
@@ -68,11 +69,14 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
     if (!market) return 1;
     return market.price * USD_TO_PHP_RATE; // Convert USD price to PHP
   }, [wasteToken]);
+  const { userPrincipal } = useAppSelector((state) => state.auth);
+  const [kycVerified, setKycVerified] = useState(false);
 
   useEffect(() => {
     loadOrders();
     loadPaymentMethods();
-  }, []);
+    checkKYCStatus();
+  }, [userPrincipal]);
 
   const loadOrders = async () => {
     try {
@@ -98,6 +102,17 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
     }
   };
 
+  const checkKYCStatus = async () => {
+    if (!userPrincipal) return;
+    try {
+      const hasKYC = await kycService.hasCompletedKYC(userPrincipal.toString());
+      setKycVerified(hasKYC);
+    } catch (error) {
+      console.error("Failed to check KYC status:", error);
+      enqueueSnackbar(t('Failed to verify KYC status'), { variant: 'error' });
+    }
+  };
+
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement> | string) => {
     const newAmount = typeof e === 'string' ? e : e.target.value;
     setAmount(newAmount);
@@ -105,36 +120,100 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
     setPrice((parseFloat(newAmount) * WASTE_TOKEN_PRICE).toString());
   };
 
+  // Add order status tracking
+  const validateOrderAmount = (amount: string): boolean => {
+    const numAmount = parseFloat(amount);
+    if (isNaN(numAmount) || numAmount <= 0) {
+      enqueueSnackbar(t('Please enter a valid amount'), { variant: 'error' });
+      return false;
+    }
+
+    // Check against tiers
+    if (numAmount > ORDER_SIZE_TIERS.XLARGE.max) {
+      enqueueSnackbar(t('Amount exceeds maximum limit'), { variant: 'error' });
+      return false;
+    }
+
+    return true;
+  };
+
+  const validatePaymentMethod = (methodId: string): boolean => {
+    const method = paymentMethods.find(m => m.id === methodId);
+    if (!method) {
+      enqueueSnackbar(t('Please select a valid payment method'), { variant: 'error' });
+      return false;
+    }
+    return true;
+  };
+
   const handleCreateOrder = async () => {
-    if (!amount || !price || !selectedPaymentMethod) return;
+    if (!amount || !price || !selectedPaymentMethod || !userPrincipal) {
+      enqueueSnackbar(t('Please fill in all required fields'), { variant: 'error' });
+      return;
+    }
+
+    if (!kycVerified) {
+      enqueueSnackbar(t('KYC verification required for P2P transactions'), { variant: 'error' });
+      return;
+    }
+
+    // Validate amount and payment method
+    if (!validateOrderAmount(amount) || !validatePaymentMethod(selectedPaymentMethod)) {
+      return;
+    }
     
     try {
       setLoading(true);
       const paymentMethod = paymentMethods.find(m => m.id === selectedPaymentMethod);
-      if (!paymentMethod) return;
+      if (!paymentMethod) {
+        throw new Error('Invalid payment method');
+      }
 
+      // Create the order
       const newOrder = await p2pService.createOrder({
-        sellerId: "current-user-id",
+        sellerId: userPrincipal.toString(),
         amount: parseFloat(amount),
         price: parseFloat(price),
         paymentMethod,
       });
 
-      setOrders([...orders, newOrder]);
+      // Update local state
+      setOrders(prev => [...prev, newOrder]);
       setSelectedOrder(newOrder);
       
-      // Hide TopUpModal and show ChatModal
+      // Switch to chat view
       setShowTopUpModal(false);
       setShowChatModal(true);
       
+      // Reset form
       setAmount("");
       setPrice("");
+      
+      enqueueSnackbar(t('Order created successfully'), { variant: 'success' });
+
+      // Start order timeout
+      startOrderTimeout(newOrder.id);
     } catch (error) {
       console.error("Failed to create order:", error);
       enqueueSnackbar(t('Failed to create order'), { variant: 'error' });
     } finally {
       setLoading(false);
     }
+  };
+
+  const startOrderTimeout = (orderId: string) => {
+    setTimeout(async () => {
+      try {
+        const order = await p2pService.getOrderById(orderId);
+        if (order && order.status === ORDER_STATUS_TRACKING.CREATED) {
+          await p2pService.updateOrderStatus(orderId, ORDER_STATUS_TRACKING.EXPIRED);
+          enqueueSnackbar(t('Order expired'), { variant: 'warning' });
+          loadOrders(); // Refresh orders list
+        }
+      } catch (error) {
+        console.error("Failed to check order status:", error);
+      }
+    }, ORDER_TIMEOUT);
   };
 
   const handleChatModalClose = () => {
@@ -174,6 +253,28 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
       setEstimatedReceiveAmount("");
     }
   };
+
+  const renderCreateOrderButton = () => (
+    <CustomButton
+      className={clsx(
+        "bg-slate-color-success text-black transition-all duration-300",
+        "hover:bg-slate-color-success/90 active:scale-95",
+        (!userPrincipal || !kycVerified) && "opacity-50 cursor-not-allowed"
+      )}
+      onClick={handleCreateOrder}
+      disabled={loading || !userPrincipal || !kycVerified || !amount || !selectedPaymentMethod}
+    >
+      {loading ? (
+        <LoadingLoader />
+      ) : !userPrincipal ? (
+        t("Please login to create order")
+      ) : !kycVerified ? (
+        t("KYC verification required")
+      ) : (
+        t("Create an Order")
+      )}
+    </CustomButton>
+  );
 
   return (
     <>
@@ -420,16 +521,7 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
                           })}
                         </div>
                       </div>
-                      <CustomButton
-                        className={clsx(
-                          "bg-slate-color-success text-black transition-all duration-300",
-                          "hover:bg-slate-color-success/90 active:scale-95"
-                        )}
-                        onClick={handleCreateOrder}
-                        disabled={loading}
-                      >
-                        {loading ? <LoadingLoader /> : t("Create an Order")}
-                      </CustomButton>
+                      {renderCreateOrderButton()}
                     </div>
                   )}
                 </>

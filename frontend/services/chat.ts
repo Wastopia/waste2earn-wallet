@@ -158,6 +158,13 @@ class ChatService {
     const result = await actor.deleteMessage(messageId);
     return 'ok' in result;
   }
+
+  async unsubscribeFromOrder(orderId: string): Promise<void> {
+    const actor = await this.getActor();
+    if (!actor) throw new Error('Not authenticated');
+
+    await actor.unsubscribeFromOrder(orderId);
+  }
 }
 
 export const chatService = new ChatService(); 

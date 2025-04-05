@@ -179,11 +179,15 @@ class P2PService {
   }
 
   async validateUserForP2P(userId: string): Promise<boolean> {
-    const hasKYC = await kycService.hasCompletedKYC(userId);
-    if (!hasKYC) {
-      throw new Error('KYC verification required for P2P transactions');
+    // 1. Check KYC completion
+    const hasCompletedKYC = await kycService.hasCompletedKYC(userId);
+    if (!hasCompletedKYC) {
+      return false;
     }
-    return true;
+    
+    // 2. Validate KYC details
+    const kycDetails = await kycService.getKYCDetails(userId);
+    return kycDetails.status === 'approved' && kycDetails.riskLevel !== 'high';
   }
 
   getTransactionLimit(riskLevel: string): number {
