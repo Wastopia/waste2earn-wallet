@@ -1,135 +1,271 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { Dialog, DialogTitle, IconButton, Box } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, IconButton, Button, Chip } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useTranslation } from 'react-i18next';
-
-interface User {
-  userId: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phoneNumber: string;
-  status: string;
-  riskLevel: string;
-  createdAt: number;
-  updatedAt: number;
-}
+import { LocalRxdbDatabase } from '@database/local-rxdb';
+import { useSnackbar } from 'notistack';
+import { kycService } from '@/services/kyc';
+import { KYCDetails } from '@/@types/kyc';
 
 interface UserDataGridProps {
   open: boolean;
   onClose: () => void;
+  userPrincipal?: string;
 }
 
-const UserDataGrid: React.FC<UserDataGridProps> = ({ open, onClose }) => {
+type KYCStatus = 'pending' | 'approved' | 'rejected';
+type RiskLevel = 'low' | 'medium' | 'high';
+
+interface UserGridData {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  userType: 'validator' | 'collector' | 'regular';
+  status: 'pending' | 'approved' | 'rejected';
+  riskLevel: 'low' | 'medium' | 'high';
+  createdAt: string;
+  updatedAt: string;
+}
+
+const UserDataGrid: React.FC<UserDataGridProps> = ({ open, onClose, userPrincipal }) => {
   const { t } = useTranslation();
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { enqueueSnackbar } = useSnackbar();
+  const [users, setUsers] = useState<UserGridData[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch('/api/getAllUsers');
-        if (!response.ok) {
-          throw new Error('Failed to fetch users');
-        }
-        const data = await response.json();
-        setUsers(data);
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (open) {
-      fetchUsers();
+    if (open && userPrincipal) {
+      loadUsers();
     }
-  }, [open]);
+  }, [open, userPrincipal]);
+
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const db = LocalRxdbDatabase.instance;
+      
+      // Get all users and their KYC details
+      const allUsers = await Promise.all(
+        (await db.getContacts()).map(async (contact) => {
+          const kyc: KYCDetails | null = await db.getKYCDetails(contact.principal);
+          if (!kyc) return null;
+          
+          const userData: UserGridData = {
+            id: kyc.userId,
+            firstName: kyc.personalInfo?.firstName || '',
+            lastName: kyc.personalInfo?.lastName || '',
+            email: kyc.personalInfo?.email || '',
+            phoneNumber: kyc.personalInfo?.phoneNumber || '',
+            userType: kyc.userType,
+            status: kyc.status,
+            riskLevel: kyc.riskLevel,
+            createdAt: kyc.verificationDetails?.submittedAt 
+              ? new Date(kyc.verificationDetails.submittedAt).toLocaleDateString()
+              : '',
+            updatedAt: kyc.updatedAt 
+              ? new Date(kyc.updatedAt).toLocaleDateString()
+              : ''
+          };
+          
+          return userData;
+        })
+      );
+
+      // Filter out null values and set users
+      setUsers(allUsers.filter((user): user is UserGridData => user !== null));
+    } catch (error) {
+      console.error('Error loading users:', error);
+      enqueueSnackbar(t('Failed to load user data'), { variant: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleStatusChange = async (userId: string, newStatus: KYCStatus) => {
+    try {
+      setLoading(true);
+      const currentKYC = await kycService.getKYCDetails(userId);
+      if (!currentKYC) throw new Error('KYC details not found');
+
+      await kycService.updateKYC(userId, {
+        ...currentKYC,
+        status: newStatus,
+        updatedAt: Date.now(),
+        verificationDetails: {
+          ...currentKYC.verificationDetails,
+          verifiedAt: Date.now(),
+          verifiedBy: userPrincipal
+        }
+      });
+      
+      setUsers(prevUsers => 
+        prevUsers.map(user => 
+          user.id === userId 
+            ? { ...user, status: newStatus, updatedAt: new Date().toLocaleDateString() }
+            : user
+        )
+      );
+      
+      enqueueSnackbar(t('Status updated successfully'), { variant: 'success' });
+    } catch (error) {
+      console.error('Error updating status:', error);
+      enqueueSnackbar(t('Failed to update status'), { variant: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRiskLevelChange = async (userId: string, newRiskLevel: RiskLevel) => {
+    try {
+      setLoading(true);
+      const currentKYC = await kycService.getKYCDetails(userId);
+      if (!currentKYC) throw new Error('KYC details not found');
+
+      await kycService.updateKYC(userId, {
+        ...currentKYC,
+        riskLevel: newRiskLevel,
+        updatedAt: Date.now()
+      });
+      
+      setUsers(prevUsers => 
+        prevUsers.map(user => 
+          user.id === userId 
+            ? { ...user, riskLevel: newRiskLevel, updatedAt: new Date().toLocaleDateString() }
+            : user
+        )
+      );
+      
+      enqueueSnackbar(t('Risk level updated successfully'), { variant: 'success' });
+    } catch (error) {
+      console.error('Error updating risk level:', error);
+      enqueueSnackbar(t('Failed to update risk level'), { variant: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'approved': return 'success';
+      case 'pending': return 'warning';
+      case 'rejected': return 'error';
+      default: return 'default';
+    }
+  };
+
+  const getRiskLevelColor = (level: string) => {
+    switch (level) {
+      case 'low': return 'success';
+      case 'medium': return 'warning';
+      case 'high': return 'error';
+      default: return 'default';
+    }
+  };
 
   const columns: GridColDef[] = [
-    { field: 'userId', headerName: t('user.id'), width: 130 },
-    { field: 'firstName', headerName: t('user.firstName'), width: 130 },
-    { field: 'lastName', headerName: t('user.lastName'), width: 130 },
-    { field: 'email', headerName: t('user.email'), width: 200 },
-    { field: 'phoneNumber', headerName: t('user.phoneNumber'), width: 150 },
+    { field: 'firstName', headerName: t('First Name'), width: 130 },
+    { field: 'lastName', headerName: t('Last Name'), width: 130 },
+    { field: 'email', headerName: t('Email'), width: 200 },
+    { field: 'phoneNumber', headerName: t('Phone'), width: 130 },
     { 
-      field: 'status', 
-      headerName: t('user.status'), 
+      field: 'userType', 
+      headerName: t('User Type'), 
       width: 130,
       renderCell: (params) => (
-        <Box
-          sx={{
-            color: params.value === 'approved' ? 'success.main' :
-                   params.value === 'rejected' ? 'error.main' :
-                   'warning.main',
-            fontWeight: 'bold'
-          }}
-        >
-          {params.value}
-        </Box>
+        <Chip 
+          label={t(params.value)} 
+          color="primary" 
+          size="small"
+          className="capitalize"
+        />
       )
     },
-    { 
-      field: 'riskLevel', 
-      headerName: t('user.riskLevel'), 
+    {
+      field: 'status',
+      headerName: t('Status'),
       width: 130,
       renderCell: (params) => (
-        <Box
-          sx={{
-            color: params.value === 'low' ? 'success.main' :
-                   params.value === 'high' ? 'error.main' :
-                   'warning.main',
-            fontWeight: 'bold'
-          }}
-        >
-          {params.value}
-        </Box>
+        <div className="flex gap-2">
+          <Chip 
+            label={t(params.value)}
+            color={getStatusColor(params.value)}
+            size="small"
+            className="capitalize"
+          />
+          <Button
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              const newStatus = params.value === 'pending' ? 'approved' : 'pending';
+              handleStatusChange(params.row.id, newStatus as KYCStatus);
+            }}
+          >
+            {params.value === 'pending' ? t('Approve') : t('Reset')}
+          </Button>
+        </div>
       )
     },
-    { 
-      field: 'createdAt', 
-      headerName: t('user.createdAt'), 
-      width: 180,
-      valueFormatter: (params: { value: number }) => new Date(params.value).toLocaleString()
+    {
+      field: 'riskLevel',
+      headerName: t('Risk Level'),
+      width: 130,
+      renderCell: (params) => (
+        <div className="flex gap-2">
+          <Chip 
+            label={t(params.value)}
+            color={getRiskLevelColor(params.value)}
+            size="small"
+            className="capitalize"
+          />
+          <Button
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              const levels = ['low', 'medium', 'high'];
+              const currentIndex = levels.indexOf(params.value);
+              const newLevel = levels[(currentIndex + 1) % levels.length];
+              handleRiskLevelChange(params.row.id, newLevel as RiskLevel);
+            }}
+          >
+            {t('Change')}
+          </Button>
+        </div>
+      )
     },
-    { 
-      field: 'updatedAt', 
-      headerName: t('user.updatedAt'), 
-      width: 180,
-      valueFormatter: (params: { value: number }) => new Date(params.value).toLocaleString()
-    }
+    { field: 'createdAt', headerName: t('Created At'), width: 130 },
+    { field: 'updatedAt', headerName: t('Updated At'), width: 130 }
   ];
 
   return (
-    <Dialog 
-      open={open} 
+    <Dialog
+      open={open}
       onClose={onClose}
       maxWidth="lg"
       fullWidth
     >
       <DialogTitle>
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-          <span>{t('user.title')}</span>
-          <IconButton onClick={onClose} size="small">
+        <div className="flex justify-between items-center">
+          <span>{t('User Data Management')}</span>
+          <IconButton onClick={onClose}>
             <CloseIcon />
           </IconButton>
-        </Box>
+        </div>
       </DialogTitle>
-      <Box sx={{ height: 600, width: '100%', p: 2 }}>
-        <DataGrid
-          rows={users}
-          columns={columns}
-          initialState={{
-            pagination: {
-              paginationModel: { pageSize: 10 },
-            },
-          }}
-          loading={loading}
-          disableRowSelectionOnClick
-          getRowId={(row) => row.userId}
-        />
-      </Box>
+      <DialogContent>
+        <div style={{ height: 600 }}>
+          <DataGrid
+            rows={users}
+            columns={columns}
+            loading={loading}
+            pageSizeOptions={[5, 10, 25, 50]}
+            disableRowSelectionOnClick
+            autoPageSize
+          />
+        </div>
+      </DialogContent>
     </Dialog>
   );
 };

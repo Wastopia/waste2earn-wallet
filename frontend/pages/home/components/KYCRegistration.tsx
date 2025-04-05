@@ -477,7 +477,7 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
                   <select
                     value={form.nationality}
                     onChange={(e) => handleInputChange('nationality', e.target.value)}
-                    className="border border-BorderColorTwoLight dark:border-BorderColorTwo rounded px-2 py-1"
+                    className="border bg-slate-200 dark:bg-gray-800 border-BorderColorTwoLight dark:border-BorderColorTwo rounded px-2 py-1"
                   >
                     <option className="text-SecondaryTextColorLight dark:text-PrimaryTextColor">{t("Select Nationality")}</option>
                     <option value="Filipino">Filipino</option>

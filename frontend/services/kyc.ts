@@ -1,5 +1,6 @@
 import { LocalRxdbDatabase } from "../database/local-rxdb";
 import { KYCDetails } from "../@types/kyc";
+import { sendKYCApprovalEmail } from "./emailService";
 
 export interface KYCSubmission {
   userId: string;
@@ -115,6 +116,11 @@ class KYCServiceImpl implements KYCService {
       
       // Save updated KYC details to database
       await this.db.updateKYCDetails(userId, updatedKYC);
+
+      // Send approval notification if status changed to approved
+      if (updates.status === 'approved' && existingKYC.status !== 'approved') {
+        await sendKYCApprovalEmail(updatedKYC);
+      }
       
       return updatedKYC;
     } catch (error) {
