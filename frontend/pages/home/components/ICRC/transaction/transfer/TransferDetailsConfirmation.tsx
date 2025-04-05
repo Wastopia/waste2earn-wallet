@@ -353,11 +353,9 @@ export default function TransferDetailsConfirmation() {
     const max = BigInt(serviceSenderAsset.credit);
 
     if (amount <= minWithdraw) {
-<<<<<<< Updated upstream
+
       return { isError: true, message: t("error.transfer.amount.less.minimum.withdrawl") };
-=======
-      return { isError: true, message: t("error.transfer.amount.less.minimum.withdrawal") };
->>>>>>> Stashed changes
+
     }
 
     if (amount > max) {

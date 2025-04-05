@@ -1,7 +1,3 @@
-<<<<<<< Updated upstream
-// import React from 'react';
-=======
->>>>>>> Stashed changes
 import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { BasicModal } from "@components/modal";
@@ -255,11 +251,7 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
   const validateForm = (): boolean => {
     // Check required fields
     if (!form.firstName || !form.lastName || !form.email || !form.phone || 
-<<<<<<< Updated upstream
-        !form.birthday || !form.address.street || !form.address.city || 
-=======
         !form.dateOfBirth || !form.address.street || !form.address.city || 
->>>>>>> Stashed changes
         !form.address.state || !form.address.postalCode || !form.nationality) {
       toast.error(t('Please fill in all required fields'));
       return false;
@@ -278,11 +270,7 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
     }
 
     // Validate date format
-<<<<<<< Updated upstream
-    if (!kycService.validateDate(form.birthday)) {
-=======
     if (!kycService.validateDate(form.dateOfBirth)) {
->>>>>>> Stashed changes
       toast.error(t('Please enter a valid date of birth (not in the future)'));
       return false;
     }
@@ -324,10 +312,7 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
       // Prepare submission data
       const kycSubmission: KYCSubmission = {
         userId: form.principalId,
-<<<<<<< Updated upstream
-=======
         userType: form.userType,
->>>>>>> Stashed changes
         personalInfo: {
           firstName: form.firstName,
           lastName: form.lastName,
@@ -345,18 +330,6 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
           country: form.address.country,
           postalCode: form.address.postalCode
         },
-<<<<<<< Updated upstream
-        profilePhoto: compressedPhotoUrl || '',
-        bankDetails: form.userType === 'validator' && form.bankDetails?.bpi?.accountName && form.bankDetails?.bpi?.accountNumber ? {
-          gcash: form.bankDetails.gcash || '',
-          paymaya: form.bankDetails.paymaya || '',
-          bpi: {
-            accountName: form.bankDetails.bpi.accountName,
-            accountNumber: form.bankDetails.bpi.accountNumber
-          }
-        } : undefined,
-        userType: form.userType
-=======
         documents: [{
           type_: 'profile_photo',
           number: 'N/A',
@@ -372,7 +345,6 @@ const KYCRegistration = ({ onClose }: KYCRegistrationProps) => {
             accountNumber: form.bankDetails.bpi.accountNumber
           } : null
         } : null
->>>>>>> Stashed changes
       };
 
       // Submit KYC data using service

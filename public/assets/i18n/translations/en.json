@@ -109,7 +109,7 @@
   "sending.successful": "Sending Successful",
   "transfer.successful": "Transfer Successful",
   "sending.failed": "Failed Transaction",
-  "no.enought.balance": "No enough balance to send asset",
+  "no.enough.balance": "No enough balance to send asset",
   "adding.asset": "Checking balances of new Asset",
   "adding.asset.successful": "Asset added",
   "adding.asset.already.imported": "Asset already Imported",
@@ -231,11 +231,7 @@
   "error.invalid.spender.principal": "Invalid spender principal",
   "error.invalid.sender.subaccount": "Invalid From subAccount",
   "error.invalid.receiver.principal": "Invalid To principal",
-<<<<<<< Updated upstream
   "error.invalid.receiver.subaccount": "Invalid To subaccount",
-=======
-  "error.invalid.receiver.subaccount": "Invalid To subAccount",
->>>>>>> Stashed changes
   "invalid.receiver.identifier": "Invalid ICRC Identifier",
   "error.invalid.sender": "From is not valid",
   "error.invalid.receiver": "To is not valid",
@@ -273,11 +269,7 @@
   "error.transfer.from.service.not.balance": "FROM service has no balance",
   "error.transfer.from.service.no.fee": "FROM service has no balance to cover fee",
   "error.transfer.from.service.less.withdraw.minimum": "FROM service has less than withdraw minimum",
-<<<<<<< Updated upstream
   "error.transfer.to.service.not.valid.subaccount": "Service subaccount is not valid",
-=======
-  "error.transfer.to.service.not.valid.subaccount": "Service subAccount is not valid",
->>>>>>> Stashed changes
   "error.transfer.from.service.less.withdraw.minimum.plus.fee": "FROM service has less than withdraw minimum plus fee",
   "error.transfer.invalid.amount": "Amount is not valid",
   "error.transfer.invalid.decimal.amount": "Decimal places exceeds that allowed by the token",
@@ -286,9 +278,5 @@
   "error.transfer.allowance.subaccount.balance.insufficient": "FROM does not have enough balance",
   "error.transfer.to.service.invalid": "TO service is not valid",
   "error.transfer.amount.less.minimum.deposit": "Amount must be higher than deposit fee",
-<<<<<<< Updated upstream
   "error.transfer.amount.less.minimum.withdrawl": "Amount must be higher than withdraw fee"
-=======
-  "error.transfer.amount.less.minimum.withdrawl": "Amount must be higher than withdrawal fee"
->>>>>>> Stashed changes
 }
