@@ -11,7 +11,6 @@ import PeopleIcon from '@mui/icons-material/People';
 import { useAppSelector } from '@redux/Store';
 import { LocalRxdbDatabase } from "@/database/local-rxdb";
 import DisclaimerModal from "@components/DisclaimerModal";
-import { kycService } from "@/services/kyc";
 import { Chip } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { LoadingLoader } from "@components/loader";
@@ -28,32 +27,32 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchUserDetails = async () => {
-      if (!userPrincipal) return;
-      
+    const fetchKYCStatus = async () => {
       try {
+        if (!userPrincipal) return;
+        
         setIsLoading(true);
-        // Get KYC details from service
-        const hasKYC = await kycService.hasCompletedKYC(userPrincipal.toString());
-        if (hasKYC) {
-          const kycDetails = await kycService.getKYCDetails(userPrincipal.toString());
-          if (kycDetails) {
-            setUserType(kycDetails.userType);
-            setKycStatus(kycDetails.status);
-            setFirstName(kycDetails.personalInfo?.firstName || "User");
-          }
+        const db = LocalRxdbDatabase.instance;
+        const kycDetails = await db.getKYCDetails(userPrincipal.toString());
+        
+        if (kycDetails) {
+          setUserType(kycDetails.userType);
+          setKycStatus(kycDetails.status);
+          setFirstName(kycDetails.personalInfo?.firstName || "User");
         } else {
           setKycStatus("not_started");
         }
       } catch (error) {
-        console.error('Error fetching user details:', error);
-        enqueueSnackbar(t('Failed to fetch user details'), { variant: 'error' });
+        console.error('Error fetching KYC status:', error);
+        enqueueSnackbar(t('Failed to fetch KYC status'), { variant: 'error' });
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchUserDetails();
+    if (userPrincipal) {
+      fetchKYCStatus();
+    }
   }, [userPrincipal]);
 
   const getKycStatusColor = (status: string): "default" | "primary" | "success" | "error" | "warning" => {

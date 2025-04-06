@@ -254,6 +254,28 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
     }
   };
 
+  const handleAcceptOrder = async (order: Order) => {
+    try {
+      setLoading(true);
+      await p2pService.updateOrderStatus(order.id, ORDER_STATUS_TRACKING.ESCROW_PENDING);
+      
+      // Update local state
+      setOrders(prevOrders => prevOrders.filter(o => o.id !== order.id));
+      setSelectedOrder(order);
+      
+      // Switch to chat view
+      setShowTopUpModal(false);
+      setShowChatModal(true);
+      
+      enqueueSnackbar(t('Order accepted successfully'), { variant: 'success' });
+    } catch (error) {
+      console.error('Error accepting order:', error);
+      enqueueSnackbar(t('Failed to accept order'), { variant: 'error' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const renderCreateOrderButton = () => (
     <CustomButton
       className={clsx(
@@ -528,6 +550,38 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
               )}
             </div>
           </div>
+
+          {/* Available Orders Section */}
+          {activeTab === "buy" && orders.length > 0 && (
+            <div className="mt-4">
+              <h3 className="text-lg font-medium mb-2">{t("Available Orders")}</h3>
+              <div className="space-y-2">
+                {orders.map((order) => (
+                  <div
+                    key={order.id}
+                    className="p-3 rounded-lg border border-BorderColorTwoLight dark:border-BorderColorTwo"
+                  >
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="font-medium">{order.amount} WASTE</p>
+                        <p className="text-sm text-gray-500">{order.price} PHP</p>
+                      </div>
+                      <CustomButton
+                        className={clsx(
+                          "bg-slate-color-success text-white px-4 py-1 text-sm",
+                          "hover:bg-slate-color-success/90"
+                        )}
+                        onClick={() => handleAcceptOrder(order)}
+                        disabled={loading}
+                      >
+                        {loading ? <LoadingLoader /> : t("Accept")}
+                      </CustomButton>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </BasicModal>
       )}
 
