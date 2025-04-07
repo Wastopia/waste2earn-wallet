@@ -46,9 +46,12 @@ import { setServices as setServicesRedux, setServicesData } from "@redux/service
 import { Identity } from "@dfinity/agent";
 import { Order, PaymentVerification, Escrow } from "../types/p2p";
 
-addRxPlugin(RxDBUpdatePlugin);
-addRxPlugin(RxDBMigrationPlugin);
-addRxPlugin(RxDBDevModePlugin);
+// Only add dev-mode plugin in development
+if (process.env.NODE_ENV === 'development') {
+  addRxPlugin(RxDBDevModePlugin);
+  addRxPlugin(RxDBUpdatePlugin);
+  addRxPlugin(RxDBMigrationPlugin);
+}
 
 export type RxDBDocument<T> = DeepReadonlyObject<T>;
 

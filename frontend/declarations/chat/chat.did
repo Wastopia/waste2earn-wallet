@@ -1,0 +1,42 @@
+type Result_1 = 
+ variant {
+   err: text;
+   ok;
+ };
+type Result = 
+ variant {
+   err: text;
+   ok: Message;
+ };
+type MessageType = 
+ variant {
+   image;
+   message;
+   order;
+   payment;
+ };
+type Message = 
+ record {
+   content: text;
+   id: text;
+   imageUrl: opt text;
+   isNew: bool;
+   messageType: MessageType;
+   orderId: text;
+   sender: principal;
+   timestamp: int;
+   validatorId: opt text;
+ };
+service : {
+  deleteMessage: (text) -> (Result_1);
+  deleteOrderMessages: (text) -> ();
+  getMessage: (text) -> (opt Message) query;
+  getMessages: (text) -> (vec Message) query;
+  getNewMessages: (text) -> (vec Message) query;
+  getUnreadCount: (text) -> (nat) query;
+  markMessagesAsRead: (text) -> ();
+  sendMessage: (text, opt text, text, MessageType, opt text) -> (Message);
+  subscribeToOrder: (text, func (Message) -> ()) -> ();
+  unsubscribeFromOrder: (text) -> ();
+  updateMessage: (text, text) -> (Result);
+}

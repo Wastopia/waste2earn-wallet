@@ -1,17 +1,32 @@
 import { Actor, HttpAgent } from "@dfinity/agent";
-import { idlFactory } from './chat.did.js';
+
+// Imports and re-exports candid interface
+import { idlFactory } from "./chat.did.js";
+export { idlFactory } from "./chat.did.js";
+
+/* CANISTER_ID is replaced by webpack based on node environment
+ * Note: canister environment variable will be standardized as
+ * process.env.CANISTER_ID_<CANISTER_NAME_UPPERCASE>
+ * beginning in dfx 0.15.0
+ */
+export const canisterId =
+  process.env.CANISTER_ID_CHAT;
 
 export const createActor = (canisterId, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
 
   if (options.agent && options.agentOptions) {
-    console.warn("Both agent and agentOptions provided to createActor. Ignoring agentOptions and using the provided agent.");
+    console.warn(
+      "Detected both agent and agentOptions passed to createActor. Ignoring agentOptions and proceeding with the provided agent."
+    );
   }
 
   // Fetch root key for certificate validation during development
-  if (process.env.NODE_ENV !== "production") {
-    agent.fetchRootKey().catch(err => {
-      console.warn("Unable to fetch root key. Check to ensure that your local replica is running");
+  if (process.env.DFX_NETWORK !== "ic") {
+    agent.fetchRootKey().catch((err) => {
+      console.warn(
+        "Unable to fetch root key. Check to ensure that your local replica is running"
+      );
       console.error(err);
     });
   }
@@ -22,4 +37,6 @@ export const createActor = (canisterId, options = {}) => {
     canisterId,
     ...options.actorOptions,
   });
-}; 
+};
+
+export const chat = canisterId ? createActor(canisterId) : undefined;

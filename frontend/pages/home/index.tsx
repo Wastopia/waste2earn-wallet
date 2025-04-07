@@ -120,7 +120,7 @@ const Home = () => {
               >
                 {kycStatus === 'not_started' 
                   ? t("Start KYC Registration")
-                  : t("Complete your KYC Registration")}
+                  : t("KYC Registration is Completed")}
               </CustomButton>
             )}
           </div>
