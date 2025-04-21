@@ -50,7 +50,7 @@ export default function AssetsList() {
           }
         }}
       >
-        <Box className="flex flex-col justify-center items-start w-full h-full pl-3 pr-4 pt-[2rem] dark:bg-PrimaryColor bg-PrimaryColorLight">
+        <Box className="flex flex-col justify-center items-start w-full h-full p-3 pr-4 pt-[2rem] dark:bg-PrimaryColor bg-PrimaryColorLight">
           <Menu />
           <div className="flex flex-row items-center justify-center w-full gap-3 pr-5 mb-4">
             <SearchAsset searchKey={searchKey} setSearchKey={setSearchKey} />

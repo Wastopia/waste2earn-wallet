@@ -152,7 +152,7 @@ export default function TransactionsTable(props: TransactionsTableProps) {
                 <tr
                   key={`${transaction.hash}-${index}-${transaction.canisterId}`}
                   className="relative cursor-pointer"
-                  onClick={() => onTransactionInpect(transaction)}
+                  onClick={() => onTransactionInspect(transaction)}
                 >
                   <td className="w-[8%]">
                     <div className="flex h-full ">
@@ -211,7 +211,7 @@ export default function TransactionsTable(props: TransactionsTableProps) {
     </div>
   );
 
-  function onTransactionInpect(transaction: Transaction) {
+  function onTransactionInspect(transaction: Transaction) {
     dispatch(setSelectedTransaction(transaction));
     setTransactionDrawerAction(TransactionDrawer.INSPECT);
   }

@@ -223,34 +223,79 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
 
   // Add new function to handle token swap
   const handleSwapTokens = () => {
-    const temp = swapFromToken;
+    // Swap tokens
+    const tempToken = swapFromToken;
     setSwapFromToken(swapToToken);
-    setSwapToToken(temp);
-    setSwapAmount("");
-    setEstimatedReceiveAmount("");
+    setSwapToToken(tempToken);
+    
+    // Recalculate amounts
+    if (swapAmount) {
+      const newEstimated = calculateEstimatedAmount(swapAmount);
+      setEstimatedReceiveAmount(newEstimated);
+    }
   };
 
   // Add function to calculate estimated receive amount
   const calculateEstimatedAmount = (amount: string) => {
-    // This is a placeholder calculation - replace with actual rates
-    const rates = {
-      'WASTE-USDC': 0.017, // 1 WASTE = 58 USDC
-      'WASTE-ICP': 0.003, // 1 WASTE = 0.001 ICP
-      'USDC-WASTE': 58, // 1 USDC = 100 WASTE
-      'ICP-WASTE': 336.4, // 1 ICP = 1000 WASTE
+    // Simple conversion rates (in reality these would come from an API or service)
+    const rates: Record<string, Record<string, number>> = {
+      "WASTE": {
+        "USDC": 0.02,
+        "ICP": 0.0001,
+      },
+      "USDC": {
+        "WASTE": 50,
+        "ICP": 0.005,
+      },
+      "ICP": {
+        "WASTE": 10000,
+        "USDC": 200,
+      }
     };
 
-    const pair = `${swapFromToken}-${swapToToken}`;
-    const rate = rates[pair as keyof typeof rates] || 1;
-    return (parseFloat(amount) * rate).toFixed(6);
+    const inputAmount = parseFloat(amount);
+    if (isNaN(inputAmount) || inputAmount <= 0) return "0";
+    
+    if (swapFromToken === swapToToken) return amount;
+    
+    const conversionRate = rates[swapFromToken]?.[swapToToken] || 1;
+    return (inputAmount * conversionRate).toFixed(6);
   };
 
   const handleSwapAmountChange = (value: string) => {
     setSwapAmount(value);
-    if (value) {
-      setEstimatedReceiveAmount(calculateEstimatedAmount(value));
-    } else {
-      setEstimatedReceiveAmount("");
+    const estimated = calculateEstimatedAmount(value);
+    setEstimatedReceiveAmount(estimated);
+  };
+
+  const handleSwap = async () => {
+    if (!swapAmount || parseFloat(swapAmount) <= 0 || !userPrincipal) {
+      enqueueSnackbar(t('Please enter a valid amount'), { variant: 'error' });
+      return;
+    }
+
+    if (!kycVerified) {
+      enqueueSnackbar(t('KYC verification required for transactions'), { variant: 'error' });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      // In a real implementation, this would call a swap service
+      // For demo purposes, we'll simulate a successful swap
+      
+      setTimeout(() => {
+        enqueueSnackbar(t('Swap completed successfully'), { variant: 'success' });
+        setSwapAmount("");
+        setEstimatedReceiveAmount("");
+        setLoading(false);
+      }, 2000);
+      
+    } catch (error) {
+      console.error("Failed to perform swap:", error);
+      enqueueSnackbar(t('Failed to complete swap'), { variant: 'error' });
+      setLoading(false);
     }
   };
 
@@ -326,225 +371,192 @@ const TopUpModal = ({ onClose }: TopUpModalProps) => {
                 />
               ) : (
                 <>
-                  {/* Tab Navigation */}
-                  <div className="flex gap-2 border-b border-BorderColorTwoLight dark:border-BorderColorTwo">
+                  {/* Tabs */}
+                  <div className="flex border-b border-BorderColorTwoLight dark:border-BorderColorTwo">
                     <button
                       className={clsx(
-                        "px-4 py-2",
-                        activeTab === "swap" 
-                          ? "border-b-2 border-slate-color-success text-slate-color-success"
-                          : "text-gray-500"
-                      )}
-                      onClick={() => setActiveTab("swap")}
-                    >
-                      {t("Swap")}
-                    </button>
-                    <button
-                      className={clsx(
-                        "px-4 py-2",
+                        "py-2 px-4 text-sm font-medium border-b-2 transition-colors",
                         activeTab === "buy"
-                          ? "border-b-2 border-slate-color-success text-slate-color-success"
-                          : "text-gray-500"
+                          ? "border-slate-color-success text-slate-color-success"
+                          : "border-transparent hover:border-slate-color-success/50"
                       )}
                       onClick={() => setActiveTab("buy")}
                     >
-                      {t("Buy")}
+                      {t("Buy WASTE")}
+                    </button>
+                    <button
+                      className={clsx(
+                        "py-2 px-4 text-sm font-medium border-b-2 transition-colors",
+                        activeTab === "swap"
+                          ? "border-slate-color-success text-slate-color-success"
+                          : "border-transparent hover:border-slate-color-success/50"
+                      )}
+                      onClick={() => setActiveTab("swap")}
+                    >
+                      {t("Swap Tokens")}
                     </button>
                   </div>
 
-                  {/* Swap Interface */}
-                  {activeTab === "swap" && (
-                    <div className="flex flex-col gap-4">
-                      <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium">{t("You Pay")}</label>
-                        <div className="relative">
-                          <CustomInput
-                            type="number"
-                            value={swapAmount}
-                            onChange={(e) => handleSwapAmountChange(e.target.value)}
-                            placeholder="0.00"
-                          />
-                          <select
-                            value={swapFromToken}
-                            onChange={(e) => setSwapFromToken(e.target.value)}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-transparent border border-BorderColorTwoLight dark:border-BorderColorTwo rounded px-2 py-1"
-                          >
-                            <option value="WASTE">WASTE</option>
-                            <option value="USDC">USDC</option>
-                            <option value="ICP">ICP</option>
-                          </select>
-                        </div>
-                      </div>
+                  {/* Content */}
+                  {!showPaymentInstructions && (
+                    <>
+                      {activeTab === "buy" ? (
+                        <div className="flex flex-col gap-4">
+                          <div className="flex flex-col gap-2">
+                            <label className="text-sm font-medium">{t("Amount (WASTE)")}</label>
+                            <CustomInput
+                              type="number"
+                              value={amount}
+                              onChange={handleAmountChange}
+                              placeholder="0.00"
+                              disabled={loading}
+                            />
+                          </div>
 
-                      <button
-                        onClick={handleSwapTokens}
-                        className="self-center p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m-4 4v8m0 0l4-4m-4 4l-4-4" />
-                        </svg>
-                      </button>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-sm font-medium">{t("Price (PHP)")}</label>
+                            <CustomInput
+                              type="number"
+                              value={price}
+                              onChange={(e) => setPrice(e.target.value)}
+                              placeholder="0.00"
+                              disabled={loading}
+                            />
+                          </div>
 
-                      <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium">{t("You Receive")}</label>
-                        <div className="relative">
-                          <CustomInput
-                            type="number"
-                            value={estimatedReceiveAmount}
-                            disabled
-                            placeholder="0.00"
-                          />
-                          <select
-                            value={swapToToken}
-                            onChange={(e) => setSwapToToken(e.target.value)}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-transparent border border-BorderColorTwoLight dark:border-BorderColorTwo rounded px-2 py-1"
-                          >
-                            <option value="USDC">USDC</option>
-                            <option value="ICP">ICP</option>
-                            <option value="WASTE">WASTE</option>
-                          </select>
-                        </div>
-                      </div>
-
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
-                        <div className="flex justify-between mb-1">
-                          <span>{t("Exchange Rate")}:</span>
-                          <span>1 {swapFromToken} = {calculateEstimatedAmount("1")} {swapToToken}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>{t("Network Fee")}:</span>
-                          <span>0.001 {swapToToken}</span>
-                        </div>
-                      </div>
-
-                      <CustomButton
-                        className={clsx(
-                          "bg-slate-color-success text-black transition-all duration-300",
-                          "hover:bg-slate-color-success/90 active:scale-95"
-                        )}
-                        onClick={() => {}}
-                        disabled={!swapAmount || parseFloat(swapAmount) <= 0}
-                      >
-                        {t("Swap Tokens")}
-                      </CustomButton>
-                    </div>
-                  )}
-
-                  {/* Buy Interface */}
-                  {activeTab === "buy" && (
-                    <div className="flex flex-col gap-4">
-                      <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium">{t("Enter Waste Token")}</label>
-                        <CustomInput
-                          type="number"
-                          value={amount}
-                          onChange={handleAmountChange}
-                          placeholder={t("Amount")}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium">{t("Order Tiers")}</label>
-                        <div className="grid grid-cols-2 gap-2">
-                          <button
-                            onClick={() => handleAmountChange(ORDER_SIZE_TIERS.SMALL.max.toString())}
-                            className={clsx(
-                              "p-3 rounded-lg border transition-all text-left",
-                              parseFloat(amount) <= ORDER_SIZE_TIERS.SMALL.max
-                                ? "border-slate-color-success bg-slate-color-success/5"
-                                : "border-BorderColorTwoLight dark:border-BorderColorTwo hover:border-slate-color-success/50"
-                            )}
-                          >
-                            <div className="text-sm font-medium">Small</div>
-                            <div className="text-xs text-gray-500">
-                              ≤ {ORDER_SIZE_TIERS.SMALL.max} WASTE
-                              <span className="block">≈ ${(ORDER_SIZE_TIERS.SMALL.max * WASTE_TOKEN_PRICE / USD_TO_PHP_RATE).toFixed(2)}</span>
+                          <div className="flex flex-col gap-2">
+                            <label className="text-sm font-medium">{t("Payment Method")}</label>
+                            <div className="grid grid-cols-3 gap-2">
+                              {paymentMethods.map((method) => {
+                                const Icon = PAYMENT_METHOD_ICONS[method.type];
+                                return (
+                                  <button
+                                    key={method.id}
+                                    onClick={() => setSelectedPaymentMethod(method.id)}
+                                    className={clsx(
+                                      "flex flex-col items-center gap-2 p-3 rounded-lg border transition-all",
+                                      selectedPaymentMethod === method.id
+                                        ? "border-slate-color-success bg-slate-color-success/5"
+                                        : "border-BorderColorTwoLight dark:border-BorderColorTwo hover:border-slate-color-success/50"
+                                    )}
+                                    disabled={loading}
+                                  >
+                                    {Icon && (
+                                      <div className="w-8 h-8">
+                                        <Icon className="w-full h-full" />
+                                      </div>
+                                    )}
+                                    <span className="text-sm font-medium">{method.name}</span>
+                                  </button>
+                                );
+                              })}
                             </div>
-                          </button>
-                          <button
-                            onClick={() => handleAmountChange(ORDER_SIZE_TIERS.MEDIUM.max.toString())}
-                            className={clsx(
-                              "p-3 rounded-lg border transition-all text-left",
-                              parseFloat(amount) > ORDER_SIZE_TIERS.SMALL.max && parseFloat(amount) <= ORDER_SIZE_TIERS.MEDIUM.max
-                                ? "border-slate-color-success bg-slate-color-success/5"
-                                : "border-BorderColorTwoLight dark:border-BorderColorTwo hover:border-slate-color-success/50"
-                            )}
-                          >
-                            <div className="text-sm font-medium">Medium</div>
-                            <div className="text-xs text-gray-500">
-                              ≤ {ORDER_SIZE_TIERS.MEDIUM.max} WASTE
-                              <span className="block">≈ ${(ORDER_SIZE_TIERS.MEDIUM.max * WASTE_TOKEN_PRICE / USD_TO_PHP_RATE).toFixed(2)}</span>
-                            </div>
-                          </button>
-                          <button
-                            onClick={() => handleAmountChange(ORDER_SIZE_TIERS.LARGE.max.toString())}
-                            className={clsx(
-                              "p-3 rounded-lg border transition-all text-left",
-                              parseFloat(amount) > ORDER_SIZE_TIERS.MEDIUM.max && parseFloat(amount) <= ORDER_SIZE_TIERS.LARGE.max
-                                ? "border-slate-color-success bg-slate-color-success/5"
-                                : "border-BorderColorTwoLight dark:border-BorderColorTwo hover:border-slate-color-success/50"
-                            )}
-                          >
-                            <div className="text-sm font-medium">Large</div>
-                            <div className="text-xs text-gray-500">
-                              ≤ {ORDER_SIZE_TIERS.LARGE.max} WASTE
-                              <span className="block">≈ ${(ORDER_SIZE_TIERS.LARGE.max * WASTE_TOKEN_PRICE / USD_TO_PHP_RATE).toFixed(2)}</span>
-                            </div>
-                          </button>
-                          <button
-                            onClick={() => handleAmountChange(ORDER_SIZE_TIERS.XLARGE.max.toString())}
-                            className={clsx(
-                              "p-3 rounded-lg border transition-all text-left",
-                              parseFloat(amount) > ORDER_SIZE_TIERS.LARGE.max && parseFloat(amount) <= ORDER_SIZE_TIERS.XLARGE.max
-                                ? "border-slate-color-success bg-slate-color-success/5"
-                                : "border-BorderColorTwoLight dark:border-BorderColorTwo hover:border-slate-color-success/50"
-                            )}
-                          >
-                            <div className="text-sm font-medium">X-Large</div>
-                            <div className="text-xs text-gray-500">
-                              ≤ {ORDER_SIZE_TIERS.XLARGE.max} WASTE
-                              <span className="block">≈ ${(ORDER_SIZE_TIERS.XLARGE.max * WASTE_TOKEN_PRICE / USD_TO_PHP_RATE).toFixed(2)}</span>
-                            </div>
-                          </button>
+                          </div>
+                          {renderCreateOrderButton()}
                         </div>
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium">{t("Peso Equivalent")}</label>
-                        <CustomInput
-                          type="number"
-                          value={price}
-                          disabled
-                          placeholder={t("Amount")}
-                        />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium">{t("Payment Method")}</label>
-                        <div className="grid grid-cols-3 gap-2">
-                          {paymentMethods.map((method) => {
-                            const Icon = PAYMENT_METHOD_ICONS[method.type];
-                            return (
-                              <button
-                                key={method.id}
-                                onClick={() => setSelectedPaymentMethod(method.id)}
-                                className={clsx(
-                                  "flex flex-col items-center gap-2 p-3 rounded-lg border transition-all",
-                                  selectedPaymentMethod === method.id
-                                    ? "border-slate-color-success bg-slate-color-success/5"
-                                    : "border-BorderColorTwoLight dark:border-BorderColorTwo hover:border-slate-color-success/50"
-                                )}
+                      ) : (
+                        <div className="flex flex-col gap-4">
+                          <div className="flex flex-col gap-2">
+                            <label className="text-sm font-medium">{t("You Pay")}</label>
+                            <div className="relative">
+                              <CustomInput
+                                type="number"
+                                value={swapAmount}
+                                onChange={(e) => handleSwapAmountChange(e.target.value)}
+                                placeholder="0.00"
+                                disabled={loading}
+                              />
+                              <select
+                                value={swapFromToken}
+                                onChange={(e) => {
+                                  setSwapFromToken(e.target.value);
+                                  if (swapAmount) {
+                                    handleSwapAmountChange(swapAmount);
+                                  }
+                                }}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 bg-transparent border border-BorderColorTwoLight dark:border-BorderColorTwo rounded px-2 py-1"
+                                disabled={loading}
                               >
-                                {Icon && (
-                                  <div className="w-8 h-8">
-                                    <Icon className="w-full h-full" />
-                                  </div>
-                                )}
-                                <span className="text-sm font-medium">{method.name}</span>
-                              </button>
-                            );
-                          })}
+                                <option value="WASTE">WASTE</option>
+                                <option value="USDC">USDC</option>
+                                <option value="ICP">ICP</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div className="flex justify-center">
+                            <button 
+                              onClick={handleSwapTokens}
+                              className="bg-transparent p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                              disabled={loading}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clipRule="evenodd" />
+                                <path fillRule="evenodd" d="M10 5a1 1 0 011 1v8a1 1 0 11-2 0V6a1 1 0 011-1z" clipRule="evenodd" />
+                              </svg>
+                            </button>
+                          </div>
+
+                          <div className="flex flex-col gap-2">
+                            <label className="text-sm font-medium">{t("You Receive")}</label>
+                            <div className="relative">
+                              <CustomInput
+                                type="number"
+                                value={estimatedReceiveAmount}
+                                disabled
+                                placeholder="0.00"
+                              />
+                              <select
+                                value={swapToToken}
+                                onChange={(e) => {
+                                  setSwapToToken(e.target.value);
+                                  if (swapAmount) {
+                                    handleSwapAmountChange(swapAmount);
+                                  }
+                                }}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 bg-transparent border border-BorderColorTwoLight dark:border-BorderColorTwo rounded px-2 py-1"
+                                disabled={loading}
+                              >
+                                <option value="USDC">USDC</option>
+                                <option value="ICP">ICP</option>
+                                <option value="WASTE">WASTE</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            <div className="flex justify-between mb-1">
+                              <span>{t("Exchange Rate")}:</span>
+                              <span>1 {swapFromToken} = {calculateEstimatedAmount("1")} {swapToToken}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span>{t("Network Fee")}:</span>
+                              <span>0.001 {swapToToken}</span>
+                            </div>
+                          </div>
+
+                          <CustomButton
+                            className={clsx(
+                              "bg-slate-color-success text-white transition-all duration-300",
+                              "hover:bg-slate-color-success/90 active:scale-95",
+                              (loading || !userPrincipal || !kycVerified) && "opacity-50 cursor-not-allowed"
+                            )}
+                            onClick={handleSwap}
+                            disabled={loading || !swapAmount || parseFloat(swapAmount) <= 0 || !userPrincipal || !kycVerified}
+                          >
+                            {loading ? (
+                              <LoadingLoader />
+                            ) : !userPrincipal ? (
+                              t("Please login to swap")
+                            ) : !kycVerified ? (
+                              t("KYC verification required")
+                            ) : (
+                              t("Swap")
+                            )}
+                          </CustomButton>
                         </div>
-                      </div>
-                      {renderCreateOrderButton()}
-                    </div>
+                      )}
+                    </>
                   )}
                 </>
               )}
